@@ -231,6 +231,25 @@ export class Terrain {
     horizonRing.rotation.y = Math.PI / 6;
     this.group.add(horizonRing);
 
+    // Orbital Macrocosm Celestial Coordinate Plane & Rings (Visible from high altitude/orbit)
+    const orbitalCoordPlane = new THREE.GridHelper(300, 30, 0x1e3a8a, 0x0f172a);
+    orbitalCoordPlane.position.set(0, 0.2, 0);
+    orbitalCoordPlane.name = 'orbital_coord_plane';
+    (orbitalCoordPlane.material as THREE.Material).transparent = true;
+    (orbitalCoordPlane.material as THREE.Material).opacity = 0.35;
+    this.group.add(orbitalCoordPlane);
+
+    // Concentric Macrocosm Horizon Boundary Rings
+    for (const radius of [75, 120, 160]) {
+      const ringMesh = new THREE.Mesh(
+        new THREE.RingGeometry(radius, radius + 0.6, 64),
+        new THREE.MeshBasicMaterial({ color: 0x2563eb, transparent: true, opacity: 0.25, side: THREE.DoubleSide })
+      );
+      ringMesh.rotation.x = -Math.PI / 2;
+      ringMesh.position.set(0, 0.25, 0);
+      this.group.add(ringMesh);
+    }
+
     // 1. The Trans-Domain Causeway (Colossal Viaduct spanning the central chasm between South & North)
     const causewayMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.6, metalness: 0.7 });
     const causewayRoad = new THREE.Mesh(new THREE.BoxGeometry(10, 2.5, 76), causewayMat);
