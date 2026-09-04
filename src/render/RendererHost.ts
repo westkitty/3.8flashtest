@@ -44,12 +44,16 @@ export class RendererHost {
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
     window.addEventListener('resize', this.onResize);
+    document.addEventListener('fullscreenchange', this.onResize);
+    document.addEventListener('webkitfullscreenchange', this.onResize);
   }
 
   private onResize = () => {
-    this.camera.aspect = window.innerWidth / window.innerHeight;
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.renderer.setSize(w, h);
   };
 
   public setReducedMotion(val: boolean) {
@@ -78,6 +82,8 @@ export class RendererHost {
 
   public dispose() {
     window.removeEventListener('resize', this.onResize);
+    document.removeEventListener('fullscreenchange', this.onResize);
+    document.removeEventListener('webkitfullscreenchange', this.onResize);
     this.renderer.dispose();
   }
 }

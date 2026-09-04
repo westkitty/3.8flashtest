@@ -33,8 +33,11 @@ export class UIOverlay {
   private toastContainer!: HTMLDivElement;
   private isOrbital = false;
   private isSubterranean = false;
+  private isCinematic = false;
   private activeExhibit: SemanticExhibit | null = null;
   private audioBtn!: HTMLButtonElement;
+  private fullscreenBtn!: HTMLButtonElement;
+  private cinematicBtn!: HTMLButtonElement;
 
   constructor() {
     this.root = document.createElement('div');
@@ -270,6 +273,42 @@ export class UIOverlay {
         border-color: #facc15;
         color: #fef08a;
       }
+      #mnemonic-ui-root.hud-hidden .hud-panel {
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(-8px);
+        transition: opacity 0.25s ease, transform 0.25s ease;
+      }
+      .hud-cinematic-pill {
+        position: absolute;
+        top: 16px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(10, 17, 40, 0.88);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(56, 189, 248, 0.5);
+        border-radius: 20px;
+        padding: 6px 18px;
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 0.04em;
+        color: #94a3b8;
+        cursor: pointer;
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.25s ease;
+        z-index: 1200;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+      }
+      #mnemonic-ui-root.hud-hidden .hud-cinematic-pill {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      .hud-cinematic-pill:hover {
+        color: #38bdf8;
+        border-color: #38bdf8;
+        background: rgba(15, 23, 42, 0.95);
+      }
     `;
     document.head.appendChild(style);
   }
@@ -278,6 +317,15 @@ export class UIOverlay {
     const reticle = document.createElement('div');
     reticle.className = 'reticle';
     this.root.appendChild(reticle);
+
+    const cinematicPill = document.createElement('button');
+    cinematicPill.id = 'hud-restore-pill';
+    cinematicPill.className = 'hud-cinematic-pill';
+    cinematicPill.textContent = '👁 Restore HUD [H]';
+    cinematicPill.addEventListener('click', () => {
+      this.toggleCinematic(false);
+    });
+    this.root.appendChild(cinematicPill);
 
     const header = document.createElement('div');
     header.className = 'hud-panel hud-header';
@@ -291,8 +339,8 @@ export class UIOverlay {
     controls.className = 'hud-panel hud-controls';
     controls.innerHTML = `
       <div><strong>[W A S D]</strong> Walk | <strong>[Shift]</strong> Sprint | <strong>[Mouse]</strong> Look</div>
-      <div><strong>[E]</strong> Inspect Provenance & X-Ray | <strong>[Click]</strong> Pointer Lock</div>
-      <div><strong>[Space / C]</strong> Vertical Motion (Freeflight & Orbital)</div>
+      <div><strong>[E]</strong> Inspect Provenance | <strong>[F]</strong> Fullscreen | <strong>[H]</strong> Cinematic View</div>
+      <div><strong>[Space / C]</strong> Vertical Motion (Freeflight & Orbital) | <strong>[Click]</strong> Pointer Lock</div>
     `;
     this.root.appendChild(controls);
 
@@ -379,6 +427,32 @@ export class UIOverlay {
     });
     actions.appendChild(epochSelect);
 
+    const viewRow = document.createElement('div');
+    viewRow.style.display = 'grid';
+    viewRow.style.gridTemplateColumns = '1fr 1fr';
+    viewRow.style.gap = '6px';
+
+    this.fullscreenBtn = document.createElement('button');
+    this.fullscreenBtn.className = 'btn';
+    this.fullscreenBtn.id = 'fullscreen-toggle-btn';
+    this.fullscreenBtn.textContent = '⛶ Fullscreen [F]';
+    this.fullscreenBtn.addEventListener('click', () => {
+      this.toggleFullscreen();
+    });
+    viewRow.appendChild(this.fullscreenBtn);
+
+    this.cinematicBtn = document.createElement('button');
+    this.cinematicBtn.className = 'btn';
+    this.cinematicBtn.id = 'cinematic-toggle-btn';
+    this.cinematicBtn.textContent = '👁 Cinematic [H]';
+    this.cinematicBtn.title = 'Hide HUD for unobstructed cinematic view (Press H or click to toggle)';
+    this.cinematicBtn.addEventListener('click', () => {
+      this.toggleCinematic();
+    });
+    viewRow.appendChild(this.cinematicBtn);
+
+    actions.appendChild(viewRow);
+
     const patchBtn = document.createElement('button');
     patchBtn.className = 'btn';
     patchBtn.textContent = 'Ingest Knowledge Patch';
@@ -455,6 +529,27 @@ export class UIOverlay {
       const isJson = text.startsWith('{');
       this.events.onIngestPatch?.(text, isJson);
       modal.style.display = 'none';
+    });
+
+    window.addEventListener('keydown', (e) => {
+      const target = e.target as HTMLElement | null;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
+        return;
+      }
+      if (e.code === 'KeyF' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        this.toggleFullscreen();
+      } else if (e.code === 'KeyH' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        this.toggleCinematic();
+      }
+    });
+
+    document.addEventListener('fullscreenchange', () => {
+      const isFs = !!document.fullscreenElement;
+      if (this.fullscreenBtn) {
+        this.fullscreenBtn.textContent = isFs ? '🗗 Window [F]' : '⛶ Fullscreen [F]';
+      }
     });
   }
 
@@ -553,6 +648,33 @@ export class UIOverlay {
     this.inspectCard.querySelector('#sanctuary-close-btn')?.addEventListener('click', () => {
       this.hideInspect();
     });
+  }
+
+  public toggleFullscreen() {
+    if (!document.fullscreenElement) {
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen().catch(() => {
+          this.showToast('Fullscreen mode could not be entered.', 'warning');
+        });
+      }
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+  }
+
+  public toggleCinematic(force?: boolean) {
+    this.isCinematic = typeof force === 'boolean' ? force : !this.isCinematic;
+    if (this.isCinematic) {
+      this.root.classList.add('hud-hidden');
+      this.showToast('Cinematic View active. Press [H] or top pill to restore HUD.', 'success');
+    } else {
+      this.root.classList.remove('hud-hidden');
+    }
+    if (this.cinematicBtn) {
+      this.cinematicBtn.textContent = this.isCinematic ? '👁 Show HUD [H]' : '👁 Cinematic [H]';
+    }
   }
 
   public hideInspect() {

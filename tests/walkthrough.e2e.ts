@@ -257,6 +257,45 @@ test.describe('Mnemonic World Engine Interactive Visitor Journey', () => {
     expect(cosmosVerification.shadowMapEnabled).toBe(true);
     expect(cosmosVerification.isShadowReactive).toBe(true);
 
+    // 15. Fullscreen and Cinematic HUD Toggle Verification
+    const fullscreenBtn = page.locator('#fullscreen-toggle-btn');
+    await expect(fullscreenBtn).toBeVisible();
+    expect(await fullscreenBtn.textContent()).toContain('Fullscreen');
+
+    const cinematicBtn = page.locator('#cinematic-toggle-btn');
+    await expect(cinematicBtn).toBeVisible();
+
+    const restorePill = page.locator('#hud-restore-pill');
+    await expect(restorePill).toBeAttached();
+
+    // Toggle Cinematic Mode via button
+    await cinematicBtn.click();
+    await page.waitForTimeout(100);
+    const isHudHiddenAfterBtn = await page.locator('#mnemonic-ui-root').evaluate(el => el.classList.contains('hud-hidden'));
+    expect(isHudHiddenAfterBtn).toBe(true);
+
+    // Restore HUD via top pill
+    await restorePill.click();
+    await page.waitForTimeout(100);
+    const isHudRestoredAfterPill = await page.locator('#mnemonic-ui-root').evaluate(el => !el.classList.contains('hud-hidden'));
+    expect(isHudRestoredAfterPill).toBe(true);
+
+    // Toggle Cinematic Mode via keyboard shortcut [H]
+    await page.keyboard.press('KeyH');
+    await page.waitForTimeout(100);
+    const isHudHiddenAfterKeyH = await page.locator('#mnemonic-ui-root').evaluate(el => el.classList.contains('hud-hidden'));
+    expect(isHudHiddenAfterKeyH).toBe(true);
+
+    // Restore HUD via keyboard shortcut [H]
+    await page.keyboard.press('KeyH');
+    await page.waitForTimeout(100);
+    const isHudRestoredAfterKeyH = await page.locator('#mnemonic-ui-root').evaluate(el => !el.classList.contains('hud-hidden'));
+    expect(isHudRestoredAfterKeyH).toBe(true);
+
+    // Press KeyF for fullscreen trigger without errors
+    await page.keyboard.press('KeyF');
+    await page.waitForTimeout(100);
+
     // Final check for console errors
     expect(consoleErrors).toHaveLength(0);
   });
