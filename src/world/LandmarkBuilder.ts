@@ -310,21 +310,34 @@ export class LandmarkBuilder {
     g.add(precursorGhost);
   }
 
-  // 6. E10: WorldsVault Chasm Vault
+  // 6. E10: WorldsVault Chasm Vault (Archaic deep-fissure geological repository)
   private static buildWorldsVault(g: THREE.Group, s: number) {
-    const basalt = this.getMaterial(0x181824, 0.7, 0.3);
-    const brass = this.getMaterial(0xd4af37, 0.3, 0.8, 0x5a4810);
+    const basalt = this.getMaterial(0x14141e, 0.8, 0.25);
+    const brass = this.getMaterial(0xd4af37, 0.25, 0.85, 0x5a4810);
+    const goldLock = this.getMaterial(0xf59e0b, 0.2, 0.9);
 
-    const vaultBox = new THREE.Mesh(new THREE.BoxGeometry(6 * s, 10 * s, 6 * s), basalt);
-    vaultBox.position.set(0, 5 * s, 0);
+    // Colossal subterranean monolith vault dipping into bedrock
+    const vaultBox = new THREE.Mesh(new THREE.BoxGeometry(8 * s, 16 * s, 8 * s), basalt);
+    vaultBox.position.set(0, 4 * s, 0);
     g.add(vaultBox);
 
-    // Chasm archive strata plates
-    for (let i = 0; i < 4; i++) {
-      const plate = new THREE.Mesh(new THREE.BoxGeometry(7 * s, 0.4 * s, 6.5 * s), brass);
-      plate.position.set(0, (2 + i * 2.2) * s, 0);
+    // Cantilevered archive strata plates with glowing index edge runes
+    for (let i = 0; i < 5; i++) {
+      const plate = new THREE.Mesh(new THREE.BoxGeometry(10 * s, 0.5 * s, 9 * s), brass);
+      plate.position.set(0, (i * 2.8) * s, 0);
       g.add(plate);
     }
+
+    // Rotating chronometric cipher rings framing the vault gate
+    const lockRing1 = new THREE.Mesh(new THREE.TorusGeometry(3.5 * s, 0.25 * s, 6, 24), goldLock);
+    lockRing1.position.set(0, 5 * s, 4.2 * s);
+    lockRing1.name = 'rotating_ring_1';
+    g.add(lockRing1);
+
+    const lockRing2 = new THREE.Mesh(new THREE.TorusGeometry(2.4 * s, 0.2 * s, 6, 20), brass);
+    lockRing2.position.set(0, 5 * s, 4.2 * s);
+    lockRing2.name = 'rotating_ring_2';
+    g.add(lockRing2);
   }
 
   // 7. E12: Rhetorical Truth Scales
