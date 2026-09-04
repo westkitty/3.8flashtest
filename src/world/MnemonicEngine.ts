@@ -200,6 +200,8 @@ export class MnemonicEngine {
       alert(res.message);
       if (res.success && res.patchExhibit) {
         this.soundscapes.playPulseTone(180, 0.7); // Low tectonic rumble
+        const pos = new THREE.Vector3(res.patchExhibit.position[0], res.patchExhibit.position[1], res.patchExhibit.position[2]);
+        this.weather.triggerShockwave(pos);
         this.terrain.rebuildTopology(this.mutationManager.currentWorldData);
         this.buildLandmarks(this.mutationManager.currentWorldData.exhibits);
         this.graphRenderer.updateData(
@@ -211,7 +213,6 @@ export class MnemonicEngine {
 
         this.dispatchRuntimeEvent({ type: 'MUTATION_INGEST', patchId: res.patchExhibit.id });
 
-        const pos = new THREE.Vector3(res.patchExhibit.position[0], res.patchExhibit.position[1], res.patchExhibit.position[2]);
         this.player.teleport(new THREE.Vector3(pos.x, pos.y + 4, pos.z + 18), pos);
         this.ui.showInspect(res.patchExhibit);
       }

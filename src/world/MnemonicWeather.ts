@@ -44,12 +44,35 @@ export class MnemonicWeather {
     this.group.add(this.particles);
   }
 
+  public triggerShockwave(origin: THREE.Vector3) {
+    const pos = this.positions;
+    const vel = this.velocities;
+    for (let i = 0; i < this.count; i++) {
+      const dx = pos[i * 3] - origin.x;
+      const dy = pos[i * 3 + 1] - origin.y;
+      const dz = pos[i * 3 + 2] - origin.z;
+      const dist = Math.hypot(dx, dy, dz) + 0.1;
+      if (dist < 80) {
+        const force = (1 - dist / 80) * 18;
+        vel[i * 3] += (dx / dist) * force;
+        vel[i * 3 + 1] += (dy / dist) * force * 0.5 + 4;
+        vel[i * 3 + 2] += (dz / dist) * force;
+      }
+    }
+  }
+
   public update(dt: number) {
     const pos = this.positions;
+    const vel = this.velocities;
     for (let i = 0; i < this.count; i++) {
-      pos[i * 3] += this.velocities[i * 3] * dt * 5;
-      pos[i * 3 + 1] += this.velocities[i * 3 + 1] * dt * 5;
-      pos[i * 3 + 2] += this.velocities[i * 3 + 2] * dt * 5;
+      pos[i * 3] += vel[i * 3] * dt * 5;
+      pos[i * 3 + 1] += vel[i * 3 + 1] * dt * 5;
+      pos[i * 3 + 2] += vel[i * 3 + 2] * dt * 5;
+
+      // Natural drag decaying shockwave back to drift
+      vel[i * 3] *= 0.95;
+      vel[i * 3 + 1] *= 0.95;
+      vel[i * 3 + 2] = vel[i * 3 + 2] * 0.95 - 0.05;
 
       // Wrap around bounds
       if (pos[i * 3 + 2] < -160) pos[i * 3 + 2] = 160;
