@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { ProceduralTextureGenerator } from '../render/ProceduralTextureGenerator';
 import type { SemanticWorldData, MacroRegion, WingId } from '../types';
 
 export class Terrain {
@@ -128,10 +129,16 @@ export class Terrain {
     this.geometry.computeVertexNormals();
     this.geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
+    const normalMap = ProceduralTextureGenerator.getTerrainNormalMap();
+    const roughnessMap = ProceduralTextureGenerator.getTerrainRoughnessMap();
+
     const mat = new THREE.MeshStandardMaterial({
       vertexColors: true,
-      roughness: 0.85,
-      metalness: 0.15,
+      roughness: 0.88,
+      roughnessMap,
+      metalness: 0.12,
+      normalMap,
+      normalScale: new THREE.Vector2(1.2, 1.2),
       flatShading: false
     });
 
@@ -448,14 +455,14 @@ export class Terrain {
     const bubbleRadius = 188;
 
     // 1. The Celestial Containment Bubble Dome (Enclosing the world at R = 188m)
-    // Translucent shimmering membrane with subtle specular highlights
+    // Sheer, ethereal dielectric energy membrane with subtle specular Fresnel highlights
     const bubbleGeo = new THREE.SphereGeometry(bubbleRadius, 48, 32, 0, Math.PI * 2, 0, Math.PI * 0.54);
     const bubbleMat = new THREE.MeshStandardMaterial({
       color: 0x38bdf8,
       transparent: true,
-      opacity: 0.15,
+      opacity: 0.05,
       roughness: 0.1,
-      metalness: 0.2,
+      metalness: 0.4,
       side: THREE.DoubleSide,
       depthWrite: false
     });
@@ -466,13 +473,13 @@ export class Terrain {
     bubbleMesh.name = 'containment_bubble_membrane';
     this.group.add(bubbleMesh);
 
-    // Subtle geodesic hexagonal/wireframe lattice over the bubble
+    // Subtle geodesic hexagonal/wireframe filament guides over the bubble
     const latticeGeo = new THREE.IcosahedronGeometry(bubbleRadius + 0.5, 3);
     const latticeMat = new THREE.MeshBasicMaterial({
-      color: 0x60a5fa,
+      color: 0x38bdf8,
       wireframe: true,
       transparent: true,
-      opacity: 0.16,
+      opacity: 0.035,
       depthWrite: false
     });
     const latticeMesh = new THREE.Mesh(latticeGeo, latticeMat);
@@ -486,10 +493,10 @@ export class Terrain {
     const equatorMat = new THREE.MeshBasicMaterial({
       color: 0x38bdf8,
       transparent: true,
-      opacity: 0.6,
+      opacity: 0.35,
       side: THREE.DoubleSide
     });
-    const equatorRing = new THREE.Mesh(new THREE.TorusGeometry(bubbleRadius, 1.0, 8, 96), equatorMat);
+    const equatorRing = new THREE.Mesh(new THREE.TorusGeometry(bubbleRadius, 0.8, 8, 96), equatorMat);
     equatorRing.rotation.x = Math.PI / 2;
     equatorRing.position.set(0, 0.5, 0);
     equatorRing.name = 'containment_equator_ring';
@@ -586,11 +593,11 @@ export class Terrain {
     streamsGroup.name = 'liquid_mercury_streams';
 
     const mercuryMat = new THREE.MeshStandardMaterial({
-      color: 0xe2e8f0,
+      color: 0xf8fafc,
       metalness: 0.98,
-      roughness: 0.04,
-      emissive: 0x38bdf8,
-      emissiveIntensity: 0.42
+      roughness: 0.05,
+      emissive: 0x0284c7,
+      emissiveIntensity: 0.08
     });
 
     const streamCurves = [

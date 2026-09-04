@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 
+import { ProceduralTextureGenerator } from './ProceduralTextureGenerator';
 import type { PostProcessingPipeline } from './PostProcessingPipeline';
 
 export type ShadowMode = 'reactive' | 'static' | 'off';
@@ -42,9 +43,15 @@ export class RendererHost {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.setPixelRatio(this.quality.dpr);
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.38;
+    this.renderer.toneMappingExposure = 1.18;
     this.renderer.shadowMap.enabled = this.quality.shadows;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+    // Apply procedural Image-Based Lighting (IBL) environment radiance
+    const envRadiance = ProceduralTextureGenerator.generateEnvironmentRadiance(this.renderer);
+    if (envRadiance) {
+      this.scene.environment = envRadiance;
+    }
 
     window.addEventListener('resize', this.onResize);
     document.addEventListener('fullscreenchange', this.onResize);

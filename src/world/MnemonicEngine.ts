@@ -257,18 +257,20 @@ export class MnemonicEngine {
   }
 
   private setupLighting() {
-    this.hemiLight = new THREE.HemisphereLight(0xd4e7ff, 0x1e293b, 1.45);
+    this.hemiLight = new THREE.HemisphereLight(0xdbeafe, 0x0f172a, 1.25);
     this.rendererHost.scene.add(this.hemiLight);
 
-    this.ambientLight = new THREE.AmbientLight(0x38bdf8, 0.45);
+    this.ambientLight = new THREE.AmbientLight(0x0b132b, 0.18);
     this.rendererHost.scene.add(this.ambientLight);
 
-    this.dirLight = new THREE.DirectionalLight(0xfff8ee, 2.35);
+    this.dirLight = new THREE.DirectionalLight(0xfff8ee, 2.4);
     this.dirLight.position.copy(this.sunBaseOffset);
     this.dirLight.castShadow = true;
-    this.dirLight.shadow.mapSize.width = 1024;
-    this.dirLight.shadow.mapSize.height = 1024;
-    this.dirLight.shadow.bias = -0.0003;
+    this.dirLight.shadow.mapSize.width = 2048;
+    this.dirLight.shadow.mapSize.height = 2048;
+    this.dirLight.shadow.bias = -0.0004;
+    this.dirLight.shadow.normalBias = 0.025;
+    this.dirLight.shadow.radius = 2.0;
     this.dirLight.shadow.camera.near = 10;
     this.dirLight.shadow.camera.far = 380;
     this.dirLight.shadow.camera.left = -95;
@@ -278,11 +280,11 @@ export class MnemonicEngine {
     this.rendererHost.scene.add(this.dirLight);
     this.rendererHost.scene.add(this.dirLight.target);
 
-    const fillLight = new THREE.DirectionalLight(0x60a5fa, 0.95);
+    const fillLight = new THREE.DirectionalLight(0x60a5fa, 0.65);
     fillLight.position.set(-65, 95, -65);
     this.rendererHost.scene.add(fillLight);
 
-    const groundBounce = new THREE.DirectionalLight(0x38bdf8, 0.5);
+    const groundBounce = new THREE.DirectionalLight(0x1e293b, 0.35);
     groundBounce.position.set(-45, -20, -45);
     this.rendererHost.scene.add(groundBounce);
 

@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { ProceduralTextureGenerator } from '../render/ProceduralTextureGenerator';
 import type { SemanticExhibit } from '../types';
 
 export class LandmarkBuilder {
@@ -7,13 +8,42 @@ export class LandmarkBuilder {
   private static getMaterial(color: number, roughness = 0.5, metalness = 0.5, emissive = 0x000000, wireframe = false): THREE.Material {
     const key = `${color}_${roughness}_${metalness}_${emissive}_${wireframe}`;
     if (!this.materials.has(key)) {
+      if (wireframe) {
+        const mat = new THREE.MeshBasicMaterial({ color, wireframe: true, transparent: true, opacity: 0.6 });
+        this.materials.set(key, mat);
+        return mat;
+      }
+
+      // Check material archetype: polished physical, brushed metal, or chiseled stone
+      if (roughness < 0.25) {
+        const mat = new THREE.MeshPhysicalMaterial({
+          color,
+          roughness,
+          metalness,
+          emissive,
+          clearcoat: 0.65,
+          clearcoatRoughness: 0.1,
+          reflectivity: 0.85
+        });
+        this.materials.set(key, mat);
+        return mat;
+      }
+
       const mat = new THREE.MeshStandardMaterial({
         color,
         roughness,
         metalness,
-        emissive,
-        wireframe
+        emissive
       });
+
+      if (metalness >= 0.5) {
+        mat.normalMap = ProceduralTextureGenerator.getBrushedMetalNormalMap();
+        mat.normalScale = new THREE.Vector2(0.35, 0.35);
+      } else if (roughness >= 0.35) {
+        mat.normalMap = ProceduralTextureGenerator.getStoneNormalMap();
+        mat.normalScale = new THREE.Vector2(0.55, 0.55);
+      }
+
       this.materials.set(key, mat);
     }
     return this.materials.get(key)!;
@@ -25,6 +55,13 @@ export class LandmarkBuilder {
     group.userData = { exhibitId: exhibit.id, exhibit };
 
     const s = exhibit.scale || 1.0;
+
+    // Architectural foundation plinth grounding the landmark into the terrain
+    const plinthMat = this.getMaterial(0x0a101d, 0.9, 0.08);
+    const plinth = new THREE.Mesh(new THREE.CylinderGeometry(4.2 * s, 5.0 * s, 0.5 * s, 16), plinthMat);
+    plinth.position.set(0, -0.2 * s, 0);
+    plinth.receiveShadow = true;
+    group.add(plinth);
 
     switch (exhibit.archetype) {
       // 1. Starsilk Loom (E01) — Hero celestial weaving loom

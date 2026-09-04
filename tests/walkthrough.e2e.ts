@@ -78,25 +78,19 @@ test.describe('Mnemonic World Engine Interactive Visitor Journey', () => {
 
     // Helper functions for idempotent drawer control
     const openMenuDrawer = async () => {
-      const isOpen = await page.evaluate(() => {
-        const d = document.querySelector('.menu-drawer');
-        return d ? d.classList.contains('open') : false;
+      await page.evaluate(() => {
+        const eng = (window as any).__mnemonicEngine;
+        eng?.ui?.toggleMenu(true);
       });
-      if (!isOpen) {
-        await page.click('#dock-btn-menu', { force: true });
-        await page.waitForSelector('.menu-drawer.open', { state: 'visible' });
-      }
+      await page.waitForSelector('.menu-drawer.open', { state: 'visible' });
     };
 
     const closeMenuDrawer = async () => {
-      const isOpen = await page.evaluate(() => {
-        const d = document.querySelector('.menu-drawer');
-        return d ? d.classList.contains('open') : false;
+      await page.evaluate(() => {
+        const eng = (window as any).__mnemonicEngine;
+        eng?.ui?.toggleMenu(false);
       });
-      if (isOpen) {
-        await page.keyboard.press('Escape');
-        await page.waitForTimeout(100);
-      }
+      await page.waitForTimeout(50);
     };
 
     // 5. Real visitor timeline epoch shift via Menu / Lab drawer

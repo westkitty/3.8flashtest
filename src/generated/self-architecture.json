@@ -2,10 +2,10 @@
   "version": "0.1.0-experiment.0",
   "targetRepo": "westkitty/3.8flashtest",
   "stats": {
-    "totalModules": 51,
-    "totalEdges": 89,
-    "totalLines": 16197,
-    "totalBytes": 563621
+    "totalModules": 52,
+    "totalEdges": 92,
+    "totalLines": 16634,
+    "totalBytes": 579164
   },
   "modules": [
     {
@@ -270,8 +270,8 @@
       "id": "src/generated/self-architecture.json",
       "name": "self-architecture.json",
       "path": "src/generated/self-architecture.json",
-      "sizeBytes": 42532,
-      "lineCount": 1666,
+      "sizeBytes": 43693,
+      "lineCount": 1707,
       "system": "semantic_memory",
       "layer": "mnemonic_strata_chambers",
       "role": "Mnemonic Memory Vault",
@@ -606,8 +606,8 @@
       "id": "src/render/PostProcessingPipeline.ts",
       "name": "PostProcessingPipeline.ts",
       "path": "src/render/PostProcessingPipeline.ts",
-      "sizeBytes": 8560,
-      "lineCount": 265,
+      "sizeBytes": 8654,
+      "lineCount": 266,
       "system": "optics_and_shaders",
       "layer": "photonic_manifold",
       "role": "Photonic & Atmosphere Furnace",
@@ -631,28 +631,52 @@
       "powerWatts": 300
     },
     {
-      "id": "src/render/RendererHost.ts",
-      "name": "RendererHost.ts",
-      "path": "src/render/RendererHost.ts",
-      "sizeBytes": 3150,
-      "lineCount": 99,
+      "id": "src/render/ProceduralTextureGenerator.ts",
+      "name": "ProceduralTextureGenerator.ts",
+      "path": "src/render/ProceduralTextureGenerator.ts",
+      "sizeBytes": 12171,
+      "lineCount": 342,
       "system": "optics_and_shaders",
       "layer": "photonic_manifold",
       "role": "Photonic & Atmosphere Furnace",
       "color": 16758605,
       "rawImports": [
-        "three",
-        "./PostProcessingPipeline"
+        "three"
       ],
       "exports": [
-        "RendererHost"
+        "ProceduralTextureGenerator"
       ],
       "machineCoord": [
         -37.8,
         -30,
         -19.7
       ],
-      "powerWatts": 158
+      "powerWatts": 300
+    },
+    {
+      "id": "src/render/RendererHost.ts",
+      "name": "RendererHost.ts",
+      "path": "src/render/RendererHost.ts",
+      "sizeBytes": 3466,
+      "lineCount": 106,
+      "system": "optics_and_shaders",
+      "layer": "photonic_manifold",
+      "role": "Photonic & Atmosphere Furnace",
+      "color": 16758605,
+      "rawImports": [
+        "three",
+        "./ProceduralTextureGenerator",
+        "./PostProcessingPipeline"
+      ],
+      "exports": [
+        "RendererHost"
+      ],
+      "machineCoord": [
+        -49.4,
+        -28,
+        -23.9
+      ],
+      "powerWatts": 170
     },
     {
       "id": "src/search/SearchNavigation.ts",
@@ -842,14 +866,15 @@
       "id": "src/world/LandmarkBuilder.ts",
       "name": "LandmarkBuilder.ts",
       "path": "src/world/LandmarkBuilder.ts",
-      "sizeBytes": 23215,
-      "lineCount": 594,
+      "sizeBytes": 24584,
+      "lineCount": 631,
       "system": "world_generation",
       "layer": "geological_computation_drum",
       "role": "Terrain & Landmark Synthesizer",
       "color": 5227511,
       "rawImports": [
         "three",
+        "../render/ProceduralTextureGenerator",
         "../types"
       ],
       "exports": [
@@ -866,8 +891,8 @@
       "id": "src/world/MnemonicEngine.ts",
       "name": "MnemonicEngine.ts",
       "path": "src/world/MnemonicEngine.ts",
-      "sizeBytes": 30873,
-      "lineCount": 784,
+      "sizeBytes": 30957,
+      "lineCount": 786,
       "system": "world_generation",
       "layer": "geological_computation_drum",
       "role": "Terrain & Landmark Synthesizer",
@@ -990,14 +1015,15 @@
       "id": "src/world/Terrain.ts",
       "name": "Terrain.ts",
       "path": "src/world/Terrain.ts",
-      "sizeBytes": 25595,
-      "lineCount": 652,
+      "sizeBytes": 25943,
+      "lineCount": 659,
       "system": "world_generation",
       "layer": "geological_computation_drum",
       "role": "Terrain & Landmark Synthesizer",
       "color": 5227511,
       "rawImports": [
         "three",
+        "../render/ProceduralTextureGenerator",
         "../types"
       ],
       "exports": [
@@ -1277,6 +1303,11 @@
       "type": "static_import"
     },
     {
+      "source": "src/render/RendererHost.ts",
+      "target": "src/render/ProceduralTextureGenerator.ts",
+      "type": "static_import"
+    },
+    {
       "source": "src/search/SearchNavigation.ts",
       "target": "src/types.ts",
       "type": "static_import"
@@ -1309,6 +1340,11 @@
     {
       "source": "src/world/GraphRenderer.ts",
       "target": "src/types.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "src/world/LandmarkBuilder.ts",
+      "target": "src/render/ProceduralTextureGenerator.ts",
       "type": "static_import"
     },
     {
@@ -1484,6 +1520,11 @@
     {
       "source": "src/world/SemanticSpatialSolver.ts",
       "target": "src/types.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "src/world/Terrain.ts",
+      "target": "src/render/ProceduralTextureGenerator.ts",
       "type": "static_import"
     },
     {

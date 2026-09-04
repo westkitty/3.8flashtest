@@ -117,11 +117,12 @@ export class PostProcessingPipeline {
     this.composer.addPass(this.renderPass);
 
     // Unreal Bloom
+    // Unreal Bloom (Calibrated threshold so only luminous beacons and celestial cores bloom)
     this.bloomPass = new UnrealBloomPass(
       new THREE.Vector2(w, h),
-      0.45,
-      0.35,
-      0.75
+      0.32,
+      0.38,
+      0.86
     );
     this.composer.addPass(this.bloomPass);
 
