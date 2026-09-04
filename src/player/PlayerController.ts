@@ -31,12 +31,23 @@ export class PlayerController {
   public isSubterranean = false;
   public events: PlayerEvents = {};
 
+  // Reusable scratch vectors to avoid hot-loop GC allocations
+  private scratchForward = new THREE.Vector3();
+  private scratchRight = new THREE.Vector3();
+  private scratchMoveDir = new THREE.Vector3();
+  private scratchDir = new THREE.Vector3();
+
   constructor(camera: THREE.PerspectiveCamera, domElement: HTMLElement) {
     this.camera = camera;
     this.domElement = domElement;
     this.camera.position.copy(this.position);
 
     this.bindEvents();
+  }
+
+  private isTypingTarget(e: Event): boolean {
+    const target = e.target as HTMLElement | null;
+    return !!target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable);
   }
 
   private bindEvents() {
@@ -87,6 +98,7 @@ export class PlayerController {
     });
 
     window.addEventListener('keydown', (e) => {
+      if (this.isTypingTarget(e)) return;
       this.handleKey(e.code, true);
       if (e.code === 'KeyE') {
         this.events.onInteract?.();
@@ -94,8 +106,18 @@ export class PlayerController {
     });
 
     window.addEventListener('keyup', (e) => {
+      if (this.isTypingTarget(e)) {
+        this.resetKeys();
+        return;
+      }
       this.handleKey(e.code, false);
     });
+  }
+
+  public resetKeys(): void {
+    for (const k of Object.keys(this.keys)) {
+      this.keys[k] = false;
+    }
   }
 
   private handleKey(code: string, pressed: boolean) {
@@ -134,38 +156,38 @@ export class PlayerController {
     this.velocity.set(0, 0, 0);
     this.camera.position.copy(this.position);
     if (lookAtTarget) {
-      const dir = new THREE.Vector3().subVectors(lookAtTarget, pos).normalize();
-      this.yaw = Math.atan2(-dir.x, -dir.z);
-      this.pitch = Math.asin(dir.y);
+      this.scratchDir.subVectors(lookAtTarget, pos).normalize();
+      this.yaw = Math.atan2(-this.scratchDir.x, -this.scratchDir.z);
+      this.pitch = Math.asin(this.scratchDir.y);
     }
   }
 
   public update(dt: number, groundHeightFn?: (x: number, z: number) => number) {
-    const forward = new THREE.Vector3(
+    this.scratchForward.set(
       -Math.sin(this.yaw) * Math.cos(this.pitch),
       this.isFreeFlight ? Math.sin(this.pitch) : 0,
       -Math.cos(this.yaw) * Math.cos(this.pitch)
     ).normalize();
 
-    const right = new THREE.Vector3(
+    this.scratchRight.set(
       Math.cos(this.yaw),
       0,
       -Math.sin(this.yaw)
     ).normalize();
 
-    const moveDir = new THREE.Vector3();
-    if (this.keys.forward) moveDir.add(forward);
-    if (this.keys.backward) moveDir.sub(forward);
-    if (this.keys.right) moveDir.add(right);
-    if (this.keys.left) moveDir.sub(right);
+    this.scratchMoveDir.set(0, 0, 0);
+    if (this.keys.forward) this.scratchMoveDir.add(this.scratchForward);
+    if (this.keys.backward) this.scratchMoveDir.sub(this.scratchForward);
+    if (this.keys.right) this.scratchMoveDir.add(this.scratchRight);
+    if (this.keys.left) this.scratchMoveDir.sub(this.scratchRight);
 
     if (this.isFreeFlight) {
-      if (this.keys.up) moveDir.y += 1;
-      if (this.keys.down) moveDir.y -= 1;
+      if (this.keys.up) this.scratchMoveDir.y += 1;
+      if (this.keys.down) this.scratchMoveDir.y -= 1;
     }
 
-    if (moveDir.lengthSq() > 0) {
-      moveDir.normalize();
+    if (this.scratchMoveDir.lengthSq() > 0) {
+      this.scratchMoveDir.normalize();
     }
 
     const baseSpeed = this.isFreeFlight ? 38 : 12;
@@ -174,7 +196,7 @@ export class PlayerController {
     // Friction and acceleration
     const damping = Math.exp(-8 * dt);
     this.velocity.multiplyScalar(damping);
-    this.velocity.addScaledVector(moveDir, speed * (1 - damping));
+    this.velocity.addScaledVector(this.scratchMoveDir, speed * (1 - damping));
 
     this.position.addScaledVector(this.velocity, dt);
 

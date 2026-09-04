@@ -137,6 +137,16 @@ export class LandmarkBuilder {
       }
     });
 
+    // Index animated parts once to avoid hot-loop getObjectByName traversals
+    const animatedParts: { ring1?: THREE.Object3D; ring2?: THREE.Object3D; kineticCore?: THREE.Object3D } = {};
+    const r1 = group.getObjectByName('rotating_ring_1');
+    if (r1) animatedParts.ring1 = r1;
+    const r2 = group.getObjectByName('rotating_ring_2');
+    if (r2) animatedParts.ring2 = r2;
+    const kc = group.getObjectByName('kinetic_core');
+    if (kc) animatedParts.kineticCore = kc;
+    group.userData.animatedParts = animatedParts;
+
     return group;
   }
 

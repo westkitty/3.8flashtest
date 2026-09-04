@@ -2,6 +2,9 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Mnemonic World Engine Interactive Visitor Journey', () => {
   test('executes complete real-interaction visitor journey across surface, search, machine layer, orbit, mutation, and sanctuary', async ({ page }) => {
+    const t0 = Date.now();
+    const logStep = (name: string) => console.log(`[E2E STEP +${Date.now() - t0}ms] ${name}`);
+
     const consoleErrors: string[] = [];
     page.on('console', msg => {
       if (msg.type() === 'error') {
@@ -10,6 +13,7 @@ test.describe('Mnemonic World Engine Interactive Visitor Journey', () => {
     });
 
     // 1. Fresh application bootstrap
+    logStep('1. goto /');
     await page.goto('/');
     await page.waitForSelector('#webgl-canvas');
     await page.waitForSelector('#mnemonic-ui-root');
@@ -17,6 +21,7 @@ test.describe('Mnemonic World Engine Interactive Visitor Journey', () => {
     expect(consoleErrors).toHaveLength(0);
 
     // 2. Verify engine readiness and canonical exhibit baseline
+    logStep('2. verify baseline exhibits');
     const initialExhibitCount = await page.evaluate(() => {
       const eng = (window as any).__mnemonicEngine;
       return eng?.mutationManager?.currentWorldData?.exhibits?.length;
@@ -24,6 +29,7 @@ test.describe('Mnemonic World Engine Interactive Visitor Journey', () => {
     expect(initialExhibitCount).toBe(35);
 
     // 3. Real visitor keyboard movement (Walk + Sprint forward)
+    logStep('3. visitor movement');
     const initialPos = await page.evaluate(() => {
       const eng = (window as any).__mnemonicEngine;
       return { x: eng.player.position.x, z: eng.player.position.z };
@@ -43,10 +49,23 @@ test.describe('Mnemonic World Engine Interactive Visitor Journey', () => {
     const moveDist = Math.hypot(movedPos.x - initialPos.x, movedPos.z - initialPos.z);
     expect(moveDist).toBeGreaterThan(0.2);
 
-    // 4. Real visitor spatial search interaction
-    const searchBox = page.locator('input.search-box');
+    // 4. Real visitor spatial search interaction via consolidated Dock Find
+    logStep('4. spatial search find');
+    await page.click('#dock-btn-find');
+    await page.waitForSelector('#search-nav-input', { state: 'visible' });
+
+    const searchBox = page.locator('#search-nav-input');
     await searchBox.fill('Starsilk');
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(150);
+
+    // Verify ranked results in modal list
+    const firstResult = page.locator('.search-results-list .search-item').first();
+    await expect(firstResult).toBeVisible();
+    await expect(firstResult).toContainText('Starsilk');
+
+    // Press Enter to navigate to first result
+    await page.keyboard.press('Enter');
+    await page.waitForTimeout(150);
 
     const searchTarget = await page.evaluate(() => {
       const eng = (window as any).__mnemonicEngine;
@@ -57,14 +76,36 @@ test.describe('Mnemonic World Engine Interactive Visitor Journey', () => {
     expect(searchTarget?.id).toBe('E01');
     expect(searchTarget?.wing).toBe('north');
 
-    // Clear search
-    await searchBox.fill('');
-    await page.waitForTimeout(50);
+    // Helper functions for idempotent drawer control
+    const openMenuDrawer = async () => {
+      const isOpen = await page.evaluate(() => {
+        const d = document.querySelector('.menu-drawer');
+        return d ? d.classList.contains('open') : false;
+      });
+      if (!isOpen) {
+        await page.click('#dock-btn-menu', { force: true });
+        await page.waitForSelector('.menu-drawer.open', { state: 'visible' });
+      }
+    };
 
-    // 5. Real visitor timeline epoch shift via select dropdown
-    const epochSelect = page.locator('select.search-box');
+    const closeMenuDrawer = async () => {
+      const isOpen = await page.evaluate(() => {
+        const d = document.querySelector('.menu-drawer');
+        return d ? d.classList.contains('open') : false;
+      });
+      if (isOpen) {
+        await page.keyboard.press('Escape');
+        await page.waitForTimeout(100);
+      }
+    };
+
+    // 5. Real visitor timeline epoch shift via Menu / Lab drawer
+    logStep('5. timeline epoch shift');
+    await openMenuDrawer();
+
+    const epochSelect = page.locator('#drawer-epoch-select');
     await epochSelect.selectOption('archaic');
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(150);
 
     const archaicVisibleCount = await page.evaluate(() => {
       const eng = (window as any).__mnemonicEngine;
@@ -78,38 +119,47 @@ test.describe('Mnemonic World Engine Interactive Visitor Journey', () => {
 
     // Restore full timeline
     await epochSelect.selectOption('all');
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(150);
 
-    // 6. Real visitor descent into Subterranean Machine Underworld
-    await page.click('button:has-text("Descend to Machine Underworld")');
+    // 6. Real visitor descent into Subterranean Machine Layer
+    logStep('6. descend machine layer');
+    await page.click('#drawer-machine-btn');
     await page.waitForTimeout(400);
 
     const subStatus = await page.evaluate(() => {
       const eng = (window as any).__mnemonicEngine;
       return {
         y: eng.player.position.y,
-        isSubterranean: eng.player.isSubterranean
+        isSubterranean: eng.player.isSubterranean,
+        mode: eng.modeManager.currentMode
       };
     });
     expect(subStatus.isSubterranean).toBe(true);
+    expect(subStatus.mode).toBe('machine');
     expect(subStatus.y).toBeLessThan(-30);
 
     // 7. Ascend back to Semantic Surface
-    await page.click('button:has-text("Ascend to Semantic Surface")');
-    await page.waitForTimeout(300);
+    logStep('7. ascend surface');
+    await openMenuDrawer();
+    await page.click('#drawer-machine-btn');
+    await page.waitForTimeout(400);
 
     const surfaceStatus = await page.evaluate(() => {
       const eng = (window as any).__mnemonicEngine;
       return {
         y: eng.player.position.y,
-        isSubterranean: eng.player.isSubterranean
+        isSubterranean: eng.player.isSubterranean,
+        mode: eng.modeManager.currentMode
       };
     });
     expect(surfaceStatus.isSubterranean).toBe(false);
+    expect(surfaceStatus.mode).toBe('surface');
     expect(surfaceStatus.y).toBeGreaterThanOrEqual(0);
 
-    // 8. Ascend to Orbital Macrocosm & reveal relational graph
-    await page.click('button:has-text("Ascend to Orbital")');
+    // 8. Ascend to Orbital Macrocosm & reveal relational graph via Dock Connections
+    logStep('8. orbital connections');
+    await closeMenuDrawer();
+    await page.click('#dock-btn-connections');
     await page.waitForTimeout(400);
 
     const orbitalStatus = await page.evaluate(() => {
@@ -117,35 +167,51 @@ test.describe('Mnemonic World Engine Interactive Visitor Journey', () => {
       return {
         y: eng.player.position.y,
         isFreeFlight: eng.player.isFreeFlight,
-        graphVisible: eng.graphRenderer.isVisible
+        graphVisible: eng.graphRenderer.isVisible,
+        mode: eng.modeManager.currentMode
       };
     });
     expect(orbitalStatus.y).toBeGreaterThan(100);
     expect(orbitalStatus.isFreeFlight).toBe(true);
     expect(orbitalStatus.graphVisible).toBe(true);
+    expect(orbitalStatus.mode).toBe('connections');
 
     // Return to surface
-    await page.click('button:has-text("Return to Surface Walk")');
+    await page.click('#dock-btn-connections');
     await page.waitForTimeout(300);
 
-    // 9. Real visitor Ingest Knowledge Patch via modal
-    await page.click('button:has-text("Ingest Knowledge Patch")');
-    await page.waitForSelector('.modal', { state: 'visible' });
+    // 9. Speculative Mutation Workflow: Preview -> Apply -> Undo -> Reset
+    logStep('9. speculative mutation workflow');
+    await openMenuDrawer();
+    await page.click('#drawer-mutate-btn');
+    await page.waitForSelector('#patch-input-textarea', { state: 'visible' });
 
-    // Click "Load Fixture Patch" to test static runtime fixture fetch
-    await page.click('#modal-sample');
-    await page.waitForTimeout(300);
+    // Click "Load Fixture"
+    await page.click('#mutate-fixture-btn');
+    await page.waitForTimeout(200);
 
-    const textareaContent = await page.inputValue('#patch-input');
+    const textareaContent = await page.inputValue('#patch-input-textarea');
     expect(textareaContent.length).toBeGreaterThan(20);
     expect(textareaContent).toContain('patch-nebula-compiler');
 
-    // Submit mutation
-    await page.click('#modal-submit');
-    await page.waitForTimeout(500);
+    // Step A: Preview Speculation (Does NOT mutate canonical world)
+    logStep('9A. preview speculation');
+    await page.click('#mutate-preview-btn');
+    await page.waitForSelector('#mutation-preview-panel', { state: 'visible' });
+    const previewText = await page.textContent('#mutation-preview-panel');
+    expect(previewText).toContain('SPECULATIVE TOPOLOGY PREVIEW');
+    expect(previewText).toContain('Nebula Compiler');
 
-    // Verify toast notification appears
-    await page.waitForSelector('.hud-toast.show', { timeout: 3000 });
+    const preApplyCount = await page.evaluate(() => {
+      const eng = (window as any).__mnemonicEngine;
+      return eng.mutationManager.currentWorldData.exhibits.length;
+    });
+    expect(preApplyCount).toBe(35); // Still 35 before apply!
+
+    // Step B: Apply Mutation
+    logStep('9B. apply mutation');
+    await page.click('#mutate-apply-btn');
+    await page.waitForTimeout(400);
 
     const postMutationCount = await page.evaluate(() => {
       const eng = (window as any).__mnemonicEngine;
@@ -153,23 +219,34 @@ test.describe('Mnemonic World Engine Interactive Visitor Journey', () => {
     });
     expect(postMutationCount).toBe(36);
 
-    // 10. Verify inspection card and trace to machine
-    await page.waitForSelector('.inspect-card', { state: 'visible' });
-    const inspectCardTitle = await page.textContent('.inspect-card h2');
-    expect(inspectCardTitle).toContain('Nebula Compiler');
+    // Step C: Undo Last Mutation via Menu Drawer
+    logStep('9C. undo mutation');
+    await openMenuDrawer();
+    await page.click('#drawer-undo-btn');
+    await page.waitForTimeout(300);
 
-    // Click TRACE TO MACHINE
-    await page.click('#trace-btn');
-    await page.waitForSelector('.trace-step', { timeout: 3000 });
-    const traceSteps = await page.locator('.trace-step').count();
-    expect(traceSteps).toBeGreaterThanOrEqual(5);
+    const postUndoCount = await page.evaluate(() => {
+      const eng = (window as any).__mnemonicEngine;
+      return eng.mutationManager.currentWorldData.exhibits.length;
+    });
+    expect(postUndoCount).toBe(35);
 
-    // Close inspect card via close button
-    await page.click('#inspect-close-btn');
+    // Re-apply for reset verification
+    await page.click('#drawer-mutate-btn');
+    await page.waitForSelector('#patch-input-textarea', { state: 'visible' });
+    await page.click('#mutate-fixture-btn');
     await page.waitForTimeout(100);
+    await page.click('#mutate-preview-btn');
+    await page.waitForSelector('#mutate-apply-btn', { state: 'visible' });
+    await page.click('#mutate-apply-btn');
+    await page.waitForTimeout(400);
 
-    // 11. Reset to Canonical World
-    await page.click('button:has-text("Reset to Canonical World")');
+    // Step D: Reset to Canonical World with Confirmation Modal
+    logStep('9D. canonical reset confirmation');
+    await openMenuDrawer();
+    await page.click('#drawer-reset-btn');
+    await page.waitForSelector('#confirm-ok-btn', { state: 'visible' });
+    await page.click('#confirm-ok-btn');
     await page.waitForTimeout(300);
 
     const postResetCount = await page.evaluate(() => {
@@ -178,8 +255,10 @@ test.describe('Mnemonic World Engine Interactive Visitor Journey', () => {
     });
     expect(postResetCount).toBe(35);
 
-    // 12. Visit Dexter Sanctuary (Non-Project Constant)
-    await page.click('button:has-text("Visit Dexter Sanctuary")');
+    // 10. Visit Dexter Sanctuary (Non-Project Constant)
+    logStep('10. dexter sanctuary');
+    await openMenuDrawer();
+    await page.click('#drawer-sanctuary-btn');
     await page.waitForTimeout(300);
 
     const sanctuaryCardVisible = await page.isVisible('.inspect-card');
@@ -203,31 +282,40 @@ test.describe('Mnemonic World Engine Interactive Visitor Journey', () => {
     const isClosed = await page.locator('.inspect-card').evaluate(el => el.style.display === 'none');
     expect(isClosed).toBe(true);
 
-    // 13. Audio mute toggle
-    await page.click('button:has-text("Audio:")');
-    const audioText = await page.textContent('button:has-text("Audio:")');
+    // 11. Audio mute toggle via Menu Drawer
+    logStep('11. audio toggle');
+    await openMenuDrawer();
+    const audioBtn = page.locator('#drawer-audio-btn');
+    await audioBtn.click();
+    await page.waitForTimeout(100);
+    const audioText = await audioBtn.textContent();
     expect(audioText).toContain('Audio: Active');
 
-    // 14. Shadow Mode Toggle & Contained Universe Environment Verification
-    const shadowBtn = page.locator('#shadow-toggle-btn');
-    expect(await shadowBtn.textContent()).toContain('Shadows: Reactive High');
+    // 12. Shadow Mode Toggle
+    logStep('12. shadow mode toggle');
+    const shadowBtn = page.locator('#drawer-shadow-btn');
+    expect(await shadowBtn.textContent()).toContain('Shadows: High');
 
-    // Cycle to Static Standard
+    // Cycle to Static
     await shadowBtn.click();
     await page.waitForTimeout(100);
-    expect(await shadowBtn.textContent()).toContain('Shadows: Static Standard');
+    expect(await shadowBtn.textContent()).toContain('Shadows: Static');
 
     // Cycle to Off
     await shadowBtn.click();
     await page.waitForTimeout(100);
     expect(await shadowBtn.textContent()).toContain('Shadows: Off');
 
-    // Cycle back to Reactive High
+    // Cycle back to High
     await shadowBtn.click();
     await page.waitForTimeout(100);
-    expect(await shadowBtn.textContent()).toContain('Shadows: Reactive High');
+    expect(await shadowBtn.textContent()).toContain('Shadows: High');
+
+    // Close menu drawer
+    await closeMenuDrawer();
 
     // Verify contained universe elements & parallax starfield in engine
+    logStep('13. contained universe verification');
     const cosmosVerification = await page.evaluate(() => {
       const eng = (window as any).__mnemonicEngine;
       const bubble = eng.terrain.group.getObjectByName('containment_bubble_membrane');
@@ -257,46 +345,25 @@ test.describe('Mnemonic World Engine Interactive Visitor Journey', () => {
     expect(cosmosVerification.shadowMapEnabled).toBe(true);
     expect(cosmosVerification.isShadowReactive).toBe(true);
 
-    // 15. Fullscreen and Cinematic HUD Toggle Verification
-    const fullscreenBtn = page.locator('#fullscreen-toggle-btn');
-    await expect(fullscreenBtn).toBeVisible();
-    expect(await fullscreenBtn.textContent()).toContain('Fullscreen');
-
-    const cinematicBtn = page.locator('#cinematic-toggle-btn');
-    await expect(cinematicBtn).toBeVisible();
-
+    // 14. Cinematic HUD Toggle Verification
+    logStep('14. cinematic HUD toggle');
     const restorePill = page.locator('#hud-restore-pill');
     await expect(restorePill).toBeAttached();
 
-    // Toggle Cinematic Mode via button
-    await cinematicBtn.click();
-    await page.waitForTimeout(100);
-    const isHudHiddenAfterBtn = await page.locator('#mnemonic-ui-root').evaluate(el => el.classList.contains('hud-hidden'));
-    expect(isHudHiddenAfterBtn).toBe(true);
-
-    // Restore HUD via top pill
-    await restorePill.click();
-    await page.waitForTimeout(100);
-    const isHudRestoredAfterPill = await page.locator('#mnemonic-ui-root').evaluate(el => !el.classList.contains('hud-hidden'));
-    expect(isHudRestoredAfterPill).toBe(true);
-
     // Toggle Cinematic Mode via keyboard shortcut [H]
     await page.keyboard.press('KeyH');
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(150);
     const isHudHiddenAfterKeyH = await page.locator('#mnemonic-ui-root').evaluate(el => el.classList.contains('hud-hidden'));
     expect(isHudHiddenAfterKeyH).toBe(true);
 
-    // Restore HUD via keyboard shortcut [H]
-    await page.keyboard.press('KeyH');
-    await page.waitForTimeout(100);
-    const isHudRestoredAfterKeyH = await page.locator('#mnemonic-ui-root').evaluate(el => !el.classList.contains('hud-hidden'));
-    expect(isHudRestoredAfterKeyH).toBe(true);
+    // Restore HUD via top pill
+    await restorePill.click();
+    await page.waitForTimeout(150);
+    const isHudRestoredAfterPill = await page.locator('#mnemonic-ui-root').evaluate(el => !el.classList.contains('hud-hidden'));
+    expect(isHudRestoredAfterPill).toBe(true);
 
-    // Press KeyF for fullscreen trigger without errors
-    await page.keyboard.press('KeyF');
-    await page.waitForTimeout(100);
-
-    // 16. Verification of 25 Next-Gen Monumental Improvements
+    // 15. Verification of Next-Gen Monumental Improvements
+    logStep('15. next-gen engine verification');
     const nextGenVerification = await page.evaluate(() => {
       const eng = (window as any).__mnemonicEngine;
       return {
@@ -332,27 +399,41 @@ test.describe('Mnemonic World Engine Interactive Visitor Journey', () => {
     expect(nextGenVerification.hasMantaRay).toBe(true);
     expect(nextGenVerification.hasMaglevTrain).toBe(true);
 
-    // Interactive Glider toggle
-    await page.keyboard.press('KeyG');
+    // 16. Interactive Lab Mechanics (Glider, Katamari, Cymatics)
+    logStep('16. lab mechanics verification');
+    await openMenuDrawer();
+
+    // Toggle Glider
+    const gliderBtn = page.locator('#lab-glider-btn');
+    await gliderBtn.click({ force: true });
     await page.waitForTimeout(100);
     const isGliderActive = await page.evaluate(() => (window as any).__mnemonicEngine.mobility.isGliderActive);
     expect(isGliderActive).toBe(true);
-    await page.keyboard.press('KeyG'); // turn off
+    await gliderBtn.click({ force: true }); // turn off
 
-    // Interactive Katamari toggle
-    await page.keyboard.press('KeyK');
+    // Toggle Katamari
+    const katamariBtn = page.locator('#lab-katamari-btn');
+    await katamariBtn.click({ force: true });
     await page.waitForTimeout(100);
     const isKatamariActive = await page.evaluate(() => (window as any).__mnemonicEngine.mobility.isKatamariActive);
     expect(isKatamariActive).toBe(true);
-    await page.keyboard.press('KeyK'); // turn off
+    await katamariBtn.click({ force: true }); // turn off
 
-    // Interactive Cymatic blast
-    await page.keyboard.press('KeyB');
+    // Fire Cymatics
+    const cymaticsBtn = page.locator('#lab-cymatics-btn');
+    await cymaticsBtn.click({ force: true });
     await page.waitForTimeout(100);
     const cymaticWavesCount = await page.evaluate(() => (window as any).__mnemonicEngine.spatialSynth.cymaticRipples.length);
     expect(cymaticWavesCount).toBeGreaterThanOrEqual(1);
 
+    await closeMenuDrawer();
+
+    // Visual Proof Screenshot Artifact
+    logStep('17. capture screenshot artifact');
+    await page.screenshot({ path: 'test-results/consolidated-visitor-journey.png' });
+
     // Final check for console errors
     expect(consoleErrors).toHaveLength(0);
+    logStep('18. test completed successfully');
   });
 });

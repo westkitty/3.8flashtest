@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import type { SemanticExhibit } from '../types';
+import { ResourceDisposer } from '../utils/ResourceDisposer';
 
 export interface ArchaeologistDrone {
   mesh: THREE.Group;
@@ -14,7 +15,9 @@ export class AutonomousEcosystem {
   private drones: ArchaeologistDrone[] = [];
   private mantaRays: THREE.Group[] = [];
   private firefliesMesh!: THREE.Points;
-  private fireflyPositions!: Float32Array;
+
+  // Reusable scratch vector for drone navigation to avoid GC allocations
+  private scratchDroneDir = new THREE.Vector3();
 
   // Director Mode
   public isDirectorActive = false;
@@ -128,15 +131,15 @@ export class AutonomousEcosystem {
   private buildCyberFireflies() {
     const count = 300;
     const geo = new THREE.BufferGeometry();
-    this.fireflyPositions = new Float32Array(count * 3);
+    const positions = new Float32Array(count * 3);
 
     for (let i = 0; i < count; i++) {
-      this.fireflyPositions[i * 3] = (Math.random() - 0.5) * 260;
-      this.fireflyPositions[i * 3 + 1] = 2 + Math.random() * 20;
-      this.fireflyPositions[i * 3 + 2] = (Math.random() - 0.5) * 260;
+      positions[i * 3] = (Math.random() - 0.5) * 260;
+      positions[i * 3 + 1] = 2 + Math.random() * 20;
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 260;
     }
 
-    geo.setAttribute('position', new THREE.BufferAttribute(this.fireflyPositions, 3));
+    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     const mat = new THREE.PointsMaterial({
       color: 0x38bdf8,
       size: 1.8,
@@ -168,6 +171,10 @@ export class AutonomousEcosystem {
     return this.isDirectorActive;
   }
 
+  public setDirectorActive(active: boolean): void {
+    this.isDirectorActive = active;
+  }
+
   public speakMonumentLore(title: string, summary: string) {
     if (typeof window === 'undefined' || !window.speechSynthesis) return;
 
@@ -179,16 +186,16 @@ export class AutonomousEcosystem {
   }
 
   public update(delta: number, time: number) {
-    // 1. Drones behavior trees
+    // 1. Drones behavior trees with reusable scratch vectors
     for (const d of this.drones) {
       d.timer -= delta;
       d.mesh.position.y += Math.sin(time * 3.0) * 0.015; // Hover bob
 
       if (d.state === 'patrol') {
-        const dir = new THREE.Vector3().subVectors(d.targetPos, d.mesh.position);
-        if (dir.length() > 1.5) {
-          dir.normalize();
-          d.mesh.position.addScaledVector(dir, delta * 6.0);
+        this.scratchDroneDir.subVectors(d.targetPos, d.mesh.position);
+        if (this.scratchDroneDir.length() > 1.5) {
+          this.scratchDroneDir.normalize();
+          d.mesh.position.addScaledVector(this.scratchDroneDir, delta * 6.0);
           d.mesh.lookAt(d.targetPos);
         } else {
           d.state = 'scan';
@@ -224,12 +231,11 @@ export class AutonomousEcosystem {
       m.lookAt(Math.cos(angle + 0.1) * radius, m.position.y, Math.sin(angle + 0.1) * radius);
     }
 
-    // 3. Fireflies drift
-    const posArr = this.fireflyPositions;
-    for (let i = 0; i < posArr.length / 3; i++) {
-      posArr[i * 3 + 1] += Math.sin(time * 1.5 + i) * 0.04;
+    // 3. Fireflies drift: lightweight group rotation/oscillation without CPU buffer re-uploads
+    if (this.firefliesMesh) {
+      this.firefliesMesh.rotation.y = time * 0.03;
+      this.firefliesMesh.position.y = Math.sin(time * 0.6) * 0.8;
     }
-    (this.firefliesMesh.geometry.attributes.position as THREE.BufferAttribute).needsUpdate = true;
 
     // 4. Director Mode Camera Path
     if (this.isDirectorActive) {
@@ -241,5 +247,9 @@ export class AutonomousEcosystem {
     const pos = this.directorSpline.getPointAt(this.directorProgress);
     const lookAt = this.directorSpline.getPointAt((this.directorProgress + 0.03) % 1.0);
     return { pos, lookAt };
+  }
+
+  public dispose(): void {
+    ResourceDisposer.disposeTree(this.group);
   }
 }

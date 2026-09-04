@@ -4,6 +4,31 @@ export type Confidence = 'explicit' | 'strongly_derived' | 'inferred' | 'unknown
 
 export type Epoch = 'all' | 'archaic' | 'monumental' | 'contemporary' | 'emergent';
 
+export type AppMode = 'surface' | 'connections' | 'machine' | 'tour' | 'mutation-preview' | 'lab';
+
+export interface SearchResult {
+  exhibit: SemanticExhibit;
+  score: number;
+  matchField: 'id' | 'title' | 'projectId' | 'projectName' | 'content';
+  matchedSnippet: string;
+}
+
+export interface MutationPreviewResult {
+  candidateExhibit: SemanticExhibit;
+  candidateRelationships: SemanticRelationship[];
+  targetRegion: MacroRegion;
+  explicitCount: number;
+  inferredCount: number;
+  displacementScore: number;
+  message: string;
+}
+
+export interface MutationResult {
+  success: boolean;
+  message: string;
+  patchExhibit?: SemanticExhibit;
+}
+
 export interface ProjectSummary {
   id: string;
   name: string;

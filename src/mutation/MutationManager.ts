@@ -1,4 +1,11 @@
-import type { SemanticWorldData, SemanticExhibit, WingId } from '../types';
+import type {
+  SemanticWorldData,
+  SemanticExhibit,
+  SemanticRelationship,
+  WingId,
+  MutationPreviewResult,
+  MutationResult
+} from '../types';
 import { SemanticSpatialSolver } from '../world/SemanticSpatialSolver';
 
 export class MutationManager {
@@ -8,13 +15,27 @@ export class MutationManager {
   public mutatedExhibitId: string | null = null;
   public lastAffectedRegions: string[] = [];
 
+  // Undo history stack
+  private historyStack: SemanticWorldData[] = [];
+
   constructor(worldData: SemanticWorldData) {
     this.initialWorldData = JSON.parse(JSON.stringify(worldData));
     this.currentWorldData = JSON.parse(JSON.stringify(worldData));
   }
 
-  // Parse structured knowledge patch JSON or plain text markdown
-  public ingestPatch(content: string, isJson: boolean): { success: boolean; message: string; patchExhibit?: SemanticExhibit } {
+  public get canUndo(): boolean {
+    return this.historyStack.length > 0;
+  }
+
+  public get mutationCount(): number {
+    return this.currentWorldData.exhibits.filter(e => e.isMutated).length;
+  }
+
+  /**
+   * Stage 1: Parse and validate input, returning speculative candidate preview
+   * WITHOUT modifying currentWorldData.
+   */
+  public previewPatch(content: string, isJson = true): { success: boolean; message: string; preview?: MutationPreviewResult } {
     try {
       if (isJson) {
         const patch = JSON.parse(content);
@@ -43,7 +64,7 @@ export class MutationManager {
           }
         }
 
-        const newExhibit: SemanticExhibit = {
+        const candidateExhibit: SemanticExhibit = {
           id: patch.id,
           slug: patch.id.toLowerCase().replace(/[^a-z0-9]/g, '-'),
           title: patch.title,
@@ -80,16 +101,22 @@ export class MutationManager {
           isMutated: true
         };
 
-        this.currentWorldData.exhibits.push(newExhibit);
+        const candidateRelationships: SemanticRelationship[] = [];
+        let explicitCount = 0;
+        let inferredCount = 0;
 
         if (patch.relationships && Array.isArray(patch.relationships)) {
           for (const r of patch.relationships) {
             if (r && typeof r.to === 'string' && this.currentWorldData.exhibits.some(e => e.id === r.to)) {
-              this.currentWorldData.relationships.push({
+              const conf = r.confidence || 'explicit';
+              if (conf === 'inferred') inferredCount++;
+              else explicitCount++;
+
+              candidateRelationships.push({
                 from: patch.id,
                 to: r.to,
                 type: r.type || 'mutated_link',
-                confidence: r.confidence || 'explicit',
+                confidence: conf,
                 reason: r.reason || 'Synthesized in-world knowledge link',
                 isMutated: true
               });
@@ -97,30 +124,42 @@ export class MutationManager {
           }
         }
 
-        // Re-solve spatial equilibrium deterministically
-        const newPositions = SemanticSpatialSolver.solve(
-          this.currentWorldData.exhibits,
-          this.currentWorldData.relationships,
-          this.currentWorldData.regions
-        );
+        // Simulate spatial solver displacement
+        const simExhibits = [...this.currentWorldData.exhibits, candidateExhibit];
+        const simRels = [...this.currentWorldData.relationships, ...candidateRelationships];
+        const simPositions = SemanticSpatialSolver.solve(simExhibits, simRels, this.currentWorldData.regions);
 
+        let totalDisplacement = 0;
         for (const ex of this.currentWorldData.exhibits) {
-          const solved = newPositions.get(ex.id);
-          if (solved) {
-            ex.position = solved;
+          const newPos = simPositions.get(ex.id);
+          if (newPos) {
+            totalDisplacement += Math.hypot(newPos[0] - ex.position[0], newPos[2] - ex.position[2]);
           }
         }
+        const solvedCandidatePos = simPositions.get(candidateExhibit.id);
+        if (solvedCandidatePos) {
+          candidateExhibit.position = solvedCandidatePos;
+        }
 
-        this.hasActiveMutation = true;
-        this.mutatedExhibitId = patch.id;
-        this.lastAffectedRegions = [wing];
-        return { success: true, message: `Successfully ingested patch "${patch.title}". Spatial solver relaxed topology.`, patchExhibit: newExhibit };
+        return {
+          success: true,
+          message: `Preview generated for "${patch.title}" in ${targetRegion.name}.`,
+          preview: {
+            candidateExhibit,
+            candidateRelationships,
+            targetRegion,
+            explicitCount,
+            inferredCount,
+            displacementScore: Math.round(totalDisplacement * 10) / 10,
+            message: `Structured patch proposes 1 exhibit and ${candidateRelationships.length} relationships.`
+          }
+        };
       } else {
-        // Plain text / Markdown local deterministic lexical inference
+        // Plain text / Markdown local deterministic inference
         const titleMatch = content.match(/^#\s+(.+)$/m);
         const title = titleMatch ? titleMatch[1].trim() : 'Emergent Markdown Concept';
 
-        // Deterministic hash ID from title and content
+        // Deterministic hash ID
         let hash = 0;
         const seedStr = `${title}:${content}`;
         for (let i = 0; i < seedStr.length; i++) {
@@ -151,7 +190,9 @@ export class MutationManager {
           }
         }
 
-        const newExhibit: SemanticExhibit = {
+        const targetRegion = this.currentWorldData.regions[bestMatch.wing] || this.currentWorldData.regions.north;
+
+        const candidateExhibit: SemanticExhibit = {
           id,
           slug: id,
           title,
@@ -188,43 +229,124 @@ export class MutationManager {
           isMutated: true
         };
 
-        this.currentWorldData.exhibits.push(newExhibit);
-
-        this.currentWorldData.relationships.push({
+        const candidateRelationships: SemanticRelationship[] = [{
           from: id,
           to: bestMatch.id,
           type: 'lexical_concordance',
           confidence: 'inferred',
           reason: `Locally inferred lexical overlap score: ${bestScore} keywords`,
           isMutated: true
-        });
+        }];
 
-        // Re-solve spatial equilibrium
-        const newPositions = SemanticSpatialSolver.solve(
-          this.currentWorldData.exhibits,
-          this.currentWorldData.relationships,
-          this.currentWorldData.regions
-        );
+        const simExhibits = [...this.currentWorldData.exhibits, candidateExhibit];
+        const simRels = [...this.currentWorldData.relationships, ...candidateRelationships];
+        const simPositions = SemanticSpatialSolver.solve(simExhibits, simRels, this.currentWorldData.regions);
 
+        let totalDisplacement = 0;
         for (const ex of this.currentWorldData.exhibits) {
-          const solved = newPositions.get(ex.id);
-          if (solved) {
-            ex.position = solved;
+          const newPos = simPositions.get(ex.id);
+          if (newPos) {
+            totalDisplacement += Math.hypot(newPos[0] - ex.position[0], newPos[2] - ex.position[2]);
           }
         }
+        const solvedCandidatePos = simPositions.get(candidateExhibit.id);
+        if (solvedCandidatePos) {
+          candidateExhibit.position = solvedCandidatePos;
+        }
 
-        this.hasActiveMutation = true;
-        this.mutatedExhibitId = id;
-        this.lastAffectedRegions = [bestMatch.wing];
-        return { success: true, message: `Inferred text ingested: linked to ${bestMatch.title} [LOW-CONFIDENCE]. Spatial solver relaxed topology.`, patchExhibit: newExhibit };
+        return {
+          success: true,
+          message: `Inferred preview generated: cluster with ${bestMatch.title} in ${targetRegion.name}.`,
+          preview: {
+            candidateExhibit,
+            candidateRelationships,
+            targetRegion,
+            explicitCount: 0,
+            inferredCount: 1,
+            displacementScore: Math.round(totalDisplacement * 10) / 10,
+            message: `Lexical analysis linked concept to ${bestMatch.title} [LOW CONFIDENCE / INFERRED].`
+          }
+        };
       }
     } catch (e: any) {
-      return { success: false, message: `Error parsing patch: ${e.message}` };
+      return { success: false, message: `Error generating preview: ${e.message}` };
     }
   }
 
+  /**
+   * Stage 2: Commit a previewed mutation to the active world.
+   */
+  public applyMutation(preview: MutationPreviewResult): MutationResult {
+    // Snapshot current state for undo
+    this.historyStack.push(JSON.parse(JSON.stringify(this.currentWorldData)));
+
+    this.currentWorldData.exhibits.push(preview.candidateExhibit);
+    for (const rel of preview.candidateRelationships) {
+      this.currentWorldData.relationships.push(rel);
+    }
+
+    // Re-solve spatial equilibrium deterministically
+    const newPositions = SemanticSpatialSolver.solve(
+      this.currentWorldData.exhibits,
+      this.currentWorldData.relationships,
+      this.currentWorldData.regions
+    );
+
+    for (const ex of this.currentWorldData.exhibits) {
+      const solved = newPositions.get(ex.id);
+      if (solved) {
+        ex.position = solved;
+      }
+    }
+
+    this.hasActiveMutation = true;
+    this.mutatedExhibitId = preview.candidateExhibit.id;
+    this.lastAffectedRegions = [preview.candidateExhibit.wing];
+
+    return {
+      success: true,
+      message: `Mutation applied: "${preview.candidateExhibit.title}". Topology updated.`,
+      patchExhibit: preview.candidateExhibit
+    };
+  }
+
+  /**
+   * Stage 3: Undo the last applied mutation.
+   */
+  public undoLastMutation(): { success: boolean; message: string; restoredExhibit?: SemanticExhibit } {
+    if (this.historyStack.length === 0) {
+      return { success: false, message: 'No mutations to undo.' };
+    }
+
+    const previousState = this.historyStack.pop()!;
+    this.currentWorldData = previousState;
+    this.hasActiveMutation = this.currentWorldData.exhibits.some(e => e.isMutated);
+    const lastMutated = this.currentWorldData.exhibits.find(e => e.isMutated);
+    this.mutatedExhibitId = lastMutated ? lastMutated.id : null;
+
+    return {
+      success: true,
+      message: 'Reverted last mutation. Topology restored.'
+    };
+  }
+
+  /**
+   * Convenience combined method for direct or programmatic ingestion.
+   */
+  public ingestPatch(content: string, isJson: boolean): { success: boolean; message: string; patchExhibit?: SemanticExhibit } {
+    const previewRes = this.previewPatch(content, isJson);
+    if (!previewRes.success || !previewRes.preview) {
+      return { success: false, message: previewRes.message };
+    }
+    return this.applyMutation(previewRes.preview);
+  }
+
+  /**
+   * Reset world to original canonical baseline.
+   */
   public resetToCanonical(): SemanticWorldData {
     this.currentWorldData = JSON.parse(JSON.stringify(this.initialWorldData));
+    this.historyStack = [];
     this.hasActiveMutation = false;
     this.mutatedExhibitId = null;
     this.lastAffectedRegions = [];

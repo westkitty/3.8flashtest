@@ -26,21 +26,48 @@ The Mnemonic World Engine is an experimental WebGL environment built with Three.
 
 ---
 
-## 3. Knowledge Ingestion & Live Mutation
-- **Ingestion**: Supports both structured JSON patches and freeform Markdown.
-- **Confidence Separation**:
-  - `EXPLICIT`: Grounded in confirmed relationships.
-  - `INFERRED`: Local lexical similarity calculations (TF-IDF / token concordance), strictly distinguished with dashed gold indicators and low-confidence caveats.
-- **Dynamic Topology**: Spawns emergent architectural spires, adjusts regional bounds, and weaves new bezier relational arcs across the world.
-- **Reset**: Instantly rolls back the simulation to the pristine canonical state.
+## 3. Speculative Mutation Workflow & Spatial Solver
+- **Three-Stage Workflow**:
+  1. *Preview*: Speculatively ingests candidate JSON or Markdown notes, computes target region, builds provisional exhibit/relationships, and calculates topological displacement via `SemanticSpatialSolver` without mutating the canonical world.
+  2. *Apply*: Commits previewed patch to `currentWorldData`, snapshots previous state onto an undo history stack, and animates topological reorganization.
+  3. *Undo*: Pops previous state from history stack and restores former geometry.
+  4. *Reset*: Instant rollback to pristine canonical baseline with confirmation protection.
+- **Confidence Stratification**:
+  - `EXPLICIT`: Source-grounded links (cyan solid catenary arcs).
+  - `STRONGLY_DERIVED`: Architectural lineages (lime solid catenary arcs).
+  - `INFERRED`: Local lexical concordance (golden dashed traces with low-confidence caveats).
 
 ---
 
-## 4. Dexter Sanctuary
+## 4. Consolidation & Performance Engine
+- **ModeManager (`src/world/ModeManager.ts`)**:
+  - Authoritative mutual-exclusion state machine managing `surface`, `connections`, `machine`, `tour`, `mutation-preview`, and `lab`.
+  - Guaranteed lifecycle transitions: entering `machine` automatically ceases conflicting surface loops; entering `connections` activates orbital views and graph shaders; exiting safely cleans up transient state.
+- **PerformanceGovernor (`src/performance/PerformanceGovernor.ts`)**:
+  - Maintains rolling 60-frame execution window.
+  - Hysteresis thresholds (`high` at <14ms, `balanced` at 14-22ms, `low` at >22ms) prevent rapid visual quality flapping.
+- **FrameScheduler (`src/performance/FrameScheduler.ts`)**:
+  - Distributes workload across frame buckets (`REALTIME` at 60Hz, `MEDIUM` at 20Hz, `LOW` at 5Hz).
+  - Keeps heavy updates (radar, celestial sun position, spatial distance checks) from contending with camera and physics loops.
+- **LayerActivityManager (`src/performance/LayerActivityManager.ts`)**:
+  - Mode and depth gating: puts subterranean city simulation to sleep when the visitor is exploring the surface, and ceases surface starfield/weather animations when deep in the machine cavern.
+- **ResourceDisposer (`src/utils/ResourceDisposer.ts`)**:
+  - Traverses object hierarchies to recursively invoke `.dispose()` on geometries, materials, and textures, preventing WebGL context memory leaks.
+
+---
+
+## 5. Honest Local Presence
+- **Protocol**: Browser-native `BroadcastChannel` (`mnemonic-world-presence`) enables zero-infrastructure multi-tab synchronization on the user's local machine.
+- **Throttling**: Position broadcasts throttled to &le;10 Hz and &gt;0.4m displacement delta.
+- **Truthful Default**: Synthetic demo peers are disabled by default; only real active local tabs appear as presence avatars unless explicitly enabled in the Lab.
+
+---
+
+## 6. Dexter Sanctuary Anchor
 - **Ontological Rule**: Positioned at `[-38, y, 38]` as a fixed stone oasis with a bronze ring and companion silhouette.
-- **Invariance**: Explicitly excluded from project numbering, scoring, ranking, or graph re-layout algorithms.
+- **Invariance**: Explicitly tagged `NON_PROJECT_ANCHOR` and excluded from project numbering, scoring, ranking, or graph re-layout algorithms.
 
 ---
 
-## 5. Privacy Boundary & Gates
-- Deterministic scanner `scripts/validate-privacy.mjs` scans all source files for private credentials, AWS/GitHub tokens, IPv4 literals, and absolute home directory paths (`/Users/...`).
+## 7. Privacy Boundary & Gates
+- Deterministic scanner `scripts/validate-privacy.mjs` scans all source files for private credentials, AWS/GitHub tokens, IPv4 literals, denied personal names, and absolute home directory paths (`/Users/...`).
