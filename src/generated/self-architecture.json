@@ -4,8 +4,8 @@
   "stats": {
     "totalModules": 33,
     "totalEdges": 48,
-    "totalLines": 7733,
-    "totalBytes": 287505
+    "totalLines": 8021,
+    "totalBytes": 299890
   },
   "modules": [
     {
@@ -73,7 +73,7 @@
       "id": "scripts/build-self-map.mjs",
       "name": "build-self-map.mjs",
       "path": "scripts/build-self-map.mjs",
-      "sizeBytes": 7601,
+      "sizeBytes": 7595,
       "lineCount": 189,
       "system": "compiler_foundry",
       "layer": "fabrication_rig_gantry",
@@ -119,7 +119,7 @@
       "id": "scripts/ingest-source.mjs",
       "name": "ingest-source.mjs",
       "path": "scripts/ingest-source.mjs",
-      "sizeBytes": 13007,
+      "sizeBytes": 12997,
       "lineCount": 321,
       "system": "compiler_foundry",
       "layer": "fabrication_rig_gantry",
@@ -184,8 +184,8 @@
       "id": "src/generated/self-architecture.json",
       "name": "self-architecture.json",
       "path": "src/generated/self-architecture.json",
-      "sizeBytes": 24647,
-      "lineCount": 995,
+      "sizeBytes": 25200,
+      "lineCount": 1018,
       "system": "semantic_memory",
       "layer": "mnemonic_strata_chambers",
       "role": "Mnemonic Memory Vault",
@@ -222,8 +222,8 @@
       "id": "src/machine/MachineCity.ts",
       "name": "MachineCity.ts",
       "path": "src/machine/MachineCity.ts",
-      "sizeBytes": 5538,
-      "lineCount": 166,
+      "sizeBytes": 6533,
+      "lineCount": 187,
       "system": "machine_city",
       "layer": "mechanical_substation",
       "role": "Recursive Hardware Architecture",
@@ -240,7 +240,7 @@
         -44,
         1.3
       ],
-      "powerWatts": 266
+      "powerWatts": 299
     },
     {
       "id": "src/main.ts",
@@ -291,8 +291,8 @@
       "id": "src/player/PlayerController.ts",
       "name": "PlayerController.ts",
       "path": "src/player/PlayerController.ts",
-      "sizeBytes": 4637,
-      "lineCount": 170,
+      "sizeBytes": 4757,
+      "lineCount": 174,
       "system": "kinematics_and_input",
       "layer": "sensor_gyro_stabilizer",
       "role": "Kinematic Spatial Relay",
@@ -308,7 +308,7 @@
         -30,
         29.3
       ],
-      "powerWatts": 272
+      "powerWatts": 278
     },
     {
       "id": "src/provenance/ProvenanceTracer.ts",
@@ -427,7 +427,7 @@
       "id": "src/ui/UIOverlay.ts",
       "name": "UIOverlay.ts",
       "path": "src/ui/UIOverlay.ts",
-      "sizeBytes": 16012,
+      "sizeBytes": 16006,
       "lineCount": 462,
       "system": "synthetic_interface",
       "layer": "holographic_loom",
@@ -451,8 +451,8 @@
       "id": "src/world/GraphRenderer.ts",
       "name": "GraphRenderer.ts",
       "path": "src/world/GraphRenderer.ts",
-      "sizeBytes": 3640,
-      "lineCount": 106,
+      "sizeBytes": 4422,
+      "lineCount": 122,
       "system": "world_generation",
       "layer": "geological_computation_drum",
       "role": "Terrain & Landmark Synthesizer",
@@ -469,14 +469,14 @@
         -36,
         -43.7
       ],
-      "powerWatts": 170
+      "powerWatts": 195
     },
     {
       "id": "src/world/LandmarkBuilder.ts",
       "name": "LandmarkBuilder.ts",
       "path": "src/world/LandmarkBuilder.ts",
-      "sizeBytes": 16308,
-      "lineCount": 441,
+      "sizeBytes": 19846,
+      "lineCount": 519,
       "system": "world_generation",
       "layer": "geological_computation_drum",
       "role": "Terrain & Landmark Synthesizer",
@@ -499,8 +499,8 @@
       "id": "src/world/MnemonicEngine.ts",
       "name": "MnemonicEngine.ts",
       "path": "src/world/MnemonicEngine.ts",
-      "sizeBytes": 13495,
-      "lineCount": 339,
+      "sizeBytes": 15096,
+      "lineCount": 371,
       "system": "world_generation",
       "layer": "geological_computation_drum",
       "role": "Terrain & Landmark Synthesizer",
@@ -538,8 +538,8 @@
       "id": "src/world/MnemonicWeather.ts",
       "name": "MnemonicWeather.ts",
       "path": "src/world/MnemonicWeather.ts",
-      "sizeBytes": 2124,
-      "lineCount": 62,
+      "sizeBytes": 2855,
+      "lineCount": 85,
       "system": "world_generation",
       "layer": "geological_computation_drum",
       "role": "Terrain & Landmark Synthesizer",
@@ -556,7 +556,7 @@
         -36,
         -57.5
       ],
-      "powerWatts": 99
+      "powerWatts": 136
     },
     {
       "id": "src/world/SemanticSpatialSolver.ts",
@@ -585,8 +585,8 @@
       "id": "src/world/Terrain.ts",
       "name": "Terrain.ts",
       "path": "src/world/Terrain.ts",
-      "sizeBytes": 9301,
-      "lineCount": 247,
+      "sizeBytes": 13388,
+      "lineCount": 338,
       "system": "world_generation",
       "layer": "geological_computation_drum",
       "role": "Terrain & Landmark Synthesizer",
