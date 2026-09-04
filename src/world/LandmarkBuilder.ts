@@ -397,20 +397,47 @@ export class LandmarkBuilder {
     g.add(ring1);
   }
 
-  // 11. E24: Invincible Magic Citadel
+  // 11. E24: Invincible Magic Citadel (Hero high-fantasy fortified bastion)
   private static buildInvincibleCitadel(g: THREE.Group, s: number) {
-    const castleMat = this.getMaterial(0x2c1b18, 0.7, 0.3);
+    const castleMat = this.getMaterial(0x241412, 0.75, 0.35);
+    const goldArmor = this.getMaterial(0xd97706, 0.25, 0.9, 0xb45309);
     const magicGlow = this.getMaterial(0xff7043, 0.2, 0.8, 0xbf360c);
 
-    const keep = new THREE.Mesh(new THREE.BoxGeometry(6 * s, 14 * s, 6 * s), castleMat);
-    keep.position.set(0, 7 * s, 0);
+    // Central Citadel Keep with machicolations
+    const keep = new THREE.Mesh(new THREE.BoxGeometry(8 * s, 18 * s, 8 * s), castleMat);
+    keep.position.set(0, 9 * s, 0);
     g.add(keep);
 
-    // Floating floating arcane crown
-    const crown = new THREE.Mesh(new THREE.OctahedronGeometry(2 * s), magicGlow);
-    crown.position.set(0, 17 * s, 0);
+    // Four corner defensive bastion towers with conical spires
+    for (const sx of [-1, 1]) {
+      for (const sz of [-1, 1]) {
+        const turret = new THREE.Mesh(new THREE.CylinderGeometry(1.6 * s, 2.2 * s, 22 * s, 8), castleMat);
+        turret.position.set(sx * 6 * s, 11 * s, sz * 6 * s);
+        g.add(turret);
+
+        const spire = new THREE.Mesh(new THREE.ConeGeometry(2 * s, 6 * s, 8), goldArmor);
+        spire.position.set(sx * 6 * s, 24 * s, sz * 6 * s);
+        g.add(spire);
+      }
+    }
+
+    // Outer curtain wall bastions
+    for (const sx of [-1, 1]) {
+      const wall = new THREE.Mesh(new THREE.BoxGeometry(1.4 * s, 10 * s, 12 * s), castleMat);
+      wall.position.set(sx * 6 * s, 5 * s, 0);
+      g.add(wall);
+    }
+
+    // Floating arcane crown & rotating planetary runic shield
+    const crown = new THREE.Mesh(new THREE.OctahedronGeometry(2.8 * s, 1), magicGlow);
+    crown.position.set(0, 22 * s, 0);
     crown.name = 'arcane_crown';
     g.add(crown);
+
+    const shieldRing = new THREE.Mesh(new THREE.TorusGeometry(6 * s, 0.3 * s, 6, 24), goldArmor);
+    shieldRing.position.set(0, 22 * s, 0);
+    shieldRing.name = 'rotating_ring_1';
+    g.add(shieldRing);
   }
 
   // 12. E29: Arkship Hull
