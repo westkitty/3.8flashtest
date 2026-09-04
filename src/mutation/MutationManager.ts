@@ -22,8 +22,26 @@ export class MutationManager {
           return { success: false, message: 'Invalid patch: missing required "id" or "title"' };
         }
 
+        if (this.currentWorldData.exhibits.some(e => e.id === patch.id)) {
+          return { success: false, message: `Invalid patch: exhibit ID "${patch.id}" already exists.` };
+        }
+
         const wing = (patch.wing || 'north') as WingId;
         const targetRegion = this.currentWorldData.regions[wing] || this.currentWorldData.regions.north;
+
+        let posX = targetRegion.center[0] + 16;
+        let posY = targetRegion.elevation + 2;
+        let posZ = targetRegion.center[2] + 16;
+        if (Array.isArray(patch.position) && patch.position.length === 3) {
+          const [px, py, pz] = patch.position;
+          if (typeof px === 'number' && !isNaN(px) && isFinite(px) &&
+              typeof py === 'number' && !isNaN(py) && isFinite(py) &&
+              typeof pz === 'number' && !isNaN(pz) && isFinite(pz)) {
+            posX = Math.max(-160, Math.min(160, px));
+            posY = Math.max(-40, Math.min(100, py));
+            posZ = Math.max(-160, Math.min(160, pz));
+          }
+        }
 
         const newExhibit: SemanticExhibit = {
           id: patch.id,
@@ -35,7 +53,7 @@ export class MutationManager {
           isArchaeological: false,
           epoch: patch.epoch || 'emergent',
           startYear: 2026,
-          position: patch.position || [targetRegion.center[0] + 16, targetRegion.elevation + 2, targetRegion.center[2] + 16],
+          position: [posX, posY, posZ],
           scale: 1.6,
           projectIds: [patch.id],
           projects: [{
@@ -66,14 +84,16 @@ export class MutationManager {
 
         if (patch.relationships && Array.isArray(patch.relationships)) {
           for (const r of patch.relationships) {
-            this.currentWorldData.relationships.push({
-              from: patch.id,
-              to: r.to,
-              type: r.type || 'mutated_link',
-              confidence: r.confidence || 'explicit',
-              reason: r.reason || 'Synthesized in-world knowledge link',
-              isMutated: true
-            });
+            if (r && typeof r.to === 'string' && this.currentWorldData.exhibits.some(e => e.id === r.to)) {
+              this.currentWorldData.relationships.push({
+                from: patch.id,
+                to: r.to,
+                type: r.type || 'mutated_link',
+                confidence: r.confidence || 'explicit',
+                reason: r.reason || 'Synthesized in-world knowledge link',
+                isMutated: true
+              });
+            }
           }
         }
 
@@ -99,7 +119,19 @@ export class MutationManager {
         // Plain text / Markdown local deterministic lexical inference
         const titleMatch = content.match(/^#\s+(.+)$/m);
         const title = titleMatch ? titleMatch[1].trim() : 'Emergent Markdown Concept';
-        const id = 'patch-' + Math.random().toString(36).substring(2, 8);
+
+        // Deterministic hash ID from title and content
+        let hash = 0;
+        const seedStr = `${title}:${content}`;
+        for (let i = 0; i < seedStr.length; i++) {
+          hash = ((hash << 5) - hash) + seedStr.charCodeAt(i);
+          hash |= 0;
+        }
+        const id = 'patch-md-' + Math.abs(hash).toString(36).slice(0, 8);
+
+        if (this.currentWorldData.exhibits.some(e => e.id === id)) {
+          return { success: false, message: `Markdown concept "${title}" has already been ingested.` };
+        }
 
         const words = content.toLowerCase().replace(/[^a-z0-9]/g, ' ').split(/\s+/).filter(w => w.length > 3);
         const wordSet = new Set(words);

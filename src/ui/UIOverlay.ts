@@ -14,10 +14,21 @@ export interface UIEvents {
   onAudioToggle: () => boolean;
 }
 
+function escapeHtml(str: unknown): string {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 export class UIOverlay {
   public root: HTMLDivElement;
   public events: Partial<UIEvents> = {};
   private inspectCard!: HTMLDivElement;
+  private toastContainer!: HTMLDivElement;
   private isOrbital = false;
   private isSubterranean = false;
   private activeExhibit: SemanticExhibit | null = null;
@@ -134,11 +145,13 @@ export class UIOverlay {
       }
       .inspect-card {
         bottom: 24px;
-        right: 24px;
+        right: 256px;
         width: 400px;
+        max-width: calc(100vw - 280px);
         max-height: 520px;
         overflow-y: auto;
         display: none;
+        z-index: 50;
       }
       .inspect-card h2 {
         margin: 0 0 4px 0;
@@ -218,6 +231,42 @@ export class UIOverlay {
         color: #38bdf8;
         font-size: 10px;
         text-transform: uppercase;
+      }
+      .hud-toast-container {
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        pointer-events: none;
+        z-index: 2000;
+      }
+      .hud-toast {
+        background: rgba(15, 23, 42, 0.95);
+        color: #f8fafc;
+        border: 1px solid #38bdf8;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 11px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+        pointer-events: auto;
+        opacity: 0;
+        transform: translateY(8px);
+        transition: all 0.25s ease;
+      }
+      .hud-toast.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .hud-toast-success {
+        border-color: #4ade80;
+        color: #bbf7d0;
+      }
+      .hud-toast-warning {
+        border-color: #facc15;
+        color: #fef08a;
       }
     `;
     document.head.appendChild(style);
@@ -326,11 +375,15 @@ export class UIOverlay {
     resetBtn.addEventListener('click', () => {
       this.events.onResetCanonical?.();
       this.hideInspect();
-      alert('World topology restored to pristine canonical baseline.');
+      this.showToast('World topology restored to pristine canonical baseline.', 'success');
     });
     actions.appendChild(resetBtn);
 
     this.root.appendChild(actions);
+
+    this.toastContainer = document.createElement('div');
+    this.toastContainer.className = 'hud-toast-container';
+    this.root.appendChild(this.toastContainer);
 
     this.inspectCard = document.createElement('div');
     this.inspectCard.className = 'hud-panel inspect-card';
@@ -359,21 +412,23 @@ export class UIOverlay {
 
     modal.querySelector('#modal-sample')?.addEventListener('click', async () => {
       try {
-        const res = await fetch('/tests/fixtures/knowledge-patch.json');
+        const res = await fetch('/fixtures/knowledge-patch.json');
         if (res.ok) {
           const text = await res.text();
           (modal.querySelector('#patch-input') as HTMLTextAreaElement).value = text;
+          return;
         }
       } catch {
-        (modal.querySelector('#patch-input') as HTMLTextAreaElement).value = JSON.stringify({
-          id: "patch-emergent-forge",
-          title: "Nebula Compiler & Stellar Synthesis",
-          domain: "Cosmology & Programmable Reality",
-          wing: "north",
-          summary: "A newly synthesized cosmological macro-compiler converting raw void entropy into programmable Starsilk substrate.",
-          tags: ["compiler", "starsilk", "astral-forge"]
-        }, null, 2);
+        // Fallback to in-memory JSON definition
       }
+      (modal.querySelector('#patch-input') as HTMLTextAreaElement).value = JSON.stringify({
+        id: "patch-emergent-forge",
+        title: "Nebula Compiler & Stellar Synthesis",
+        domain: "Cosmology & Programmable Reality",
+        wing: "north",
+        summary: "A newly synthesized cosmological macro-compiler converting raw void entropy into programmable Starsilk substrate.",
+        tags: ["compiler", "starsilk", "astral-forge"]
+      }, null, 2);
     });
 
     modal.querySelector('#modal-submit')?.addEventListener('click', () => {
@@ -385,34 +440,57 @@ export class UIOverlay {
     });
   }
 
+  public showToast(message: string, type: 'info' | 'success' | 'warning' = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `hud-toast hud-toast-${type}`;
+    toast.textContent = message;
+    this.toastContainer.appendChild(toast);
+    requestAnimationFrame(() => {
+      toast.classList.add('show');
+    });
+    setTimeout(() => {
+      toast.classList.remove('show');
+      setTimeout(() => {
+        toast.remove();
+      }, 300);
+    }, 3200);
+  }
+
   public showInspect(exhibit: SemanticExhibit) {
     this.activeExhibit = exhibit;
     this.inspectCard.style.display = 'block';
-    const p = exhibit.projects[0] || {};
+    const p = exhibit.projects[0] || ({} as any);
+    const badgeText = `${escapeHtml(exhibit.wing.toUpperCase())} // ${escapeHtml(exhibit.tier)}-TIER // ${escapeHtml(exhibit.archetype)}`;
+    const projectNames = exhibit.projects.map(proj => escapeHtml(proj.name)).join(', ');
+
     this.inspectCard.innerHTML = `
-      <button style="float:right;background:none;border:none;color:#94a3b8;cursor:pointer;font-size:16px;" onclick="this.parentElement.style.display='none'">✕</button>
-      <div class="inspect-badge">${exhibit.wing.toUpperCase()} // ${exhibit.tier}-TIER // ${exhibit.archetype}</div>
-      <h2>${exhibit.title}</h2>
-      <p style="font-size:11px;color:#94a3b8;margin:0 0 6px 0;">${exhibit.copy.subtitle || ''}</p>
+      <button id="inspect-close-btn" style="float:right;background:none;border:none;color:#94a3b8;cursor:pointer;font-size:16px;">✕</button>
+      <div class="inspect-badge">${badgeText}</div>
+      <h2>${escapeHtml(exhibit.title)}</h2>
+      <p style="font-size:11px;color:#94a3b8;margin:0 0 6px 0;">${escapeHtml(exhibit.copy.subtitle || '')}</p>
 
       <div class="inspect-section">
-        <strong>Plaque:</strong> ${exhibit.copy.plaque}
+        <strong>Plaque:</strong> ${escapeHtml(exhibit.copy.plaque)}
       </div>
       <div class="inspect-section">
-        <strong>Problem & Creation:</strong> ${exhibit.copy.problem || 'N/A'} — <em>${exhibit.copy.made || 'N/A'}</em>
+        <strong>Problem & Creation:</strong> ${escapeHtml(exhibit.copy.problem || 'N/A')} — <em>${escapeHtml(exhibit.copy.made || 'N/A')}</em>
       </div>
       <div class="inspect-section">
-        <strong>Represented Projects (${exhibit.projectIds.length}):</strong> ${exhibit.projects.map(proj => proj.name).join(', ')}
+        <strong>Represented Projects (${exhibit.projectIds.length}):</strong> ${projectNames}
       </div>
       <div class="inspect-section">
-        <strong>Lesson:</strong> <em>"${p.lesson || 'Preserve structural boundaries.'}"</em>
+        <strong>Lesson:</strong> <em>"${escapeHtml(p.lesson || 'Preserve structural boundaries.')}"</em>
       </div>
       <div class="inspect-section" style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;">
-        <span style="color:#4ade80;font-size:10px;">CANONICAL STATUS VERIFIED</span>
+        <span style="color:#4ade80;font-size:10px;">${exhibit.isMutated ? 'EMERGENT MUTATION' : 'CANONICAL STATUS VERIFIED'}</span>
         <button class="btn btn-secondary" id="trace-btn">TRACE TO MACHINE ↓</button>
       </div>
       <div id="trace-container"></div>
     `;
+
+    this.inspectCard.querySelector('#inspect-close-btn')?.addEventListener('click', () => {
+      this.hideInspect();
+    });
 
     this.inspectCard.querySelector('#trace-btn')?.addEventListener('click', () => {
       if (this.activeExhibit && this.events.onTraceToMachine) {
@@ -430,9 +508,9 @@ export class UIOverlay {
         <h4 style="margin:0 0 6px 0;font-size:11px;color:#38bdf8;letter-spacing:0.05em;">CAUSAL RECURSION TRACE</h4>
         ${steps.map(s => `
           <div class="trace-step">
-            <strong>${s.stage}</strong>: ${s.title}
-            <div style="font-size:10px;color:#cbd5e1;margin-top:2px;">${s.description}</div>
-            <div style="font-size:9px;color:#94a3b8;margin-top:1px;"><em>${s.evidence}</em></div>
+            <strong>${escapeHtml(s.stage)}</strong>: ${escapeHtml(s.title)}
+            <div style="font-size:10px;color:#cbd5e1;margin-top:2px;">${escapeHtml(s.description)}</div>
+            <div style="font-size:9px;color:#94a3b8;margin-top:1px;"><em>${escapeHtml(s.evidence)}</em></div>
           </div>
         `).join('')}
       </div>
@@ -442,17 +520,21 @@ export class UIOverlay {
   public showSanctuaryInspect(s: DexterSanctuaryData) {
     this.inspectCard.style.display = 'block';
     this.inspectCard.innerHTML = `
-      <button style="float:right;background:none;border:none;color:#94a3b8;cursor:pointer;font-size:16px;" onclick="this.parentElement.style.display='none'">✕</button>
+      <button id="sanctuary-close-btn" style="float:right;background:none;border:none;color:#94a3b8;cursor:pointer;font-size:16px;">✕</button>
       <div class="inspect-badge" style="background:#b45309;">NON-PROJECT CONSTANT</div>
-      <h2>${s.name}</h2>
-      <p style="font-size:11px;color:#d97706;margin:0 0 8px 0;">${s.domain}</p>
+      <h2>${escapeHtml(s.name)}</h2>
+      <p style="font-size:11px;color:#d97706;margin:0 0 8px 0;">${escapeHtml(s.domain)}</p>
       <div class="inspect-section">
-        <strong>Ontological Status:</strong> ${s.note}
+        <strong>Ontological Status:</strong> ${escapeHtml(s.note)}
       </div>
       <div class="inspect-section">
-        <strong>Architecture:</strong> ${s.description}
+        <strong>Architecture:</strong> ${escapeHtml(s.description)}
       </div>
     `;
+
+    this.inspectCard.querySelector('#sanctuary-close-btn')?.addEventListener('click', () => {
+      this.hideInspect();
+    });
   }
 
   public hideInspect() {

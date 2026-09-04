@@ -43,16 +43,16 @@ export class SearchNavigation {
     let found = this.exhibits.find(e =>
       e.id.toLowerCase() === q ||
       e.title.toLowerCase().includes(q) ||
-      e.slug.toLowerCase().includes(q) ||
-      e.projects.some(p => p.name.toLowerCase().includes(q) || p.id.toLowerCase() === q)
+      (e.slug && e.slug.toLowerCase().includes(q)) ||
+      (e.projects && e.projects.some(p => p.name?.toLowerCase().includes(q) || p.id?.toLowerCase() === q))
     );
 
     if (!found) {
       // Keyword fuzzy match in plaque / copy
       found = this.exhibits.find(e =>
-        e.copy.plaque.toLowerCase().includes(q) ||
-        e.copy.problem.toLowerCase().includes(q) ||
-        e.copy.made.toLowerCase().includes(q)
+        e.copy?.plaque?.toLowerCase().includes(q) ||
+        e.copy?.problem?.toLowerCase().includes(q) ||
+        e.copy?.made?.toLowerCase().includes(q)
       );
     }
 

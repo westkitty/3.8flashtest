@@ -50,12 +50,12 @@ for (const f of files) {
 
     for (const [re, label] of PATTERNS) {
       if (re.test(line)) {
-        errors.push(`${rel}:${i + 1} ${label}: ${line.trim().slice(0, 80)}`);
+        errors.push(`${rel}:${i + 1} policy violation: [${label}] detected`);
       }
     }
     for (const re of DENY_NAMES) {
       if (re.test(line)) {
-        errors.push(`${rel}:${i + 1} personal identifier: ${line.trim().slice(0, 80)}`);
+        errors.push(`${rel}:${i + 1} policy violation: [personal identifier] detected`);
       }
     }
   });

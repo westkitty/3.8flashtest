@@ -125,7 +125,14 @@ export class MnemonicEngine {
 
   private buildLandmarks(exhibits: SemanticExhibit[]) {
     while (this.landmarksGroup.children.length > 0) {
-      this.landmarksGroup.remove(this.landmarksGroup.children[0]);
+      const child = this.landmarksGroup.children[0];
+      child.traverse((node) => {
+        if ((node as any).isMesh) {
+          const mesh = node as THREE.Mesh;
+          mesh.geometry?.dispose();
+        }
+      });
+      this.landmarksGroup.remove(child);
     }
     this.landmarks.clear();
 
@@ -163,6 +170,7 @@ export class MnemonicEngine {
     this.ui.events.onOrbitalToggle = (active: boolean) => {
       this.graphRenderer.setVisibility(active);
       this.player.isFreeFlight = active;
+      this.player.isSubterranean = false;
       this.soundscapes.playPulseTone(550, 0.4);
       this.dispatchRuntimeEvent({ type: 'ORBITAL_TOGGLE', active });
 
@@ -175,18 +183,23 @@ export class MnemonicEngine {
 
     this.ui.events.onMachineDescent = () => {
       this.player.isFreeFlight = false;
+      this.player.isSubterranean = true;
       this.player.teleport(new THREE.Vector3(0, -38, 14), new THREE.Vector3(0, -35, 0));
       this.soundscapes.playPulseTone(110, 0.5);
       this.dispatchRuntimeEvent({ type: 'MOVE', velocity: 10 });
     };
 
     this.ui.events.onSurfaceAscent = () => {
+      this.player.isFreeFlight = false;
+      this.player.isSubterranean = false;
       this.player.teleport(new THREE.Vector3(0, 5, 28), new THREE.Vector3(0, 10, -90));
       this.soundscapes.playPulseTone(330, 0.3);
       this.dispatchRuntimeEvent({ type: 'MOVE', velocity: 10 });
     };
 
     this.ui.events.onTeleportToSanctuary = () => {
+      this.player.isSubterranean = false;
+      this.player.isFreeFlight = false;
       const s = this.mutationManager.currentWorldData.sanctuary;
       const y = this.terrain.getHeightAt(s.position[0], s.position[2]) + 2;
       this.player.teleport(new THREE.Vector3(s.position[0], y, s.position[2] + 8), new THREE.Vector3(s.position[0], y, s.position[2]));
@@ -197,7 +210,7 @@ export class MnemonicEngine {
 
     this.ui.events.onIngestPatch = (text: string, isJson: boolean) => {
       const res = this.mutationManager.ingestPatch(text, isJson);
-      alert(res.message);
+      this.ui.showToast(res.message, res.success ? 'success' : 'warning');
       if (res.success && res.patchExhibit) {
         this.soundscapes.playPulseTone(180, 0.7); // Low tectonic rumble
         const pos = new THREE.Vector3(res.patchExhibit.position[0], res.patchExhibit.position[1], res.patchExhibit.position[2]);
@@ -240,6 +253,8 @@ export class MnemonicEngine {
       // Teleport player down to the responsible machine subsystem in the machine layer
       setTimeout(() => {
         const mc = targetMachineModule.machineCoord;
+        this.player.isSubterranean = true;
+        this.player.isFreeFlight = false;
         this.player.teleport(
           new THREE.Vector3(mc[0], mc[1] + 2, mc[2] + 7),
           new THREE.Vector3(mc[0], mc[1], mc[2])
@@ -340,8 +355,9 @@ export class MnemonicEngine {
     // Diegetic Proximity Zone Triggers:
     // 1. Walking into Central Shaft (0, 0) physically descends player down into the Machine Underworld
     const dDescent = Math.hypot(this.player.position.x, this.player.position.z);
-    if (!this.player.isFreeFlight && dDescent < 6 && this.player.position.y > -15) {
+    if (!this.player.isFreeFlight && !this.player.isSubterranean && dDescent < 6 && this.player.position.y > -15) {
       this.soundscapes.playPulseTone(110, 0.5);
+      this.player.isSubterranean = true;
       this.player.teleport(new THREE.Vector3(0, -38, 14), new THREE.Vector3(0, -35, 0));
       this.dispatchRuntimeEvent({ type: 'MOVE', velocity: 10 });
     }

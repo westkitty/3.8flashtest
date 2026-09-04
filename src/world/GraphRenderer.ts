@@ -24,11 +24,45 @@ export class GraphRenderer {
   public rebuild() {
     while (this.group.children.length > 0) {
       const child = this.group.children[0];
+      child.traverse((node) => {
+        if ((node as any).geometry) {
+          (node as any).geometry.dispose();
+        }
+        if ((node as any).material) {
+          const mat = (node as any).material;
+          if (Array.isArray(mat)) {
+            mat.forEach((m: THREE.Material) => m.dispose());
+          } else {
+            (mat as THREE.Material).dispose();
+          }
+        }
+      });
       this.group.remove(child);
     }
     this.lineMeshes = [];
     this.buildGraph();
     this.setVisibility(this.isVisible);
+  }
+
+  public dispose() {
+    while (this.group.children.length > 0) {
+      const child = this.group.children[0];
+      child.traverse((node) => {
+        if ((node as any).geometry) {
+          (node as any).geometry.dispose();
+        }
+        if ((node as any).material) {
+          const mat = (node as any).material;
+          if (Array.isArray(mat)) {
+            mat.forEach((m: THREE.Material) => m.dispose());
+          } else {
+            (mat as THREE.Material).dispose();
+          }
+        }
+      });
+      this.group.remove(child);
+    }
+    this.lineMeshes = [];
   }
 
   public setVisibility(visible: boolean) {

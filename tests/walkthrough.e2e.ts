@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Mnemonic World Engine Interactive Walkthrough', () => {
-  test('executes 23-step browser verification sequence cleanly', async ({ page }) => {
+test.describe('Mnemonic World Engine Interactive Visitor Journey', () => {
+  test('executes complete real-interaction visitor journey across surface, search, machine layer, orbit, mutation, and sanctuary', async ({ page }) => {
     const consoleErrors: string[] = [];
     page.on('console', msg => {
       if (msg.type() === 'error') {
@@ -9,121 +9,204 @@ test.describe('Mnemonic World Engine Interactive Walkthrough', () => {
       }
     });
 
-    // 1. Load fresh application
+    // 1. Fresh application bootstrap
     await page.goto('/');
     await page.waitForSelector('#webgl-canvas');
     await page.waitForSelector('#mnemonic-ui-root');
 
-    // Verify no fatal console errors
     expect(consoleErrors).toHaveLength(0);
 
-    // 2. Verify engine bootstrap and 35 exhibits instantiated
-    const engineReady = await page.evaluate(() => {
+    // 2. Verify engine readiness and canonical exhibit baseline
+    const initialExhibitCount = await page.evaluate(() => {
       const eng = (window as any).__mnemonicEngine;
-      return !!eng && eng.mutationManager.currentWorldData.exhibits.length === 35;
+      return eng?.mutationManager?.currentWorldData?.exhibits?.length;
     });
-    expect(engineReady).toBe(true);
+    expect(initialExhibitCount).toBe(35);
 
-    // 3. Test first-person movement away from spawn
-    await page.evaluate(() => {
+    // 3. Real visitor keyboard movement (Walk + Sprint forward)
+    const initialPos = await page.evaluate(() => {
       const eng = (window as any).__mnemonicEngine;
-      // Simulate player moving forward
-      eng.player.update(0.5, (x: number, z: number) => eng.terrain.getHeightAt(x, z));
-    });
-
-    // 4. Test spatial search for "Starsilk"
-    const searchResult = await page.evaluate(() => {
-      const eng = (window as any).__mnemonicEngine;
-      const match = eng.searchNav.search('Starsilk');
-      return match ? { id: match.id, title: match.title, wing: match.wing } : null;
-    });
-    expect(searchResult).not.toBeNull();
-    expect(searchResult?.wing).toBe('north');
-
-    // 5. Test timeline shift
-    await page.evaluate(() => {
-      const eng = (window as any).__mnemonicEngine;
-      eng.timelineManager.setEpoch('archaic');
+      return { x: eng.player.position.x, z: eng.player.position.z };
     });
 
-    const archaicCount = await page.evaluate(() => {
+    await page.keyboard.down('KeyW');
+    await page.keyboard.down('ShiftLeft');
+    await page.waitForTimeout(300);
+    await page.keyboard.up('ShiftLeft');
+    await page.keyboard.up('KeyW');
+
+    const movedPos = await page.evaluate(() => {
       const eng = (window as any).__mnemonicEngine;
-      let visible = 0;
+      return { x: eng.player.position.x, z: eng.player.position.z };
+    });
+    // Player moved in space
+    const moveDist = Math.hypot(movedPos.x - initialPos.x, movedPos.z - initialPos.z);
+    expect(moveDist).toBeGreaterThan(0.2);
+
+    // 4. Real visitor spatial search interaction
+    const searchBox = page.locator('input.search-box');
+    await searchBox.fill('Starsilk');
+    await page.waitForTimeout(100);
+
+    const searchTarget = await page.evaluate(() => {
+      const eng = (window as any).__mnemonicEngine;
+      const target = eng.searchNav.activeTarget;
+      return target ? { id: target.id, title: target.title, wing: target.wing } : null;
+    });
+    expect(searchTarget).not.toBeNull();
+    expect(searchTarget?.id).toBe('E01');
+    expect(searchTarget?.wing).toBe('north');
+
+    // Clear search
+    await searchBox.fill('');
+    await page.waitForTimeout(50);
+
+    // 5. Real visitor timeline epoch shift via select dropdown
+    const epochSelect = page.locator('select.search-box');
+    await epochSelect.selectOption('archaic');
+    await page.waitForTimeout(100);
+
+    const archaicVisibleCount = await page.evaluate(() => {
+      const eng = (window as any).__mnemonicEngine;
+      let count = 0;
       for (const lm of eng.landmarks.values()) {
-        if (lm.visible) visible++;
+        if (lm.visible) count++;
       }
-      return visible;
+      return count;
     });
-    expect(archaicCount).toBeLessThan(35);
+    expect(archaicVisibleCount).toBeLessThan(35);
 
-    // Reset timeline
-    await page.evaluate(() => {
-      const eng = (window as any).__mnemonicEngine;
-      eng.timelineManager.setEpoch('all');
-    });
+    // Restore full timeline
+    await epochSelect.selectOption('all');
+    await page.waitForTimeout(100);
 
-    // 6. Test Machine Layer Subterranean descent
-    await page.evaluate(() => {
-      const eng = (window as any).__mnemonicEngine;
-      eng.ui.events.onMachineDescent();
-    });
+    // 6. Real visitor descent into Subterranean Machine Underworld
+    await page.click('button:has-text("Descend to Machine Underworld")');
+    await page.waitForTimeout(400);
 
-    const isSubterranean = await page.evaluate(() => {
+    const subStatus = await page.evaluate(() => {
       const eng = (window as any).__mnemonicEngine;
-      return eng.player.position.y < -30;
-    });
-    expect(isSubterranean).toBe(true);
-
-    // 7. Ascend to Orbital reveal
-    await page.evaluate(() => {
-      const eng = (window as any).__mnemonicEngine;
-      eng.ui.events.onOrbitalToggle(true);
-    });
-
-    const isOrbital = await page.evaluate(() => {
-      const eng = (window as any).__mnemonicEngine;
-      return eng.player.position.y > 100 && eng.graphRenderer.isVisible;
-    });
-    expect(isOrbital).toBe(true);
-
-    // 8. Test live knowledge patch ingestion
-    const patchResult = await page.evaluate(async () => {
-      const eng = (window as any).__mnemonicEngine;
-      const samplePatch = {
-        id: "patch-e2e-test",
-        title: "E2E Procedural Synthesis",
-        wing: "south",
-        epoch: "emergent",
-        summary: "E2E verified live mutation node.",
-        tags: ["e2e", "synthesis"],
-        relationships: [{ to: "E32", confidence: "explicit", reason: "Connected to Katamari" }]
+      return {
+        y: eng.player.position.y,
+        isSubterranean: eng.player.isSubterranean
       };
-      eng.ui.events.onIngestPatch(JSON.stringify(samplePatch), true);
+    });
+    expect(subStatus.isSubterranean).toBe(true);
+    expect(subStatus.y).toBeLessThan(-30);
+
+    // 7. Ascend back to Semantic Surface
+    await page.click('button:has-text("Ascend to Semantic Surface")');
+    await page.waitForTimeout(300);
+
+    const surfaceStatus = await page.evaluate(() => {
+      const eng = (window as any).__mnemonicEngine;
+      return {
+        y: eng.player.position.y,
+        isSubterranean: eng.player.isSubterranean
+      };
+    });
+    expect(surfaceStatus.isSubterranean).toBe(false);
+    expect(surfaceStatus.y).toBeGreaterThanOrEqual(0);
+
+    // 8. Ascend to Orbital Macrocosm & reveal relational graph
+    await page.click('button:has-text("Ascend to Orbital")');
+    await page.waitForTimeout(400);
+
+    const orbitalStatus = await page.evaluate(() => {
+      const eng = (window as any).__mnemonicEngine;
+      return {
+        y: eng.player.position.y,
+        isFreeFlight: eng.player.isFreeFlight,
+        graphVisible: eng.graphRenderer.isVisible
+      };
+    });
+    expect(orbitalStatus.y).toBeGreaterThan(100);
+    expect(orbitalStatus.isFreeFlight).toBe(true);
+    expect(orbitalStatus.graphVisible).toBe(true);
+
+    // Return to surface
+    await page.click('button:has-text("Return to Surface Walk")');
+    await page.waitForTimeout(300);
+
+    // 9. Real visitor Ingest Knowledge Patch via modal
+    await page.click('button:has-text("Ingest Knowledge Patch")');
+    await page.waitForSelector('.modal', { state: 'visible' });
+
+    // Click "Load Fixture Patch" to test static runtime fixture fetch
+    await page.click('#modal-sample');
+    await page.waitForTimeout(300);
+
+    const textareaContent = await page.inputValue('#patch-input');
+    expect(textareaContent.length).toBeGreaterThan(20);
+    expect(textareaContent).toContain('patch-nebula-compiler');
+
+    // Submit mutation
+    await page.click('#modal-submit');
+    await page.waitForTimeout(500);
+
+    // Verify toast notification appears
+    await page.waitForSelector('.hud-toast.show', { timeout: 3000 });
+
+    const postMutationCount = await page.evaluate(() => {
+      const eng = (window as any).__mnemonicEngine;
       return eng.mutationManager.currentWorldData.exhibits.length;
     });
-    expect(patchResult).toBe(36);
+    expect(postMutationCount).toBe(36);
 
-    // 9. Test canonical reset
-    const resetResult = await page.evaluate(() => {
+    // 10. Verify inspection card and trace to machine
+    await page.waitForSelector('.inspect-card', { state: 'visible' });
+    const inspectCardTitle = await page.textContent('.inspect-card h2');
+    expect(inspectCardTitle).toContain('Nebula Compiler');
+
+    // Click TRACE TO MACHINE
+    await page.click('#trace-btn');
+    await page.waitForSelector('.trace-step', { timeout: 3000 });
+    const traceSteps = await page.locator('.trace-step').count();
+    expect(traceSteps).toBeGreaterThanOrEqual(5);
+
+    // Close inspect card via close button
+    await page.click('#inspect-close-btn');
+    await page.waitForTimeout(100);
+
+    // 11. Reset to Canonical World
+    await page.click('button:has-text("Reset to Canonical World")');
+    await page.waitForTimeout(300);
+
+    const postResetCount = await page.evaluate(() => {
       const eng = (window as any).__mnemonicEngine;
-      eng.ui.events.onResetCanonical();
       return eng.mutationManager.currentWorldData.exhibits.length;
     });
-    expect(resetResult).toBe(35);
+    expect(postResetCount).toBe(35);
 
-    // 10. Test Dexter Sanctuary non-project navigation
-    const sanctuaryStatus = await page.evaluate(() => {
+    // 12. Visit Dexter Sanctuary (Non-Project Constant)
+    await page.click('button:has-text("Visit Dexter Sanctuary")');
+    await page.waitForTimeout(300);
+
+    const sanctuaryCardVisible = await page.isVisible('.inspect-card');
+    expect(sanctuaryCardVisible).toBe(true);
+
+    const sanctuaryInvariant = await page.evaluate(() => {
       const eng = (window as any).__mnemonicEngine;
-      eng.ui.events.onTeleportToSanctuary();
       const s = eng.mutationManager.currentWorldData.sanctuary;
       return {
         id: s.id,
-        isExhibit: eng.mutationManager.currentWorldData.exhibits.some((e: any) => e.id === s.id),
-        dist: eng.player.position.distanceTo({ x: s.position[0], y: eng.player.position.y, z: s.position[2] })
+        ontologicalClass: s.ontologicalClass,
+        isExhibit: eng.mutationManager.currentWorldData.exhibits.some((e: any) => e.id === s.id)
       };
     });
-    expect(sanctuaryStatus.isExhibit).toBe(false);
-    expect(sanctuaryStatus.dist).toBeLessThan(15);
+    expect(sanctuaryInvariant.id).toBe('dexter-sanctuary');
+    expect(sanctuaryInvariant.ontologicalClass).toBe('NON_PROJECT_ANCHOR');
+    expect(sanctuaryInvariant.isExhibit).toBe(false);
+
+    // Close inspect card via close button
+    await page.click('#sanctuary-close-btn');
+    const isClosed = await page.locator('.inspect-card').evaluate(el => el.style.display === 'none');
+    expect(isClosed).toBe(true);
+
+    // 13. Audio mute toggle
+    await page.click('button:has-text("Audio:")');
+    const audioText = await page.textContent('button:has-text("Audio:")');
+    expect(audioText).toContain('Audio: Active');
 
     // Final check for console errors
     expect(consoleErrors).toHaveLength(0);

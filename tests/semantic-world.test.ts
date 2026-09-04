@@ -116,4 +116,74 @@ describe('Semantic Spatial Solver & Dynamic Tectonics', () => {
     expect(mgr.currentWorldData.exhibits).toHaveLength(35);
     expect(mgr.hasActiveMutation).toBe(false);
   });
+
+  it('rejects duplicate exhibit IDs and validates relationship endpoints', () => {
+    const mgr = new MutationManager(worldData as unknown as SemanticWorldData);
+    // Attempt to ingest patch with an existing canonical ID
+    const dupPatch = { id: 'E01', title: 'Colliding ID Spire' };
+    const res = mgr.ingestPatch(JSON.stringify(dupPatch), true);
+    expect(res.success).toBe(false);
+    expect(res.message).toContain('already exists');
+    expect(mgr.currentWorldData.exhibits).toHaveLength(35);
+
+    // Ingest patch with dangling relationship target
+    const danglingPatch = {
+      id: 'patch-valid-endpoint-test',
+      title: 'Valid Endpoint Test',
+      relationships: [
+        { to: 'E01', confidence: 'explicit' },
+        { to: 'NONEXISTENT_TARGET_999', confidence: 'explicit' }
+      ]
+    };
+    const res2 = mgr.ingestPatch(JSON.stringify(danglingPatch), true);
+    expect(res2.success).toBe(true);
+    // Dangling endpoint was filtered out
+    const hasDangling = mgr.currentWorldData.relationships.some(r => r.to === 'NONEXISTENT_TARGET_999');
+    expect(hasDangling).toBe(false);
+  });
+
+  it('generates deterministic IDs from identical markdown content without Math.random()', () => {
+    const mgr1 = new MutationManager(worldData as unknown as SemanticWorldData);
+    const mgr2 = new MutationManager(worldData as unknown as SemanticWorldData);
+
+    const mdContent = '# Stellar Resonance\nA synthesized theory of stellar harmonics and kinetic synthesis.';
+    const res1 = mgr1.ingestPatch(mdContent, false);
+    const res2 = mgr2.ingestPatch(mdContent, false);
+
+    expect(res1.success).toBe(true);
+    expect(res2.success).toBe(true);
+    expect(res1.patchExhibit?.id).toBe(res2.patchExhibit?.id);
+  });
+
+  it('provenance tracer accurately reports synthesized status for mutated exhibits', () => {
+    const mgr = new MutationManager(worldData as unknown as SemanticWorldData);
+    mgr.ingestPatch(JSON.stringify(patchFixture), true);
+    const mutatedEx = mgr.currentWorldData.exhibits.find(e => e.id === patchFixture.id)!;
+
+    const tracer = new ProvenanceTracer(archData as unknown as SelfArchitectureData);
+    const { chain } = tracer.traceLandmark(mutatedEx);
+
+    const semanticEntityStep = chain.find(s => s.stage === 'SEMANTIC_ENTITY');
+    expect(semanticEntityStep?.evidence).toContain('SYNTHESIZED KNOWLEDGE PATCH');
+    expect(semanticEntityStep?.evidence).not.toContain('SOURCE-GROUNDED CANON');
+  });
+
+  it('handles adversarial NaN and extreme coordinates safely in spatial solver', () => {
+    const exhibits = [
+      { id: 'ADV01', wing: 'north' as const, position: [NaN, 0, Infinity] as [number, number, number], scale: 1, isArchaeological: false },
+      { id: 'ADV02', wing: 'south' as const, position: [9999, 0, -9999] as [number, number, number], scale: 1, isArchaeological: false }
+    ] as any;
+    const rels = [] as any;
+    const regions = worldData.regions as any;
+
+    const solved = SemanticSpatialSolver.solve(exhibits, rels, regions);
+    const p1 = solved.get('ADV01')!;
+    const p2 = solved.get('ADV02')!;
+
+    expect(isNaN(p1[0])).toBe(false);
+    expect(isNaN(p1[2])).toBe(false);
+    expect(isFinite(p1[0])).toBe(true);
+    expect(Math.abs(p2[0])).toBeLessThanOrEqual(160);
+    expect(Math.abs(p2[2])).toBeLessThanOrEqual(160);
+  });
 });

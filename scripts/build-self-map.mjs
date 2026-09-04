@@ -9,6 +9,7 @@ const EXCLUDE_DIRS = new Set(['node_modules', 'dist', '.git', 'dist-standalone',
 function walk(dir) {
   const files = [];
   const entries = readdirSync(dir, { withFileTypes: true });
+  entries.sort((a, b) => a.name.localeCompare(b.name));
   for (const entry of entries) {
     if (EXCLUDE_DIRS.has(entry.name)) continue;
     const full = join(dir, entry.name);
@@ -21,7 +22,7 @@ function walk(dir) {
   return files;
 }
 
-const allFiles = walk(ROOT);
+const allFiles = walk(ROOT).sort((a, b) => a.localeCompare(b));
 
 // Classify software systems with dedicated mechanical subsystem roles
 function classifySystem(relPath) {
@@ -169,6 +170,9 @@ for (const mod of modules) {
   mod.machineCoord = [Math.round(x * 10) / 10, Math.round(y * 10) / 10, Math.round(z * 10) / 10];
   mod.powerWatts = Math.min(300, Math.max(20, Math.round(mod.lineCount * 1.6)));
 }
+
+modules.sort((a, b) => a.id.localeCompare(b.id));
+edges.sort((a, b) => (a.source + a.target).localeCompare(b.source + b.target));
 
 // Deterministic JSON output
 const SELF_MAP = {

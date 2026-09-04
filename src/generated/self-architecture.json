@@ -2,10 +2,10 @@
   "version": "0.1.0-experiment.0",
   "targetRepo": "westkitty/3.8flashtest",
   "stats": {
-    "totalModules": 33,
+    "totalModules": 34,
     "totalEdges": 48,
-    "totalLines": 8242,
-    "totalBytes": 309440
+    "totalLines": 8649,
+    "totalBytes": 324820
   },
   "modules": [
     {
@@ -50,7 +50,7 @@
       "id": "playwright.config.ts",
       "name": "playwright.config.ts",
       "path": "playwright.config.ts",
-      "sizeBytes": 342,
+      "sizeBytes": 343,
       "lineCount": 17,
       "system": "chassis_bootstrap",
       "layer": "structural_truss",
@@ -70,11 +70,30 @@
       "powerWatts": 27
     },
     {
+      "id": "public/fixtures/knowledge-patch.json",
+      "name": "knowledge-patch.json",
+      "path": "public/fixtures/knowledge-patch.json",
+      "sizeBytes": 1196,
+      "lineCount": 38,
+      "system": "chassis_bootstrap",
+      "layer": "structural_truss",
+      "role": "Chassis Core Bootstrap",
+      "color": 11583173,
+      "rawImports": [],
+      "exports": [],
+      "machineCoord": [
+        -9.8,
+        -30,
+        -12.5
+      ],
+      "powerWatts": 61
+    },
+    {
       "id": "scripts/build-self-map.mjs",
       "name": "build-self-map.mjs",
       "path": "scripts/build-self-map.mjs",
-      "sizeBytes": 7595,
-      "lineCount": 189,
+      "sizeBytes": 7817,
+      "lineCount": 193,
       "system": "compiler_foundry",
       "layer": "fabrication_rig_gantry",
       "role": "Deterministic Pipeline Rig",
@@ -174,9 +193,9 @@
         "MnemonicSoundscapes"
       ],
       "machineCoord": [
-        -9.8,
-        -30,
-        -12.5
+        2.5,
+        -28,
+        -3.7
       ],
       "powerWatts": 90
     },
@@ -184,8 +203,8 @@
       "id": "src/generated/self-architecture.json",
       "name": "self-architecture.json",
       "path": "src/generated/self-architecture.json",
-      "sizeBytes": 25204,
-      "lineCount": 1018,
+      "sizeBytes": 25686,
+      "lineCount": 1037,
       "system": "semantic_memory",
       "layer": "mnemonic_strata_chambers",
       "role": "Mnemonic Memory Vault",
@@ -257,9 +276,9 @@
       ],
       "exports": [],
       "machineCoord": [
-        2.5,
-        -28,
-        -3.7
+        8,
+        -26,
+        2.2
       ],
       "powerWatts": 26
     },
@@ -267,8 +286,8 @@
       "id": "src/mutation/MutationManager.ts",
       "name": "MutationManager.ts",
       "path": "src/mutation/MutationManager.ts",
-      "sizeBytes": 7864,
-      "lineCount": 202,
+      "sizeBytes": 9222,
+      "lineCount": 234,
       "system": "topological_mutation",
       "layer": "tectonic_compiler_forge",
       "role": "Tectonic Knowledge Compiler",
@@ -291,8 +310,8 @@
       "id": "src/player/PlayerController.ts",
       "name": "PlayerController.ts",
       "path": "src/player/PlayerController.ts",
-      "sizeBytes": 5570,
-      "lineCount": 197,
+      "sizeBytes": 5883,
+      "lineCount": 206,
       "system": "kinematics_and_input",
       "layer": "sensor_gyro_stabilizer",
       "role": "Kinematic Spatial Relay",
@@ -314,8 +333,8 @@
       "id": "src/provenance/ProvenanceTracer.ts",
       "name": "ProvenanceTracer.ts",
       "path": "src/provenance/ProvenanceTracer.ts",
-      "sizeBytes": 3170,
-      "lineCount": 69,
+      "sizeBytes": 3673,
+      "lineCount": 82,
       "system": "provenance_truth",
       "layer": "epistemic_ledger_vault",
       "role": "Causal Trace & Provenance Ledger",
@@ -331,7 +350,7 @@
         -34,
         -30.7
       ],
-      "powerWatts": 110
+      "powerWatts": 131
     },
     {
       "id": "src/render/RendererHost.ts",
@@ -360,7 +379,7 @@
       "id": "src/search/SearchNavigation.ts",
       "name": "SearchNavigation.ts",
       "path": "src/search/SearchNavigation.ts",
-      "sizeBytes": 2128,
+      "sizeBytes": 2164,
       "lineCount": 75,
       "system": "spatial_navigation",
       "layer": "vector_beacon_array",
@@ -417,9 +436,9 @@
       "rawImports": [],
       "exports": [],
       "machineCoord": [
-        8,
-        -26,
-        2.2
+        0.7,
+        -30,
+        12.1
       ],
       "powerWatts": 218
     },
@@ -427,8 +446,8 @@
       "id": "src/ui/UIOverlay.ts",
       "name": "UIOverlay.ts",
       "path": "src/ui/UIOverlay.ts",
-      "sizeBytes": 16006,
-      "lineCount": 462,
+      "sizeBytes": 18552,
+      "lineCount": 544,
       "system": "synthetic_interface",
       "layer": "holographic_loom",
       "role": "Diegetic Interface Loom",
@@ -451,8 +470,8 @@
       "id": "src/world/GraphRenderer.ts",
       "name": "GraphRenderer.ts",
       "path": "src/world/GraphRenderer.ts",
-      "sizeBytes": 4422,
-      "lineCount": 122,
+      "sizeBytes": 5409,
+      "lineCount": 156,
       "system": "world_generation",
       "layer": "geological_computation_drum",
       "role": "Terrain & Landmark Synthesizer",
@@ -469,7 +488,7 @@
         -36,
         -43.7
       ],
-      "powerWatts": 195
+      "powerWatts": 250
     },
     {
       "id": "src/world/LandmarkBuilder.ts",
@@ -499,8 +518,8 @@
       "id": "src/world/MnemonicEngine.ts",
       "name": "MnemonicEngine.ts",
       "path": "src/world/MnemonicEngine.ts",
-      "sizeBytes": 15096,
-      "lineCount": 371,
+      "sizeBytes": 15744,
+      "lineCount": 387,
       "system": "world_generation",
       "layer": "geological_computation_drum",
       "role": "Terrain & Landmark Synthesizer",
@@ -562,8 +581,8 @@
       "id": "src/world/SemanticSpatialSolver.ts",
       "name": "SemanticSpatialSolver.ts",
       "path": "src/world/SemanticSpatialSolver.ts",
-      "sizeBytes": 4151,
-      "lineCount": 140,
+      "sizeBytes": 4590,
+      "lineCount": 147,
       "system": "world_generation",
       "layer": "geological_computation_drum",
       "role": "Terrain & Landmark Synthesizer",
@@ -579,7 +598,7 @@
         -34,
         -48.7
       ],
-      "powerWatts": 224
+      "powerWatts": 235
     },
     {
       "id": "src/world/Terrain.ts",
@@ -661,8 +680,8 @@
       "id": "tests/semantic-world.test.ts",
       "name": "semantic-world.test.ts",
       "path": "tests/semantic-world.test.ts",
-      "sizeBytes": 5282,
-      "lineCount": 120,
+      "sizeBytes": 8586,
+      "lineCount": 190,
       "system": "validation_stabilizers",
       "layer": "containment_diagnostic_matrix",
       "role": "Diagnostic Stabilizer Cage",
@@ -683,14 +702,14 @@
         -42,
         4.1
       ],
-      "powerWatts": 192
+      "powerWatts": 300
     },
     {
       "id": "tests/walkthrough.e2e.ts",
       "name": "walkthrough.e2e.ts",
       "path": "tests/walkthrough.e2e.ts",
-      "sizeBytes": 4652,
-      "lineCount": 132,
+      "sizeBytes": 7997,
+      "lineCount": 215,
       "system": "validation_stabilizers",
       "layer": "containment_diagnostic_matrix",
       "role": "Diagnostic Stabilizer Cage",
@@ -704,7 +723,7 @@
         -46,
         -12.5
       ],
-      "powerWatts": 211
+      "powerWatts": 300
     },
     {
       "id": "tsconfig.json",
@@ -719,9 +738,9 @@
       "rawImports": [],
       "exports": [],
       "machineCoord": [
-        0.7,
-        -30,
-        12.1
+        -14.8,
+        -28,
+        5.8
       ],
       "powerWatts": 32
     },
@@ -742,9 +761,9 @@
         "default"
       ],
       "machineCoord": [
-        -14.8,
-        -28,
-        5.8
+        -2.9,
+        -26,
+        -3.5
       ],
       "powerWatts": 29
     },
@@ -765,9 +784,9 @@
         "default"
       ],
       "machineCoord": [
-        -2.9,
-        -26,
-        -3.5
+        4.4,
+        -30,
+        -7.1
       ],
       "powerWatts": 20
     }
@@ -810,12 +829,12 @@
     },
     {
       "source": "src/ui/UIOverlay.ts",
-      "target": "src/types.ts",
+      "target": "src/provenance/ProvenanceTracer.ts",
       "type": "static_import"
     },
     {
       "source": "src/ui/UIOverlay.ts",
-      "target": "src/provenance/ProvenanceTracer.ts",
+      "target": "src/types.ts",
       "type": "static_import"
     },
     {
@@ -830,27 +849,17 @@
     },
     {
       "source": "src/world/MnemonicEngine.ts",
-      "target": "src/render/RendererHost.ts",
+      "target": "src/audio/MnemonicSoundscapes.ts",
       "type": "static_import"
     },
     {
       "source": "src/world/MnemonicEngine.ts",
-      "target": "src/player/PlayerController.ts",
+      "target": "src/generated/self-architecture.json",
       "type": "static_import"
     },
     {
       "source": "src/world/MnemonicEngine.ts",
-      "target": "src/world/Terrain.ts",
-      "type": "static_import"
-    },
-    {
-      "source": "src/world/MnemonicEngine.ts",
-      "target": "src/world/LandmarkBuilder.ts",
-      "type": "static_import"
-    },
-    {
-      "source": "src/world/MnemonicEngine.ts",
-      "target": "src/world/GraphRenderer.ts",
+      "target": "src/generated/semantic-world.json",
       "type": "static_import"
     },
     {
@@ -865,17 +874,7 @@
     },
     {
       "source": "src/world/MnemonicEngine.ts",
-      "target": "src/timeline/TimelineManager.ts",
-      "type": "static_import"
-    },
-    {
-      "source": "src/world/MnemonicEngine.ts",
-      "target": "src/search/SearchNavigation.ts",
-      "type": "static_import"
-    },
-    {
-      "source": "src/world/MnemonicEngine.ts",
-      "target": "src/ui/UIOverlay.ts",
+      "target": "src/player/PlayerController.ts",
       "type": "static_import"
     },
     {
@@ -885,12 +884,17 @@
     },
     {
       "source": "src/world/MnemonicEngine.ts",
-      "target": "src/world/MnemonicWeather.ts",
+      "target": "src/render/RendererHost.ts",
       "type": "static_import"
     },
     {
       "source": "src/world/MnemonicEngine.ts",
-      "target": "src/audio/MnemonicSoundscapes.ts",
+      "target": "src/search/SearchNavigation.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "src/world/MnemonicEngine.ts",
+      "target": "src/timeline/TimelineManager.ts",
       "type": "static_import"
     },
     {
@@ -900,12 +904,27 @@
     },
     {
       "source": "src/world/MnemonicEngine.ts",
-      "target": "src/generated/semantic-world.json",
+      "target": "src/ui/UIOverlay.ts",
       "type": "static_import"
     },
     {
       "source": "src/world/MnemonicEngine.ts",
-      "target": "src/generated/self-architecture.json",
+      "target": "src/world/GraphRenderer.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "src/world/MnemonicEngine.ts",
+      "target": "src/world/LandmarkBuilder.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "src/world/MnemonicEngine.ts",
+      "target": "src/world/MnemonicWeather.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "src/world/MnemonicEngine.ts",
+      "target": "src/world/Terrain.ts",
       "type": "static_import"
     },
     {
@@ -925,7 +944,27 @@
     },
     {
       "source": "tests/browser-headless-simulation.test.ts",
+      "target": "src/generated/self-architecture.json",
+      "type": "static_import"
+    },
+    {
+      "source": "tests/browser-headless-simulation.test.ts",
+      "target": "src/generated/semantic-world.json",
+      "type": "static_import"
+    },
+    {
+      "source": "tests/browser-headless-simulation.test.ts",
+      "target": "src/machine/MachineCity.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "tests/browser-headless-simulation.test.ts",
       "target": "src/mutation/MutationManager.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "tests/browser-headless-simulation.test.ts",
+      "target": "src/search/SearchNavigation.ts",
       "type": "static_import"
     },
     {
@@ -935,7 +974,12 @@
     },
     {
       "source": "tests/browser-headless-simulation.test.ts",
-      "target": "src/search/SearchNavigation.ts",
+      "target": "src/types.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "tests/browser-headless-simulation.test.ts",
+      "target": "src/world/GraphRenderer.ts",
       "type": "static_import"
     },
     {
@@ -950,37 +994,7 @@
     },
     {
       "source": "tests/browser-headless-simulation.test.ts",
-      "target": "src/world/GraphRenderer.ts",
-      "type": "static_import"
-    },
-    {
-      "source": "tests/browser-headless-simulation.test.ts",
-      "target": "src/machine/MachineCity.ts",
-      "type": "static_import"
-    },
-    {
-      "source": "tests/browser-headless-simulation.test.ts",
-      "target": "src/generated/semantic-world.json",
-      "type": "static_import"
-    },
-    {
-      "source": "tests/browser-headless-simulation.test.ts",
-      "target": "src/generated/self-architecture.json",
-      "type": "static_import"
-    },
-    {
-      "source": "tests/browser-headless-simulation.test.ts",
       "target": "tests/fixtures/knowledge-patch.json",
-      "type": "static_import"
-    },
-    {
-      "source": "tests/browser-headless-simulation.test.ts",
-      "target": "src/types.ts",
-      "type": "static_import"
-    },
-    {
-      "source": "tests/semantic-world.test.ts",
-      "target": "src/generated/semantic-world.json",
       "type": "static_import"
     },
     {
@@ -990,17 +1004,12 @@
     },
     {
       "source": "tests/semantic-world.test.ts",
-      "target": "tests/fixtures/knowledge-patch.json",
+      "target": "src/generated/semantic-world.json",
       "type": "static_import"
     },
     {
       "source": "tests/semantic-world.test.ts",
       "target": "src/mutation/MutationManager.ts",
-      "type": "static_import"
-    },
-    {
-      "source": "tests/semantic-world.test.ts",
-      "target": "src/world/SemanticSpatialSolver.ts",
       "type": "static_import"
     },
     {
@@ -1011,6 +1020,16 @@
     {
       "source": "tests/semantic-world.test.ts",
       "target": "src/types.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "tests/semantic-world.test.ts",
+      "target": "src/world/SemanticSpatialSolver.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "tests/semantic-world.test.ts",
+      "target": "tests/fixtures/knowledge-patch.json",
       "type": "static_import"
     }
   ]

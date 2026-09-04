@@ -28,6 +28,7 @@ export class PlayerController {
   };
 
   public isFreeFlight = false;
+  public isSubterranean = false;
   public events: PlayerEvents = {};
 
   constructor(camera: THREE.PerspectiveCamera, domElement: HTMLElement) {
@@ -178,9 +179,17 @@ export class PlayerController {
     this.position.addScaledVector(this.velocity, dt);
 
     if (!this.isFreeFlight && groundHeightFn) {
-      const targetY = groundHeightFn(this.position.x, this.position.z) + 2.2;
-      // Smooth vertical lerp (climbing slopes, descending ramps)
-      this.position.y += (targetY - this.position.y) * Math.min(1, 10 * dt);
+      if (this.isSubterranean) {
+        // Subterranean machine cavern floor at -46; player standing boundary at -43.8
+        const cavernFloor = -43.8;
+        if (this.position.y < cavernFloor) {
+          this.position.y = cavernFloor;
+        }
+      } else {
+        const targetY = groundHeightFn(this.position.x, this.position.z) + 2.2;
+        // Smooth vertical lerp (climbing slopes, descending ramps)
+        this.position.y += (targetY - this.position.y) * Math.min(1, 10 * dt);
+      }
     }
 
     this.camera.position.copy(this.position);

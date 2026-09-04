@@ -120,18 +120,25 @@ export class SemanticSpatialSolver {
         vel[0] *= cfg.damping;
         vel[1] *= cfg.damping;
 
-        p[0] += vel[0];
-        p[2] += vel[1];
+        if (!isNaN(vel[0]) && isFinite(vel[0])) {
+          p[0] += vel[0];
+        }
+        if (!isNaN(vel[1]) && isFinite(vel[1])) {
+          p[2] += vel[1];
+        }
+
+        // Bounded coordinates clamp to world boundary [-160, 160]
+        p[0] = Math.max(-160, Math.min(160, isNaN(p[0]) ? 0 : p[0]));
+        p[2] = Math.max(-160, Math.min(160, isNaN(p[2]) ? 0 : p[2]));
       }
     }
 
     // Round for clean deterministic values
     for (const [id, p] of positions.entries()) {
-      positions.set(id, [
-        Math.round(p[0] * 10) / 10,
-        p[1],
-        Math.round(p[2] * 10) / 10
-      ]);
+      const rx = isNaN(p[0]) ? 0 : Math.round(p[0] * 10) / 10;
+      const ry = isNaN(p[1]) ? 2 : Math.round(p[1] * 10) / 10;
+      const rz = isNaN(p[2]) ? 0 : Math.round(p[2] * 10) / 10;
+      positions.set(id, [rx, ry, rz]);
     }
 
     return positions;

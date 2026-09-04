@@ -28,18 +28,31 @@ export class ProvenanceTracer {
 
     let machineMod = this.selfArch.modules.find(m => m.system === targetSystem) || this.selfArch.modules[0];
 
+    const isMutated = !!exhibit.isMutated;
+    const isLocalInferred = exhibit.projects?.[0]?.status === 'Inferred Mutation';
+
+    const sourceEvidence = isMutated
+      ? 'Synthesized in-world knowledge mutation record.'
+      : `Source exhibit record with ${(exhibit.projectIds || []).length} canonical project identity.`;
+
+    const epistemicEvidence = isMutated
+      ? (isLocalInferred
+          ? 'Epistemic confidence: LOCALLY INFERRED MUTATION (LOW CONFIDENCE).'
+          : 'Epistemic confidence: SYNTHESIZED KNOWLEDGE PATCH.')
+      : `Epistemic confidence: SOURCE-GROUNDED CANON. Tier ${exhibit.tier} allocation.`;
+
     const chain: CausalTraceStep[] = [
       {
         stage: 'SOURCE',
         title: `Public Exhibit ID: ${exhibit.id}`,
-        description: `Representing ${exhibit.projects.map(p => p.name).join(', ')}`,
-        evidence: `Source exhibit record with ${exhibit.projectIds.length} canonical project identity.`
+        description: `Representing ${(exhibit.projects || []).map(p => p.name).join(', ')}`,
+        evidence: sourceEvidence
       },
       {
         stage: 'SEMANTIC_ENTITY',
         title: exhibit.title,
-        description: exhibit.copy.subtitle || exhibit.title,
-        evidence: `Epistemic confidence: SOURCE-GROUNDED CANON. Tier ${exhibit.tier} allocation.`
+        description: exhibit.copy?.subtitle || exhibit.title,
+        evidence: epistemicEvidence
       },
       {
         stage: 'SPATIAL_SOLVER',
