@@ -453,21 +453,38 @@ export class LandmarkBuilder {
     g.add(shieldRing);
   }
 
-  // 12. E29: Arkship Hull
+  // 12. E29: Arkship Void Hull (Monumental interstellar generational colony vessel)
   private static buildArkshipHull(g: THREE.Group, s: number) {
-    const hullMat = this.getMaterial(0x1a202c, 0.3, 0.9);
+    const hullMat = this.getMaterial(0x0f172a, 0.4, 0.85);
+    const goldPlating = this.getMaterial(0xf59e0b, 0.2, 0.95);
     const thrusterMat = this.getMaterial(0x38bdf8, 0.1, 0.9, 0x0284c7);
 
-    // Swept prow of generational ship
-    const prow = new THREE.Mesh(new THREE.ConeGeometry(4 * s, 18 * s, 4), hullMat);
+    // Colossal Swept prow of generational ship
+    const prow = new THREE.Mesh(new THREE.ConeGeometry(5 * s, 22 * s, 4), hullMat);
     prow.rotation.z = Math.PI / 2.3;
-    prow.position.set(0, 8 * s, 0);
+    prow.position.set(0, 9 * s, 0);
     g.add(prow);
 
-    const drive = new THREE.Mesh(new THREE.CylinderGeometry(1.8 * s, 2.4 * s, 3 * s, 12), thrusterMat);
-    drive.position.set(-6 * s, 5 * s, 0);
-    drive.rotation.z = Math.PI / 2;
-    g.add(drive);
+    // Forward long-range sensor dish array
+    const dish = new THREE.Mesh(new THREE.CylinderGeometry(2.5 * s, 0.4 * s, 1.2 * s, 16), goldPlating);
+    dish.rotation.z = Math.PI / 2.3;
+    dish.position.set(10 * s, 13 * s, 0);
+    g.add(dish);
+
+    // Rotating Generational Centrifugal Habitat Ring
+    const habitatRing = new THREE.Mesh(new THREE.TorusGeometry(7.5 * s, 0.9 * s, 8, 36), goldPlating);
+    habitatRing.position.set(-2 * s, 7 * s, 0);
+    habitatRing.rotation.y = Math.PI / 2;
+    habitatRing.name = 'rotating_ring_1';
+    g.add(habitatRing);
+
+    // Twin Sub-Light Plasma Nacelle Drives
+    for (const sz of [-1, 1]) {
+      const drive = new THREE.Mesh(new THREE.CylinderGeometry(1.6 * s, 2.2 * s, 7 * s, 12), thrusterMat);
+      drive.position.set(-9 * s, 6 * s, sz * 4 * s);
+      drive.rotation.z = Math.PI / 2;
+      g.add(drive);
+    }
   }
 
   // 13. E32: S'mores Katamari Forge
