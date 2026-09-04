@@ -53,17 +53,31 @@ export class MachineCity {
 
   private buildMachineModules() {
     for (const mod of this.data.modules) {
-      // Create distinct mechanical server chamber / optical substation
+      // Shape differentiated by AST Subsystem classification
       const sizeX = Math.max(1.8, Math.min(6, Math.sqrt(mod.lineCount) * 0.45));
       const sizeY = Math.max(2.5, Math.min(10, (mod.sizeBytes / 800)));
       const sizeZ = Math.max(1.8, Math.min(6, Math.sqrt(mod.lineCount) * 0.45));
 
-      const geo = new THREE.BoxGeometry(sizeX, sizeY, sizeZ);
+      let geo: THREE.BufferGeometry;
+      if (mod.system === 'optics_and_shaders') {
+        // Octahedral crystalline optical routing node
+        geo = new THREE.OctahedronGeometry(sizeX * 0.8, 1);
+      } else if (mod.system === 'topological_mutation' || mod.system === 'semantic_memory') {
+        // Cylindrical hydraulic memory chamber
+        geo = new THREE.CylinderGeometry(sizeX * 0.6, sizeX * 0.8, sizeY, 12);
+      } else if (mod.system === 'provenance_truth') {
+        // Stepped data terminal
+        geo = new THREE.BoxGeometry(sizeX, sizeY, sizeZ);
+      } else {
+        // High-density monolithic server mainframe
+        geo = new THREE.BoxGeometry(sizeX, sizeY, sizeZ);
+      }
+
       const mat = new THREE.MeshStandardMaterial({
         color: mod.color,
-        roughness: 0.3,
-        metalness: 0.8,
-        emissive: new THREE.Color(mod.color).multiplyScalar(0.15)
+        roughness: 0.25,
+        metalness: 0.85,
+        emissive: new THREE.Color(mod.color).multiplyScalar(0.2)
       });
 
       const mesh = new THREE.Mesh(geo, mat);
@@ -72,12 +86,19 @@ export class MachineCity {
       mesh.receiveShadow = true;
       mesh.userData = { module: mod };
 
-      // Top indicator beacon
-      const lightGeo = new THREE.SphereGeometry(0.35, 8, 8);
+      // Top optic beacon and system collar
+      const lightGeo = new THREE.SphereGeometry(0.4, 8, 8);
       const lightMat = new THREE.MeshBasicMaterial({ color: mod.color });
       const light = new THREE.Mesh(lightGeo, lightMat);
-      light.position.set(0, sizeY / 2 + 0.35, 0);
+      light.position.set(0, sizeY / 2 + 0.4, 0);
       mesh.add(light);
+
+      // Vertical optic data bus linking to the world above
+      const busGeo = new THREE.CylinderGeometry(0.08, 0.08, 25, 4);
+      const busMat = new THREE.MeshBasicMaterial({ color: mod.color, transparent: true, opacity: 0.4 });
+      const bus = new THREE.Mesh(busGeo, busMat);
+      bus.position.set(0, 12.5 + sizeY / 2, 0);
+      mesh.add(bus);
 
       this.group.add(mesh);
       this.moduleMeshes.set(mod.id, mesh);
