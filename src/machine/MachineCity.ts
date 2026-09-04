@@ -129,6 +129,14 @@ export class MachineCity {
       const line = new THREE.Line(geo, mat);
       this.group.add(line);
       this.conduitLines.push(line);
+
+      // Traveling data bit along the conduit bus
+      const bitGeo = new THREE.SphereGeometry(0.28, 6, 6);
+      const bitMat = new THREE.MeshBasicMaterial({ color: 0x69f0ae });
+      const bit = new THREE.Mesh(bitGeo, bitMat);
+      bit.userData = { p1, mid, p2, speed: 0.2 + (p1.x % 3) * 0.05, offset: Math.random() };
+      bit.name = 'conduit_data_bit';
+      this.group.add(bit);
     }
   }
 
@@ -181,6 +189,19 @@ export class MachineCity {
     const pulse = 0.3 + 0.2 * Math.sin(time * 2);
     for (const line of this.conduitLines) {
       (line.material as THREE.LineBasicMaterial).opacity = pulse;
+    }
+
+    // Animate traveling data bits along orthogonal bus conduits
+    for (const child of this.group.children) {
+      if (child.name === 'conduit_data_bit') {
+        const u = ((time * child.userData.speed + child.userData.offset) % 1.0);
+        const { p1, mid, p2 } = child.userData;
+        if (u < 0.5) {
+          child.position.lerpVectors(p1, mid, u * 2.0);
+        } else {
+          child.position.lerpVectors(mid, p2, (u - 0.5) * 2.0);
+        }
+      }
     }
   }
 }
