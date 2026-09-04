@@ -141,12 +141,44 @@ export class Terrain {
   public rebuildTopology(worldData: SemanticWorldData) {
     this.worldData = worldData;
     const pos = this.geometry.attributes.position;
+    const colorAttr = this.geometry.attributes.color;
+    const colors = colorAttr.array as Float32Array;
+    const cDefault = new THREE.Color(0x0a0f1d);
+    const cTemp = new THREE.Color();
+
     for (let i = 0; i < pos.count; i++) {
       const x = pos.getX(i);
       const z = pos.getZ(i);
       pos.setY(i, this.getHeightAt(x, z));
+
+      // Dynamically recompute color blending by updated region & exhibit affinities
+      let rSum = 0, gSum = 0, bSum = 0, wSum = 0;
+      for (const key of Object.keys(this.worldData.regions) as WingId[]) {
+        const region = this.worldData.regions[key];
+        const dist = Math.hypot(x - region.center[0], z - region.center[2]);
+        const radius = region.scale[0];
+        if (dist < radius * 1.6) {
+          const w = Math.pow(Math.max(0, 1 - dist / (radius * 1.6)), 2);
+          cTemp.setHex(region.groundColor);
+          rSum += cTemp.r * w;
+          gSum += cTemp.g * w;
+          bSum += cTemp.b * w;
+          wSum += w;
+        }
+      }
+
+      if (wSum > 0) {
+        colors[i * 3] = rSum / wSum;
+        colors[i * 3 + 1] = gSum / wSum;
+        colors[i * 3 + 2] = bSum / wSum;
+      } else {
+        colors[i * 3] = cDefault.r;
+        colors[i * 3 + 1] = cDefault.g;
+        colors[i * 3 + 2] = cDefault.b;
+      }
     }
     pos.needsUpdate = true;
+    colorAttr.needsUpdate = true;
     this.geometry.computeVertexNormals();
   }
 
