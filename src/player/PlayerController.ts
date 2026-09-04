@@ -53,6 +53,29 @@ export class PlayerController {
       this.isLocked = document.pointerLockElement === this.domElement;
     });
 
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    this.domElement.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1) {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+      }
+    }, { passive: true });
+
+    this.domElement.addEventListener('touchmove', (e) => {
+      if (e.touches.length === 1) {
+        const dx = e.touches[0].clientX - touchStartX;
+        const dy = e.touches[0].clientY - touchStartY;
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        const touchSensitivity = 0.0035;
+        this.yaw -= dx * touchSensitivity;
+        this.pitch -= dy * touchSensitivity;
+        this.pitch = Math.max(-Math.PI / 2.1, Math.min(Math.PI / 2.1, this.pitch));
+      }
+    }, { passive: true });
+
     window.addEventListener('mousemove', (e) => {
       if (!this.isLocked) return;
       const sensitivity = 0.0022;
