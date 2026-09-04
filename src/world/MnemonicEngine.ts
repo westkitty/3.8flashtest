@@ -323,6 +323,18 @@ export class MnemonicEngine {
         const gyro = landmark.getObjectByName('gyro_ring_1');
         if (gyro) gyro.rotation.x = time * 1.5;
       }
+
+      // Animate world megastructures
+      const celestialRing = this.terrain.group.getObjectByName('celestial_orbital_ring');
+      if (celestialRing) {
+        celestialRing.rotation.z = time * 0.25;
+        celestialRing.rotation.y = time * 0.15;
+      }
+
+      const descentCollar = this.terrain.group.getObjectByName('descent_energy_collar');
+      if (descentCollar) {
+        descentCollar.rotation.y = -time * 0.4;
+      }
     }
 
     // Diegetic Proximity Zone Triggers:

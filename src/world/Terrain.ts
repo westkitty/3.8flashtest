@@ -232,6 +232,7 @@ export class Terrain {
     celestialRing.rotation.x = Math.PI / 3;
     celestialRing.rotation.y = Math.PI / 5;
     celestialRing.position.set(0, 80, -105);
+    celestialRing.name = 'celestial_orbital_ring';
     this.group.add(celestialRing);
 
     // 3. The Grand Descent Shaft Aperture (Colossal chasm ring at (0, 0) descending to Machine Layer)
@@ -245,6 +246,7 @@ export class Terrain {
     const collarMat = new THREE.MeshBasicMaterial({ color: 0x10b981, wireframe: true, transparent: true, opacity: 0.5 });
     const collar = new THREE.Mesh(new THREE.CylinderGeometry(11.8, 11.8, 4, 24, 1, true), collarMat);
     collar.position.set(0, 0, 0);
+    collar.name = 'descent_energy_collar';
     this.group.add(collar);
 
     // Spiral descent staircase stepping down into the machine city
