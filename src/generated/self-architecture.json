@@ -2,10 +2,10 @@
   "version": "0.1.0-experiment.0",
   "targetRepo": "westkitty/3.8flashtest",
   "stats": {
-    "totalModules": 34,
-    "totalEdges": 48,
-    "totalLines": 8649,
-    "totalBytes": 324820
+    "totalModules": 35,
+    "totalEdges": 49,
+    "totalLines": 11367,
+    "totalBytes": 397765
   },
   "modules": [
     {
@@ -28,6 +28,25 @@
       "powerWatts": 46
     },
     {
+      "id": "package-lock.json",
+      "name": "package-lock.json",
+      "path": "package-lock.json",
+      "sizeBytes": 54914,
+      "lineCount": 2245,
+      "system": "chassis_bootstrap",
+      "layer": "structural_truss",
+      "role": "Chassis Core Bootstrap",
+      "color": 11583173,
+      "rawImports": [],
+      "exports": [],
+      "machineCoord": [
+        0.2,
+        -28,
+        8.3
+      ],
+      "powerWatts": 300
+    },
+    {
       "id": "package.json",
       "name": "package.json",
       "path": "package.json",
@@ -40,9 +59,9 @@
       "rawImports": [],
       "exports": [],
       "machineCoord": [
-        0.2,
-        -28,
-        8.3
+        -11.4,
+        -26,
+        4.1
       ],
       "powerWatts": 53
     },
@@ -63,9 +82,9 @@
         "default"
       ],
       "machineCoord": [
-        -11.4,
-        -26,
-        4.1
+        -9.8,
+        -30,
+        -12.5
       ],
       "powerWatts": 27
     },
@@ -82,9 +101,9 @@
       "rawImports": [],
       "exports": [],
       "machineCoord": [
-        -9.8,
-        -30,
-        -12.5
+        2.5,
+        -28,
+        -3.7
       ],
       "powerWatts": 61
     },
@@ -193,9 +212,9 @@
         "MnemonicSoundscapes"
       ],
       "machineCoord": [
-        2.5,
-        -28,
-        -3.7
+        8,
+        -26,
+        2.2
       ],
       "powerWatts": 90
     },
@@ -203,8 +222,8 @@
       "id": "src/generated/self-architecture.json",
       "name": "self-architecture.json",
       "path": "src/generated/self-architecture.json",
-      "sizeBytes": 25686,
-      "lineCount": 1037,
+      "sizeBytes": 26294,
+      "lineCount": 1062,
       "system": "semantic_memory",
       "layer": "mnemonic_strata_chambers",
       "role": "Mnemonic Memory Vault",
@@ -276,9 +295,9 @@
       ],
       "exports": [],
       "machineCoord": [
-        8,
-        -26,
-        2.2
+        0.7,
+        -30,
+        12.1
       ],
       "powerWatts": 26
     },
@@ -356,8 +375,8 @@
       "id": "src/render/RendererHost.ts",
       "name": "RendererHost.ts",
       "path": "src/render/RendererHost.ts",
-      "sizeBytes": 1849,
-      "lineCount": 63,
+      "sizeBytes": 2538,
+      "lineCount": 84,
       "system": "optics_and_shaders",
       "layer": "photonic_manifold",
       "role": "Photonic & Atmosphere Furnace",
@@ -373,7 +392,7 @@
         -32,
         -26.7
       ],
-      "powerWatts": 101
+      "powerWatts": 134
     },
     {
       "id": "src/search/SearchNavigation.ts",
@@ -436,9 +455,9 @@
       "rawImports": [],
       "exports": [],
       "machineCoord": [
-        0.7,
-        -30,
-        12.1
+        -14.8,
+        -28,
+        5.8
       ],
       "powerWatts": 218
     },
@@ -446,15 +465,16 @@
       "id": "src/ui/UIOverlay.ts",
       "name": "UIOverlay.ts",
       "path": "src/ui/UIOverlay.ts",
-      "sizeBytes": 18552,
-      "lineCount": 544,
+      "sizeBytes": 19409,
+      "lineCount": 562,
       "system": "synthetic_interface",
       "layer": "holographic_loom",
       "role": "Diegetic Interface Loom",
       "color": 6942894,
       "rawImports": [
         "../types",
-        "../provenance/ProvenanceTracer"
+        "../provenance/ProvenanceTracer",
+        "../render/RendererHost"
       ],
       "exports": [
         "UIOverlay"
@@ -494,8 +514,8 @@
       "id": "src/world/LandmarkBuilder.ts",
       "name": "LandmarkBuilder.ts",
       "path": "src/world/LandmarkBuilder.ts",
-      "sizeBytes": 22457,
-      "lineCount": 576,
+      "sizeBytes": 22686,
+      "lineCount": 584,
       "system": "world_generation",
       "layer": "geological_computation_drum",
       "role": "Terrain & Landmark Synthesizer",
@@ -518,8 +538,8 @@
       "id": "src/world/MnemonicEngine.ts",
       "name": "MnemonicEngine.ts",
       "path": "src/world/MnemonicEngine.ts",
-      "sizeBytes": 15744,
-      "lineCount": 387,
+      "sizeBytes": 17856,
+      "lineCount": 427,
       "system": "world_generation",
       "layer": "geological_computation_drum",
       "role": "Terrain & Landmark Synthesizer",
@@ -557,8 +577,8 @@
       "id": "src/world/MnemonicWeather.ts",
       "name": "MnemonicWeather.ts",
       "path": "src/world/MnemonicWeather.ts",
-      "sizeBytes": 3807,
-      "lineCount": 106,
+      "sizeBytes": 9713,
+      "lineCount": 272,
       "system": "world_generation",
       "layer": "geological_computation_drum",
       "role": "Terrain & Landmark Synthesizer",
@@ -575,7 +595,7 @@
         -36,
         -57.5
       ],
-      "powerWatts": 170
+      "powerWatts": 300
     },
     {
       "id": "src/world/SemanticSpatialSolver.ts",
@@ -604,8 +624,8 @@
       "id": "src/world/Terrain.ts",
       "name": "Terrain.ts",
       "path": "src/world/Terrain.ts",
-      "sizeBytes": 17697,
-      "lineCount": 437,
+      "sizeBytes": 23284,
+      "lineCount": 583,
       "system": "world_generation",
       "layer": "geological_computation_drum",
       "role": "Terrain & Landmark Synthesizer",
@@ -708,8 +728,8 @@
       "id": "tests/walkthrough.e2e.ts",
       "name": "walkthrough.e2e.ts",
       "path": "tests/walkthrough.e2e.ts",
-      "sizeBytes": 7997,
-      "lineCount": 215,
+      "sizeBytes": 10040,
+      "lineCount": 264,
       "system": "validation_stabilizers",
       "layer": "containment_diagnostic_matrix",
       "role": "Diagnostic Stabilizer Cage",
@@ -738,9 +758,9 @@
       "rawImports": [],
       "exports": [],
       "machineCoord": [
-        -14.8,
-        -28,
-        5.8
+        -2.9,
+        -26,
+        -3.5
       ],
       "powerWatts": 32
     },
@@ -761,9 +781,9 @@
         "default"
       ],
       "machineCoord": [
-        -2.9,
-        -26,
-        -3.5
+        4.4,
+        -30,
+        -7.1
       ],
       "powerWatts": 29
     },
@@ -784,9 +804,9 @@
         "default"
       ],
       "machineCoord": [
-        4.4,
-        -30,
-        -7.1
+        11.8,
+        -28,
+        2.8
       ],
       "powerWatts": 20
     }
@@ -830,6 +850,11 @@
     {
       "source": "src/ui/UIOverlay.ts",
       "target": "src/provenance/ProvenanceTracer.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "src/ui/UIOverlay.ts",
+      "target": "src/render/RendererHost.ts",
       "type": "static_import"
     },
     {

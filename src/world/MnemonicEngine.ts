@@ -36,6 +36,9 @@ export class MnemonicEngine {
   private raycaster = new THREE.Raycaster();
   private mouse = new THREE.Vector2(0, 0);
 
+  private dirLight!: THREE.DirectionalLight;
+  private sunBaseOffset = new THREE.Vector3(65, 125, 75);
+
   private isRunning = false;
   private lastTime = performance.now();
 
@@ -90,35 +93,46 @@ export class MnemonicEngine {
   }
 
   private setupLighting() {
-    // Atmospheric celestial hemisphere fill
-    const hemiLight = new THREE.HemisphereLight(0x88b0d8, 0x162032, 0.95);
+    // 1. Atmospheric celestial hemisphere fill — luminous azure sky and slate ground
+    const hemiLight = new THREE.HemisphereLight(0xd4e7ff, 0x1e293b, 1.45);
     this.rendererHost.scene.add(hemiLight);
 
-    // Primary directional celestial luminary
-    const dirLight = new THREE.DirectionalLight(0xfffaed, 1.45);
-    dirLight.position.set(55, 110, 65);
-    dirLight.castShadow = true;
-    dirLight.shadow.mapSize.width = 2048;
-    dirLight.shadow.mapSize.height = 2048;
-    dirLight.shadow.camera.near = 10;
-    dirLight.shadow.camera.far = 320;
-    dirLight.shadow.camera.left = -130;
-    dirLight.shadow.camera.right = 130;
-    dirLight.shadow.camera.top = 130;
-    dirLight.shadow.camera.bottom = -130;
-    this.rendererHost.scene.add(dirLight);
+    // 2. Soft ambient fill to illuminate shadow crevices and maintain visibility
+    const ambientLight = new THREE.AmbientLight(0x38bdf8, 0.45);
+    this.rendererHost.scene.add(ambientLight);
 
-    // Subtle warm ground-bounce fill light to lift shadow details on landmark bases
-    const groundBounce = new THREE.DirectionalLight(0x38bdf8, 0.35);
+    // 3. Primary directional celestial luminary (Sun) with soft shadow mapping
+    this.dirLight = new THREE.DirectionalLight(0xfff8ee, 2.35);
+    this.dirLight.position.copy(this.sunBaseOffset);
+    this.dirLight.castShadow = true;
+    this.dirLight.shadow.mapSize.width = 1024;
+    this.dirLight.shadow.mapSize.height = 1024;
+    this.dirLight.shadow.bias = -0.0003;
+    this.dirLight.shadow.camera.near = 10;
+    this.dirLight.shadow.camera.far = 380;
+    this.dirLight.shadow.camera.left = -95;
+    this.dirLight.shadow.camera.right = 95;
+    this.dirLight.shadow.camera.top = 95;
+    this.dirLight.shadow.camera.bottom = -95;
+    this.rendererHost.scene.add(this.dirLight);
+    this.rendererHost.scene.add(this.dirLight.target);
+
+    // 4. Fill light from opposite side (North-West) for clean specular edge separation
+    const fillLight = new THREE.DirectionalLight(0x60a5fa, 0.95);
+    fillLight.position.set(-65, 95, -65);
+    this.rendererHost.scene.add(fillLight);
+
+    // 5. Ground bounce light to lift underside structures
+    const groundBounce = new THREE.DirectionalLight(0x38bdf8, 0.5);
     groundBounce.position.set(-45, -20, -45);
     this.rendererHost.scene.add(groundBounce);
 
-    // Subterranean machine cavern illumination
-    const machineAmbient = new THREE.PointLight(0x10b981, 3.2, 130);
+    // 6. Subterranean machine cavern illumination
+    const machineAmbient = new THREE.PointLight(0x10b981, 3.8, 140);
     machineAmbient.position.set(0, -36, 0);
     this.rendererHost.scene.add(machineAmbient);
 
-    const machineUnderFill = new THREE.PointLight(0x06b6d4, 2.0, 90);
+    const machineUnderFill = new THREE.PointLight(0x06b6d4, 2.4, 100);
     machineUnderFill.position.set(0, -18, 0);
     this.rendererHost.scene.add(machineUnderFill);
   }
@@ -148,6 +162,11 @@ export class MnemonicEngine {
   private bindUI() {
     this.ui.events.onAudioToggle = () => {
       return this.soundscapes.toggleMute();
+    };
+
+    this.ui.events.onShadowToggle = (mode) => {
+      this.rendererHost.setShadowMode(mode);
+      this.ui.showToast(`Shadows: ${mode === 'reactive' ? 'Reactive High' : (mode === 'static' ? 'Static Standard' : 'Disabled')}`, 'info');
     };
 
     this.ui.events.onSearch = (query) => {
@@ -313,8 +332,8 @@ export class MnemonicEngine {
     // Fixed-step player update
     this.player.update(dt, (x, z) => this.terrain.getHeightAt(x, z));
 
-    // Update weather
-    this.weather.update(dt);
+    // Update weather & multi-tier parallax starfield
+    this.weather.update(dt, this.rendererHost.camera.position);
 
     // Update kinetic landmark animations (respects quality reduced motion setting)
     const time = now * 0.001;
@@ -374,6 +393,27 @@ export class MnemonicEngine {
     // Update orbital graph pulse
     if (this.graphRenderer.isVisible) {
       this.graphRenderer.pulse();
+    }
+
+    // Dynamic Reactive Shadow Rig: Sun position and target track visitor locomotion
+    if (this.dirLight) {
+      if (this.rendererHost.quality.shadowMode === 'reactive') {
+        this.dirLight.target.position.set(this.player.position.x, this.player.position.y, this.player.position.z);
+        this.dirLight.target.updateMatrixWorld();
+
+        // Locomotion & velocity-responsive solar sway so shadows dynamically react to walking movement
+        const swayX = Math.sin(time * 0.4) * 6 + this.player.velocity.x * 1.6;
+        const swayZ = Math.cos(time * 0.4) * 6 + this.player.velocity.z * 1.6;
+        this.dirLight.position.set(
+          this.player.position.x + this.sunBaseOffset.x + swayX,
+          this.sunBaseOffset.y,
+          this.player.position.z + this.sunBaseOffset.z + swayZ
+        );
+      } else if (this.rendererHost.quality.shadowMode === 'static') {
+        this.dirLight.target.position.set(0, 0, 0);
+        this.dirLight.target.updateMatrixWorld();
+        this.dirLight.position.copy(this.sunBaseOffset);
+      }
     }
 
     // Render frame

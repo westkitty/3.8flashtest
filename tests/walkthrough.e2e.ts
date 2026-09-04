@@ -208,6 +208,55 @@ test.describe('Mnemonic World Engine Interactive Visitor Journey', () => {
     const audioText = await page.textContent('button:has-text("Audio:")');
     expect(audioText).toContain('Audio: Active');
 
+    // 14. Shadow Mode Toggle & Contained Universe Environment Verification
+    const shadowBtn = page.locator('#shadow-toggle-btn');
+    expect(await shadowBtn.textContent()).toContain('Shadows: Reactive High');
+
+    // Cycle to Static Standard
+    await shadowBtn.click();
+    await page.waitForTimeout(100);
+    expect(await shadowBtn.textContent()).toContain('Shadows: Static Standard');
+
+    // Cycle to Off
+    await shadowBtn.click();
+    await page.waitForTimeout(100);
+    expect(await shadowBtn.textContent()).toContain('Shadows: Off');
+
+    // Cycle back to Reactive High
+    await shadowBtn.click();
+    await page.waitForTimeout(100);
+    expect(await shadowBtn.textContent()).toContain('Shadows: Reactive High');
+
+    // Verify contained universe elements & parallax starfield in engine
+    const cosmosVerification = await page.evaluate(() => {
+      const eng = (window as any).__mnemonicEngine;
+      const bubble = eng.terrain.group.getObjectByName('containment_bubble_membrane');
+      const distantPlane = eng.terrain.group.getObjectByName('distant_cosmic_plane');
+      const hasTier1 = eng.weather.tier1Group.children.length > 0;
+      const hasTier2 = eng.weather.tier2Group.children.length > 0;
+      const hasTier3 = eng.weather.tier3Group.children.length > 0;
+      const shadowMapEnabled = eng.rendererHost.renderer.shadowMap.enabled;
+      const isShadowReactive = eng.rendererHost.quality.shadowMode === 'reactive';
+
+      return {
+        hasBubble: !!bubble,
+        hasDistantPlane: !!distantPlane,
+        hasTier1,
+        hasTier2,
+        hasTier3,
+        shadowMapEnabled,
+        isShadowReactive
+      };
+    });
+
+    expect(cosmosVerification.hasBubble).toBe(true);
+    expect(cosmosVerification.hasDistantPlane).toBe(true);
+    expect(cosmosVerification.hasTier1).toBe(true);
+    expect(cosmosVerification.hasTier2).toBe(true);
+    expect(cosmosVerification.hasTier3).toBe(true);
+    expect(cosmosVerification.shadowMapEnabled).toBe(true);
+    expect(cosmosVerification.isShadowReactive).toBe(true);
+
     // Final check for console errors
     expect(consoleErrors).toHaveLength(0);
   });

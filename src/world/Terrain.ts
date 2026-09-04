@@ -13,6 +13,7 @@ export class Terrain {
     this.buildMegastructures();
     this.buildRegionBorders();
     this.buildSanctuaryOasis();
+    this.buildContainmentCosmos();
   }
 
   public getHeightAt(x: number, z: number): number {
@@ -254,6 +255,7 @@ export class Terrain {
     const causewayMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.6, metalness: 0.7 });
     const causewayRoad = new THREE.Mesh(new THREE.BoxGeometry(10, 2.5, 76), causewayMat);
     causewayRoad.position.set(0, 4, 0);
+    causewayRoad.castShadow = true;
     causewayRoad.receiveShadow = true;
     this.group.add(causewayRoad);
 
@@ -262,6 +264,8 @@ export class Terrain {
     for (const pz of [-24, 0, 24]) {
       const pylon = new THREE.Mesh(new THREE.BoxGeometry(11, 14, 3), pylonMat);
       pylon.position.set(0, -3, pz);
+      pylon.castShadow = true;
+      pylon.receiveShadow = true;
       this.group.add(pylon);
     }
 
@@ -269,6 +273,7 @@ export class Terrain {
     const archMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, roughness: 0.2, metalness: 0.9, emissive: 0x0284c7, emissiveIntensity: 0.4 });
     const arch = new THREE.Mesh(new THREE.TorusGeometry(36, 1.2, 8, 48, Math.PI), archMat);
     arch.position.set(0, 4, 0);
+    arch.castShadow = true;
     this.group.add(arch);
 
     // Causeway side guardrails with embedded optic runway lights
@@ -277,6 +282,8 @@ export class Terrain {
     for (const rx of [-4.8, 4.8]) {
       const rail = new THREE.Mesh(new THREE.BoxGeometry(0.3, 1.2, 76), railMat);
       rail.position.set(rx, 5.2, 0);
+      rail.castShadow = true;
+      rail.receiveShadow = true;
       this.group.add(rail);
 
       for (let rz = -35; rz <= 35; rz += 7) {
@@ -296,6 +303,8 @@ export class Terrain {
     });
     const spire = new THREE.Mesh(new THREE.ConeGeometry(9, 105, 12), spireMat);
     spire.position.set(0, 56, -105);
+    spire.castShadow = true;
+    spire.receiveShadow = true;
     this.group.add(spire);
 
     // Spire concentric energy lattices
@@ -431,6 +440,143 @@ export class Terrain {
       step.position.set(px, py, pz);
       step.rotation.y = Math.atan2(endX - startX, endZ - startZ);
       this.group.add(step);
+    }
+  }
+
+  private buildContainmentCosmos() {
+    const bubbleRadius = 188;
+
+    // 1. The Celestial Containment Bubble Dome (Enclosing the world at R = 188m)
+    // Translucent shimmering membrane with subtle specular highlights
+    const bubbleGeo = new THREE.SphereGeometry(bubbleRadius, 48, 32, 0, Math.PI * 2, 0, Math.PI * 0.54);
+    const bubbleMat = new THREE.MeshStandardMaterial({
+      color: 0x38bdf8,
+      transparent: true,
+      opacity: 0.15,
+      roughness: 0.1,
+      metalness: 0.2,
+      side: THREE.DoubleSide,
+      depthWrite: false
+    });
+    const bubbleMesh = new THREE.Mesh(bubbleGeo, bubbleMat);
+    bubbleMesh.position.set(0, 0, 0);
+    bubbleMesh.castShadow = false;
+    bubbleMesh.receiveShadow = false;
+    bubbleMesh.name = 'containment_bubble_membrane';
+    this.group.add(bubbleMesh);
+
+    // Subtle geodesic hexagonal/wireframe lattice over the bubble
+    const latticeGeo = new THREE.IcosahedronGeometry(bubbleRadius + 0.5, 3);
+    const latticeMat = new THREE.MeshBasicMaterial({
+      color: 0x60a5fa,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.16,
+      depthWrite: false
+    });
+    const latticeMesh = new THREE.Mesh(latticeGeo, latticeMat);
+    latticeMesh.position.set(0, 0, 0);
+    latticeMesh.castShadow = false;
+    latticeMesh.receiveShadow = false;
+    latticeMesh.name = 'containment_bubble_lattice';
+    this.group.add(latticeMesh);
+
+    // Glowing Equator Ring anchoring the bubble to the boundary
+    const equatorMat = new THREE.MeshBasicMaterial({
+      color: 0x38bdf8,
+      transparent: true,
+      opacity: 0.6,
+      side: THREE.DoubleSide
+    });
+    const equatorRing = new THREE.Mesh(new THREE.TorusGeometry(bubbleRadius, 1.0, 8, 96), equatorMat);
+    equatorRing.rotation.x = Math.PI / 2;
+    equatorRing.position.set(0, 0.5, 0);
+    equatorRing.name = 'containment_equator_ring';
+    this.group.add(equatorRing);
+
+    // Concentric celestial latitude energy bands on the dome
+    for (const [yLev, rLev] of [[45, 182], [90, 165], [135, 130], [165, 88]]) {
+      const latRing = new THREE.Mesh(
+        new THREE.RingGeometry(rLev - 0.6, rLev + 0.6, 64),
+        new THREE.MeshBasicMaterial({ color: 0x60a5fa, transparent: true, opacity: 0.22, side: THREE.DoubleSide })
+      );
+      latRing.rotation.x = -Math.PI / 2;
+      latRing.position.set(0, yLev, 0);
+      this.group.add(latRing);
+    }
+
+    // 2. The Distant Flat Plane Past the Bubble (The Infinite Abyssal Metaphysical Bedrock)
+    // Sits at Y = -26, stretching from past the bubble (R = 188) out to 2200m
+    const distantPlaneSize = 2400;
+    const distantPlaneGeo = new THREE.PlaneGeometry(distantPlaneSize, distantPlaneSize, 32, 32);
+    distantPlaneGeo.rotateX(-Math.PI / 2);
+
+    const distantPlaneMat = new THREE.MeshStandardMaterial({
+      color: 0x050816,
+      roughness: 0.4,
+      metalness: 0.85,
+      side: THREE.DoubleSide
+    });
+    const distantPlane = new THREE.Mesh(distantPlaneGeo, distantPlaneMat);
+    distantPlane.position.set(0, -26, 0);
+    distantPlane.receiveShadow = true;
+    distantPlane.name = 'distant_cosmic_plane';
+    this.group.add(distantPlane);
+
+    // Celestial coordinate grid overlay on the distant plane
+    const cosmicGrid = new THREE.GridHelper(distantPlaneSize, 96, 0x2563eb, 0x0e1c3e);
+    cosmicGrid.position.set(0, -25.8, 0);
+    cosmicGrid.name = 'distant_cosmic_grid';
+    (cosmicGrid.material as THREE.Material).transparent = true;
+    (cosmicGrid.material as THREE.Material).opacity = 0.45;
+    this.group.add(cosmicGrid);
+
+    // Ethereal horizon boundary moat / chasm ring separating the contained world from the distant plane
+    const moatInnerRadius = 188;
+    const moatOuterRadius = 240;
+    const moatRing = new THREE.Mesh(
+      new THREE.RingGeometry(moatInnerRadius, moatOuterRadius, 80),
+      new THREE.MeshStandardMaterial({
+        color: 0x02040a,
+        roughness: 0.9,
+        metalness: 0.1,
+        side: THREE.DoubleSide
+      })
+    );
+    moatRing.rotation.x = -Math.PI / 2;
+    moatRing.position.set(0, -10, 0);
+    this.group.add(moatRing);
+
+    // Distant monolithic anchor pillars erected far past the bubble in the deep distance
+    const pillarMat = new THREE.MeshStandardMaterial({
+      color: 0x0a122c,
+      roughness: 0.3,
+      metalness: 0.9,
+      emissive: 0x1e3a8a,
+      emissiveIntensity: 0.4
+    });
+    const pillarBeaconMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
+
+    const pillarDistances = [320, 480, 720];
+    const pillarAngles = [0, Math.PI * 0.25, Math.PI * 0.5, Math.PI * 0.75, Math.PI, Math.PI * 1.25, Math.PI * 1.5, Math.PI * 1.75];
+
+    for (const dist of pillarDistances) {
+      for (const ang of pillarAngles) {
+        const px = Math.cos(ang) * dist;
+        const pz = Math.sin(ang) * dist;
+        const height = 45 + (dist / 720) * 80;
+
+        const pillar = new THREE.Mesh(new THREE.BoxGeometry(6, height, 6), pillarMat);
+        pillar.position.set(px, -26 + height * 0.5, pz);
+        pillar.castShadow = true;
+        pillar.receiveShadow = true;
+        this.group.add(pillar);
+
+        // Radiant beacon on pillar crown
+        const beacon = new THREE.Mesh(new THREE.OctahedronGeometry(2.5), pillarBeaconMat);
+        beacon.position.set(px, -26 + height + 3, pz);
+        this.group.add(beacon);
+      }
     }
   }
 }

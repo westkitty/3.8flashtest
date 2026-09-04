@@ -1,5 +1,6 @@
 import type { SemanticExhibit, DexterSanctuaryData, Epoch } from '../types';
 import type { CausalTraceStep } from '../provenance/ProvenanceTracer';
+import type { ShadowMode } from '../render/RendererHost';
 
 export interface UIEvents {
   onSearch: (q: string) => void;
@@ -12,6 +13,7 @@ export interface UIEvents {
   onTeleportToSanctuary: () => void;
   onTraceToMachine: (exhibit: SemanticExhibit) => void;
   onAudioToggle: () => boolean;
+  onShadowToggle: (mode: ShadowMode) => void;
 }
 
 function escapeHtml(str: unknown): string {
@@ -346,6 +348,22 @@ export class UIOverlay {
       this.audioBtn.textContent = isMuted ? 'Audio: Muted' : 'Audio: Active';
     });
     actions.appendChild(this.audioBtn);
+
+    const shadowBtn = document.createElement('button');
+    shadowBtn.className = 'btn';
+    shadowBtn.id = 'shadow-toggle-btn';
+    shadowBtn.textContent = 'Shadows: Reactive High';
+    const modes: ShadowMode[] = ['reactive', 'static', 'off'];
+    let currentModeIndex = 0;
+    shadowBtn.addEventListener('click', () => {
+      currentModeIndex = (currentModeIndex + 1) % modes.length;
+      const nextMode = modes[currentModeIndex];
+      if (nextMode === 'reactive') shadowBtn.textContent = 'Shadows: Reactive High';
+      else if (nextMode === 'static') shadowBtn.textContent = 'Shadows: Static Standard';
+      else shadowBtn.textContent = 'Shadows: Off';
+      this.events.onShadowToggle?.(nextMode);
+    });
+    actions.appendChild(shadowBtn);
 
     const epochSelect = document.createElement('select');
     epochSelect.className = 'search-box';

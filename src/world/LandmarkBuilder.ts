@@ -129,6 +129,14 @@ export class LandmarkBuilder {
     basePlate.name = 'interaction-base';
     group.add(basePlate);
 
+    // Pervasive shadow casting and receiving across all landmark meshes
+    group.traverse((node) => {
+      if ((node as THREE.Mesh).isMesh) {
+        node.castShadow = true;
+        node.receiveShadow = true;
+      }
+    });
+
     return group;
   }
 
