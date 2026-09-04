@@ -85,20 +85,36 @@ export class GraphRenderer {
       });
 
       const line = new THREE.Line(geo, mat);
-      line.userData = { relationship: rel };
+      line.userData = { relationship: rel, curve };
+
+      // Traveling photon beacon along the arc attached to line
+      const packetGeo = new THREE.SphereGeometry(0.55, 8, 8);
+      const packetMat = new THREE.MeshBasicMaterial({ color: style.color });
+      const packet = new THREE.Mesh(packetGeo, packetMat);
+      packet.userData = { curve, speed: 0.15 + (dist % 5) * 0.04, offset: Math.random() };
+      packet.name = 'graph_signal_packet';
+      line.add(packet);
+
       this.group.add(line);
       this.lineMeshes.push(line);
     }
   }
 
   public pulse() {
-    // Orbital animation pulse
-    const time = performance.now() * 0.003;
+    // Orbital animation pulse and traveling signal packets
+    const time = performance.now() * 0.001;
     for (const line of this.lineMeshes) {
+      const packet = line.getObjectByName('graph_signal_packet');
+      if (packet && packet.userData.curve) {
+        const u = ((time * packet.userData.speed + packet.userData.offset) % 1.0);
+        const pt = (packet.userData.curve as THREE.QuadraticBezierCurve3).getPoint(u);
+        packet.position.copy(pt);
+      }
+
       const mat = line.material as THREE.LineBasicMaterial;
       const rel: SemanticRelationship = line.userData.relationship;
       if (rel && rel.isMutated) {
-        mat.opacity = 0.6 + 0.4 * Math.sin(time * 3);
+        mat.opacity = 0.6 + 0.4 * Math.sin(time * 6);
       }
     }
   }
