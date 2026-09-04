@@ -132,30 +132,50 @@ export class LandmarkBuilder {
     return group;
   }
 
-  // 1. E01: Starsilk Loom
+  // 1. E01: Starsilk Loom (Hero celestial weaving engine)
   private static buildStarsilkLoom(g: THREE.Group, s: number) {
-    const obsidian = this.getMaterial(0x0a0f1d, 0.2, 0.8);
-    const starMetal = this.getMaterial(0x3d5afe, 0.3, 0.9, 0x1a237e);
+    const obsidian = this.getMaterial(0x0a0f1d, 0.2, 0.85);
+    const starMetal = this.getMaterial(0x38bdf8, 0.2, 0.9, 0x0369a1);
+    const goldAccents = this.getMaterial(0xf59e0b, 0.3, 0.8);
 
-    // Twin arching celestial warp towers
-    for (const side of [-1, 1]) {
-      const tower = new THREE.Mesh(new THREE.CylinderGeometry(0.8 * s, 1.6 * s, 22 * s, 8), obsidian);
-      tower.position.set(side * 5 * s, 11 * s, 0);
-      tower.rotation.z = -side * 0.1;
-      g.add(tower);
+    // Quadruple stepped pylons with canted buttresses
+    for (const sx of [-1, 1]) {
+      for (const sz of [-1, 1]) {
+        const tower = new THREE.Mesh(new THREE.CylinderGeometry(0.6 * s, 1.4 * s, 26 * s, 6), obsidian);
+        tower.position.set(sx * 5.5 * s, 13 * s, sz * 2.5 * s);
+        tower.rotation.z = -sx * 0.08;
+        g.add(tower);
+      }
     }
 
-    // Weaving beam across the top
-    const beam = new THREE.Mesh(new THREE.BoxGeometry(12 * s, 1.2 * s, 2 * s), starMetal);
-    beam.position.set(0, 20 * s, 0);
-    g.add(beam);
+    // Overhead crowned shuttle gantry
+    const gantry = new THREE.Mesh(new THREE.BoxGeometry(14 * s, 1.6 * s, 6 * s), starMetal);
+    gantry.position.set(0, 25 * s, 0);
+    g.add(gantry);
+
+    // Dynamic rotating celestial warp rings
+    const ring1 = new THREE.Mesh(new THREE.TorusGeometry(3.6 * s, 0.3 * s, 8, 32), goldAccents);
+    ring1.position.set(0, 16 * s, 0);
+    ring1.name = 'rotating_ring_1';
+    g.add(ring1);
+
+    const ring2 = new THREE.Mesh(new THREE.TorusGeometry(5.2 * s, 0.25 * s, 8, 32), starMetal);
+    ring2.position.set(0, 16 * s, 0);
+    ring2.name = 'rotating_ring_2';
+    g.add(ring2);
 
     // Dynamic hanging Starsilk warp threads
-    const threadMat = new THREE.MeshBasicMaterial({ color: 0x82b1ff, wireframe: true });
-    const threads = new THREE.Mesh(new THREE.PlaneGeometry(8 * s, 16 * s, 12, 1), threadMat);
-    threads.position.set(0, 11 * s, 0);
+    const threadMat = new THREE.MeshBasicMaterial({ color: 0x93c5fd, wireframe: true, transparent: true, opacity: 0.85 });
+    const threads = new THREE.Mesh(new THREE.PlaneGeometry(10 * s, 20 * s, 16, 2), threadMat);
+    threads.position.set(0, 14 * s, 0);
     threads.name = 'starsilk_threads';
     g.add(threads);
+
+    // Suspended central crystalline bobbin
+    const bobbin = new THREE.Mesh(new THREE.OctahedronGeometry(1.8 * s), starMetal);
+    bobbin.position.set(0, 16 * s, 0);
+    bobbin.name = 'kinetic_core';
+    g.add(bobbin);
   }
 
   // 2. E03: Orbital Tomb Dismantler
@@ -198,38 +218,78 @@ export class LandmarkBuilder {
     g.add(ring);
   }
 
-  // 4. E08: Heliocide Absence Lens
+  // 4. E08: Heliocide Absence Lens (Massive astronomical occulter)
   private static buildHeliocideLens(g: THREE.Group, s: number) {
-    const darkObsidian = this.getMaterial(0x020408, 0.1, 0.9);
+    const darkObsidian = this.getMaterial(0x020408, 0.1, 0.95);
     const voidMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
+    const goldFoil = this.getMaterial(0xd97706, 0.2, 0.9, 0x78350f);
+
+    // Heavy tripod buttress foundation
+    for (let i = 0; i < 3; i++) {
+      const a = (i / 3) * Math.PI * 2;
+      const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.8 * s, 1.8 * s, 16 * s, 6), darkObsidian);
+      leg.position.set(Math.cos(a) * 7 * s, 8 * s, Math.sin(a) * 7 * s);
+      leg.rotation.z = Math.cos(a) * 0.25;
+      leg.rotation.x = -Math.sin(a) * 0.25;
+      g.add(leg);
+    }
 
     // Enormous vertical aperture framing void of stars
-    const frame = new THREE.Mesh(new THREE.TorusGeometry(6 * s, 1.2 * s, 8, 32), darkObsidian);
-    frame.position.set(0, 12 * s, 0);
+    const frame = new THREE.Mesh(new THREE.TorusGeometry(7.5 * s, 1.4 * s, 8, 36), darkObsidian);
+    frame.position.set(0, 16 * s, 0);
     g.add(frame);
 
-    const absenceCore = new THREE.Mesh(new THREE.CircleGeometry(5.2 * s, 32), voidMat);
-    absenceCore.position.set(0, 12 * s, 0.1);
+    // Concentric sensor calibration iris
+    const iris = new THREE.Mesh(new THREE.TorusGeometry(6.2 * s, 0.3 * s, 8, 32), goldFoil);
+    iris.position.set(0, 16 * s, 0.1);
+    iris.name = 'rotating_ring_1';
+    g.add(iris);
+
+    const absenceCore = new THREE.Mesh(new THREE.CircleGeometry(6 * s, 36), voidMat);
+    absenceCore.position.set(0, 16 * s, 0.2);
     g.add(absenceCore);
   }
 
-  // 5. E09: Excavated Ruin
+  // 5. E09: Excavated Ruin (Foundational Reliquary Architecture)
   private static buildExcavatedRuin(g: THREE.Group, s: number) {
-    const stone = this.getMaterial(0x2a2430, 0.9, 0.1);
-    const relicGlow = this.getMaterial(0xe1bee7, 0.4, 0.6, 0x311b92);
+    const stone = this.getMaterial(0x2a2430, 0.85, 0.15);
+    const relicGlow = this.getMaterial(0xe1bee7, 0.3, 0.7, 0x6b21a8);
+    const ancientGold = this.getMaterial(0xca8a04, 0.4, 0.7);
 
-    for (let i = 0; i < 6; i++) {
-      const a = (i / 6) * Math.PI * 2;
-      const height = (4 + (i % 3) * 3) * s;
-      const col = new THREE.Mesh(new THREE.CylinderGeometry(0.8 * s, 0.9 * s, height, 8), stone);
-      col.position.set(Math.cos(a) * 5 * s, height / 2, Math.sin(a) * 5 * s);
-      col.rotation.z = (i % 2 === 0 ? 0.08 : -0.08);
+    // Stepped ziggurat trench platform
+    const platform1 = new THREE.Mesh(new THREE.BoxGeometry(16 * s, 1 * s, 16 * s), stone);
+    platform1.position.set(0, 0.5 * s, 0);
+    g.add(platform1);
+
+    const platform2 = new THREE.Mesh(new THREE.BoxGeometry(11 * s, 1.2 * s, 11 * s), stone);
+    platform2.position.set(0, 1.6 * s, 0);
+    g.add(platform2);
+
+    // Broken colonnade perimeter
+    for (let i = 0; i < 8; i++) {
+      const a = (i / 8) * Math.PI * 2;
+      const height = (5 + (i % 4) * 2.5) * s;
+      const col = new THREE.Mesh(new THREE.CylinderGeometry(0.9 * s, 1.1 * s, height, 8), stone);
+      col.position.set(Math.cos(a) * 6.5 * s, (1.6 + height / 2) * s, Math.sin(a) * 6.5 * s);
+      col.rotation.z = (i % 2 === 0 ? 0.06 : -0.06);
       g.add(col);
     }
 
-    const artifactAltar = new THREE.Mesh(new THREE.BoxGeometry(4 * s, 1 * s, 4 * s), relicGlow);
-    artifactAltar.position.set(0, 0.5 * s, 0);
+    // Central relic sarcophagus with glowing runic core
+    const artifactAltar = new THREE.Mesh(new THREE.BoxGeometry(4.5 * s, 2 * s, 3 * s), stone);
+    artifactAltar.position.set(0, 3 * s, 0);
     g.add(artifactAltar);
+
+    const relicCore = new THREE.Mesh(new THREE.DodecahedronGeometry(1.4 * s), relicGlow);
+    relicCore.position.set(0, 4.8 * s, 0);
+    relicCore.name = 'kinetic_core';
+    g.add(relicCore);
+
+    // Ancient floating ring of remembrance
+    const halo = new THREE.Mesh(new THREE.TorusGeometry(2.8 * s, 0.15 * s, 6, 24), ancientGold);
+    halo.position.set(0, 4.8 * s, 0);
+    halo.name = 'rotating_ring_1';
+    g.add(halo);
   }
 
   // 6. E10: WorldsVault Chasm Vault
