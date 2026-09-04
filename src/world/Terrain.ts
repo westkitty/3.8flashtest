@@ -123,50 +123,112 @@ export class Terrain {
     this.group.add(this.mesh);
   }
 
-  // 3 World-Class Megastructures
+  // 3 World-Class Megastructures with Architectural Depth & Skyline
   private buildMegastructures() {
+    // 0. Celestial Horizon Sphere / Starfield Dome (Deep sky gradient with astronomical rings)
+    const skyGeo = new THREE.SphereGeometry(380, 32, 24);
+    const skyMat = new THREE.MeshBasicMaterial({
+      color: 0x070c1a,
+      side: THREE.BackSide
+    });
+    const skyDome = new THREE.Mesh(skyGeo, skyMat);
+    this.group.add(skyDome);
+
+    // Distant Celestial Horizon Ring (Tilted orbital ring girding the world)
+    const horizonRingMat = new THREE.MeshBasicMaterial({ color: 0x1e293b, wireframe: true, transparent: true, opacity: 0.4 });
+    const horizonRing = new THREE.Mesh(new THREE.TorusGeometry(320, 2.5, 6, 64), horizonRingMat);
+    horizonRing.rotation.x = Math.PI / 4;
+    horizonRing.rotation.y = Math.PI / 6;
+    this.group.add(horizonRing);
+
     // 1. The Trans-Domain Causeway (Colossal Viaduct spanning the central chasm between South & North)
-    const causewayMat = new THREE.MeshStandardMaterial({ color: 0x1f2937, roughness: 0.7, metalness: 0.6 });
-    const causewayRoad = new THREE.Mesh(new THREE.BoxGeometry(8, 2, 70), causewayMat);
+    const causewayMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.6, metalness: 0.7 });
+    const causewayRoad = new THREE.Mesh(new THREE.BoxGeometry(10, 2.5, 76), causewayMat);
     causewayRoad.position.set(0, 4, 0);
     causewayRoad.receiveShadow = true;
     this.group.add(causewayRoad);
 
-    // Causeway suspension arches
-    const archMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, roughness: 0.3, metalness: 0.8 });
-    const arch = new THREE.Mesh(new THREE.TorusGeometry(32, 1, 8, 32, Math.PI), archMat);
+    // Viaduct support pylons plunging down into the chasm
+    const pylonMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.8, metalness: 0.8 });
+    for (const pz of [-24, 0, 24]) {
+      const pylon = new THREE.Mesh(new THREE.BoxGeometry(11, 14, 3), pylonMat);
+      pylon.position.set(0, -3, pz);
+      this.group.add(pylon);
+    }
+
+    // Causeway suspension arches & glowing anchor cables
+    const archMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, roughness: 0.2, metalness: 0.9, emissive: 0x0284c7, emissiveIntensity: 0.4 });
+    const arch = new THREE.Mesh(new THREE.TorusGeometry(36, 1.2, 8, 48, Math.PI), archMat);
     arch.position.set(0, 4, 0);
     this.group.add(arch);
 
+    // Causeway side guardrails with embedded optic runway lights
+    const railMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.5, metalness: 0.6 });
+    const lightMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
+    for (const rx of [-4.8, 4.8]) {
+      const rail = new THREE.Mesh(new THREE.BoxGeometry(0.3, 1.2, 76), railMat);
+      rail.position.set(rx, 5.2, 0);
+      this.group.add(rail);
+
+      for (let rz = -35; rz <= 35; rz += 7) {
+        const beacon = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 1.4, 8), lightMat);
+        beacon.position.set(rx, 5.2, rz);
+        this.group.add(beacon);
+      }
+    }
+
     // 2. The Celestial Loom Spire (Reaches 95 meters into the north sky)
-    const spireMat = new THREE.MeshStandardMaterial({ color: 0x0a1026, roughness: 0.2, metalness: 0.9 });
-    const spire = new THREE.Mesh(new THREE.ConeGeometry(8, 95, 8), spireMat);
-    spire.position.set(0, 52, -105);
+    const spireMat = new THREE.MeshStandardMaterial({
+      color: 0x090e1f,
+      roughness: 0.15,
+      metalness: 0.95,
+      emissive: 0x1e3a8a,
+      emissiveIntensity: 0.3
+    });
+    const spire = new THREE.Mesh(new THREE.ConeGeometry(9, 105, 12), spireMat);
+    spire.position.set(0, 56, -105);
     this.group.add(spire);
 
-    // Floating orbital torus ring hanging around the celestial spire
-    const ringMat = new THREE.MeshBasicMaterial({ color: 0x60a5fa, wireframe: true });
-    const celestialRing = new THREE.Mesh(new THREE.TorusGeometry(18, 0.6, 8, 32), ringMat);
+    // Spire concentric energy lattices
+    const latticeMat = new THREE.MeshBasicMaterial({ color: 0x60a5fa, wireframe: true, transparent: true, opacity: 0.65 });
+    for (let h = 25; h <= 85; h += 20) {
+      const radius = (1 - (h - 10) / 105) * 16;
+      const latticeRing = new THREE.Mesh(new THREE.TorusGeometry(radius, 0.4, 6, 32), latticeMat);
+      latticeRing.position.set(0, h, -105);
+      latticeRing.rotation.x = Math.PI / 2;
+      this.group.add(latticeRing);
+    }
+
+    // Floating orbital torus rings hanging around the celestial spire
+    const ringMat = new THREE.MeshBasicMaterial({ color: 0x93c5fd, wireframe: true });
+    const celestialRing = new THREE.Mesh(new THREE.TorusGeometry(22, 0.8, 8, 36), ringMat);
     celestialRing.rotation.x = Math.PI / 3;
-    celestialRing.position.set(0, 75, -105);
+    celestialRing.rotation.y = Math.PI / 5;
+    celestialRing.position.set(0, 80, -105);
     this.group.add(celestialRing);
 
-    // 3. The Grand Descent Shaft Aperture (Massive ring structure at (0, 0) descending to Machine Layer)
-    const shaftRingMat = new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.5, metalness: 0.8 });
-    const shaftRing = new THREE.Mesh(new THREE.TorusGeometry(12, 1.8, 8, 32), shaftRingMat);
+    // 3. The Grand Descent Shaft Aperture (Colossal chasm ring at (0, 0) descending to Machine Layer)
+    const shaftRingMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.4, metalness: 0.9 });
+    const shaftRing = new THREE.Mesh(new THREE.TorusGeometry(12, 2.2, 8, 36), shaftRingMat);
     shaftRing.rotation.x = Math.PI / 2;
     shaftRing.position.set(0, 1.5, 0);
     this.group.add(shaftRing);
 
+    // Protective energy collar framing the descent
+    const collarMat = new THREE.MeshBasicMaterial({ color: 0x10b981, wireframe: true, transparent: true, opacity: 0.5 });
+    const collar = new THREE.Mesh(new THREE.CylinderGeometry(11.8, 11.8, 4, 24, 1, true), collarMat);
+    collar.position.set(0, 0, 0);
+    this.group.add(collar);
+
     // Spiral descent staircase stepping down into the machine city
-    const stepMat = new THREE.MeshStandardMaterial({ color: 0x00e676, roughness: 0.4, metalness: 0.7 });
+    const stepMat = new THREE.MeshStandardMaterial({ color: 0x10b981, roughness: 0.3, metalness: 0.8, emissive: 0x064e3b, emissiveIntensity: 0.6 });
     for (let i = 0; i < 30; i++) {
       const angle = (i / 30) * Math.PI * 4;
-      const r = 9;
+      const r = 9.2;
       const x = Math.cos(angle) * r;
       const z = Math.sin(angle) * r;
       const y = 1.0 - (i / 30) * 38;
-      const step = new THREE.Mesh(new THREE.BoxGeometry(2.5, 0.4, 1.5), stepMat);
+      const step = new THREE.Mesh(new THREE.BoxGeometry(2.8, 0.45, 1.6), stepMat);
       step.position.set(x, y, z);
       step.rotation.y = -angle;
       this.group.add(step);
