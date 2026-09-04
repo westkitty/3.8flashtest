@@ -2,10 +2,10 @@
   "version": "0.1.0-experiment.0",
   "targetRepo": "westkitty/3.8flashtest",
   "stats": {
-    "totalModules": 35,
-    "totalEdges": 49,
-    "totalLines": 11536,
-    "totalBytes": 404145
+    "totalModules": 46,
+    "totalEdges": 66,
+    "totalLines": 14135,
+    "totalBytes": 490367
   },
   "modules": [
     {
@@ -198,6 +198,29 @@
       "powerWatts": 118
     },
     {
+      "id": "src/audio/GenerativeSpatialSynth.ts",
+      "name": "GenerativeSpatialSynth.ts",
+      "path": "src/audio/GenerativeSpatialSynth.ts",
+      "sizeBytes": 4788,
+      "lineCount": 146,
+      "system": "chassis_bootstrap",
+      "layer": "structural_truss",
+      "role": "Chassis Core Bootstrap",
+      "color": 11583173,
+      "rawImports": [
+        "three"
+      ],
+      "exports": [
+        "GenerativeSpatialSynth"
+      ],
+      "machineCoord": [
+        8,
+        -26,
+        2.2
+      ],
+      "powerWatts": 234
+    },
+    {
       "id": "src/audio/MnemonicSoundscapes.ts",
       "name": "MnemonicSoundscapes.ts",
       "path": "src/audio/MnemonicSoundscapes.ts",
@@ -212,18 +235,42 @@
         "MnemonicSoundscapes"
       ],
       "machineCoord": [
-        8,
-        -26,
-        2.2
+        0.7,
+        -30,
+        12.1
       ],
       "powerWatts": 90
+    },
+    {
+      "id": "src/ecosystem/AutonomousEcosystem.ts",
+      "name": "AutonomousEcosystem.ts",
+      "path": "src/ecosystem/AutonomousEcosystem.ts",
+      "sizeBytes": 8053,
+      "lineCount": 246,
+      "system": "chassis_bootstrap",
+      "layer": "structural_truss",
+      "role": "Chassis Core Bootstrap",
+      "color": 11583173,
+      "rawImports": [
+        "three",
+        "../types"
+      ],
+      "exports": [
+        "AutonomousEcosystem"
+      ],
+      "machineCoord": [
+        -14.8,
+        -28,
+        5.8
+      ],
+      "powerWatts": 300
     },
     {
       "id": "src/generated/self-architecture.json",
       "name": "self-architecture.json",
       "path": "src/generated/self-architecture.json",
-      "sizeBytes": 26295,
-      "lineCount": 1062,
+      "sizeBytes": 35722,
+      "lineCount": 1419,
       "system": "semantic_memory",
       "layer": "mnemonic_strata_chambers",
       "role": "Mnemonic Memory Vault",
@@ -257,6 +304,30 @@
       "powerWatts": 300
     },
     {
+      "id": "src/machine/LivingASTConduits.ts",
+      "name": "LivingASTConduits.ts",
+      "path": "src/machine/LivingASTConduits.ts",
+      "sizeBytes": 4187,
+      "lineCount": 135,
+      "system": "machine_city",
+      "layer": "mechanical_substation",
+      "role": "Recursive Hardware Architecture",
+      "color": 58998,
+      "rawImports": [
+        "three",
+        "../types"
+      ],
+      "exports": [
+        "LivingASTConduits"
+      ],
+      "machineCoord": [
+        4.3,
+        -44,
+        1.3
+      ],
+      "powerWatts": 216
+    },
+    {
       "id": "src/machine/MachineCity.ts",
       "name": "MachineCity.ts",
       "path": "src/machine/MachineCity.ts",
@@ -274,11 +345,57 @@
         "MachineCity"
       ],
       "machineCoord": [
-        4.3,
-        -44,
-        1.3
+        0.2,
+        -42,
+        8.3
       ],
       "powerWatts": 300
+    },
+    {
+      "id": "src/machine/MemoryHeapTopography.ts",
+      "name": "MemoryHeapTopography.ts",
+      "path": "src/machine/MemoryHeapTopography.ts",
+      "sizeBytes": 3045,
+      "lineCount": 96,
+      "system": "machine_city",
+      "layer": "mechanical_substation",
+      "role": "Recursive Hardware Architecture",
+      "color": 58998,
+      "rawImports": [
+        "three"
+      ],
+      "exports": [
+        "MemoryHeapTopography"
+      ],
+      "machineCoord": [
+        -11.4,
+        -40,
+        4.1
+      ],
+      "powerWatts": 154
+    },
+    {
+      "id": "src/machine/SubterraneanMaglevTransit.ts",
+      "name": "SubterraneanMaglevTransit.ts",
+      "path": "src/machine/SubterraneanMaglevTransit.ts",
+      "sizeBytes": 3231,
+      "lineCount": 99,
+      "system": "machine_city",
+      "layer": "mechanical_substation",
+      "role": "Recursive Hardware Architecture",
+      "color": 58998,
+      "rawImports": [
+        "three"
+      ],
+      "exports": [
+        "SubterraneanMaglevTransit"
+      ],
+      "machineCoord": [
+        -9.8,
+        -44,
+        -12.5
+      ],
+      "powerWatts": 158
     },
     {
       "id": "src/main.ts",
@@ -295,9 +412,9 @@
       ],
       "exports": [],
       "machineCoord": [
-        0.7,
-        -30,
-        12.1
+        -2.9,
+        -26,
+        -3.5
       ],
       "powerWatts": 26
     },
@@ -326,6 +443,29 @@
       "powerWatts": 300
     },
     {
+      "id": "src/network/CollaborativePresence.ts",
+      "name": "CollaborativePresence.ts",
+      "path": "src/network/CollaborativePresence.ts",
+      "sizeBytes": 7205,
+      "lineCount": 223,
+      "system": "chassis_bootstrap",
+      "layer": "structural_truss",
+      "role": "Chassis Core Bootstrap",
+      "color": 11583173,
+      "rawImports": [
+        "three"
+      ],
+      "exports": [
+        "CollaborativePresence"
+      ],
+      "machineCoord": [
+        4.4,
+        -30,
+        -7.1
+      ],
+      "powerWatts": 300
+    },
+    {
       "id": "src/player/PlayerController.ts",
       "name": "PlayerController.ts",
       "path": "src/player/PlayerController.ts",
@@ -345,6 +485,29 @@
         42.3,
         -30,
         29.3
+      ],
+      "powerWatts": 300
+    },
+    {
+      "id": "src/player/PlayerMobility.ts",
+      "name": "PlayerMobility.ts",
+      "path": "src/player/PlayerMobility.ts",
+      "sizeBytes": 8388,
+      "lineCount": 259,
+      "system": "kinematics_and_input",
+      "layer": "sensor_gyro_stabilizer",
+      "role": "Kinematic Spatial Relay",
+      "color": 14696699,
+      "rawImports": [
+        "three"
+      ],
+      "exports": [
+        "PlayerMobility"
+      ],
+      "machineCoord": [
+        38.2,
+        -28,
+        36.3
       ],
       "powerWatts": 300
     },
@@ -372,27 +535,56 @@
       "powerWatts": 131
     },
     {
-      "id": "src/render/RendererHost.ts",
-      "name": "RendererHost.ts",
-      "path": "src/render/RendererHost.ts",
-      "sizeBytes": 2821,
-      "lineCount": 90,
+      "id": "src/render/PostProcessingPipeline.ts",
+      "name": "PostProcessingPipeline.ts",
+      "path": "src/render/PostProcessingPipeline.ts",
+      "sizeBytes": 8560,
+      "lineCount": 265,
       "system": "optics_and_shaders",
       "layer": "photonic_manifold",
       "role": "Photonic & Atmosphere Furnace",
       "color": 16758605,
       "rawImports": [
-        "three"
+        "three",
+        "three/examples/jsm/postprocessing/EffectComposer.js",
+        "three/examples/jsm/postprocessing/RenderPass.js",
+        "three/examples/jsm/postprocessing/UnrealBloomPass.js",
+        "three/examples/jsm/postprocessing/ShaderPass.js",
+        "three/examples/jsm/postprocessing/OutputPass.js"
       ],
       "exports": [
-        "RendererHost"
+        "PostProcessingPipeline"
       ],
       "machineCoord": [
         -33.7,
         -32,
         -26.7
       ],
-      "powerWatts": 144
+      "powerWatts": 300
+    },
+    {
+      "id": "src/render/RendererHost.ts",
+      "name": "RendererHost.ts",
+      "path": "src/render/RendererHost.ts",
+      "sizeBytes": 3150,
+      "lineCount": 99,
+      "system": "optics_and_shaders",
+      "layer": "photonic_manifold",
+      "role": "Photonic & Atmosphere Furnace",
+      "color": 16758605,
+      "rawImports": [
+        "three",
+        "./PostProcessingPipeline"
+      ],
+      "exports": [
+        "RendererHost"
+      ],
+      "machineCoord": [
+        -37.8,
+        -30,
+        -19.7
+      ],
+      "powerWatts": 158
     },
     {
       "id": "src/search/SearchNavigation.ts",
@@ -419,6 +611,27 @@
       "powerWatts": 120
     },
     {
+      "id": "src/timeline/GitTimelineScrubber.ts",
+      "name": "GitTimelineScrubber.ts",
+      "path": "src/timeline/GitTimelineScrubber.ts",
+      "sizeBytes": 1638,
+      "lineCount": 30,
+      "system": "chronology_engine",
+      "layer": "temporal_gearing_cycler",
+      "role": "Chronological Epoch Gearing",
+      "color": 8146431,
+      "rawImports": [],
+      "exports": [
+        "GitTimelineScrubber"
+      ],
+      "machineCoord": [
+        -37.7,
+        -34,
+        -30.7
+      ],
+      "powerWatts": 48
+    },
+    {
       "id": "src/timeline/TimelineManager.ts",
       "name": "TimelineManager.ts",
       "path": "src/timeline/TimelineManager.ts",
@@ -436,9 +649,9 @@
         "TimelineManager"
       ],
       "machineCoord": [
-        -37.7,
-        -34,
-        -30.7
+        -41.8,
+        -32,
+        -23.7
       ],
       "powerWatts": 114
     },
@@ -455,9 +668,9 @@
       "rawImports": [],
       "exports": [],
       "machineCoord": [
-        -14.8,
+        11.8,
         -28,
-        5.8
+        2.8
       ],
       "powerWatts": 218
     },
@@ -465,8 +678,8 @@
       "id": "src/ui/UIOverlay.ts",
       "name": "UIOverlay.ts",
       "path": "src/ui/UIOverlay.ts",
-      "sizeBytes": 23713,
-      "lineCount": 684,
+      "sizeBytes": 30342,
+      "lineCount": 837,
       "system": "synthetic_interface",
       "layer": "holographic_loom",
       "role": "Diegetic Interface Loom",
@@ -487,6 +700,29 @@
       "powerWatts": 300
     },
     {
+      "id": "src/world/CelestialCosmos.ts",
+      "name": "CelestialCosmos.ts",
+      "path": "src/world/CelestialCosmos.ts",
+      "sizeBytes": 5807,
+      "lineCount": 176,
+      "system": "world_generation",
+      "layer": "geological_computation_drum",
+      "role": "Terrain & Landmark Synthesizer",
+      "color": 5227511,
+      "rawImports": [
+        "three"
+      ],
+      "exports": [
+        "CelestialCosmos"
+      ],
+      "machineCoord": [
+        4.3,
+        -36,
+        -43.7
+      ],
+      "powerWatts": 282
+    },
+    {
       "id": "src/world/GraphRenderer.ts",
       "name": "GraphRenderer.ts",
       "path": "src/world/GraphRenderer.ts",
@@ -504,9 +740,9 @@
         "GraphRenderer"
       ],
       "machineCoord": [
-        4.3,
-        -36,
-        -43.7
+        0.2,
+        -34,
+        -36.7
       ],
       "powerWatts": 250
     },
@@ -528,9 +764,9 @@
         "LandmarkBuilder"
       ],
       "machineCoord": [
-        0.2,
-        -34,
-        -36.7
+        -11.4,
+        -32,
+        -40.9
       ],
       "powerWatts": 300
     },
@@ -538,8 +774,8 @@
       "id": "src/world/MnemonicEngine.ts",
       "name": "MnemonicEngine.ts",
       "path": "src/world/MnemonicEngine.ts",
-      "sizeBytes": 17856,
-      "lineCount": 427,
+      "sizeBytes": 23820,
+      "lineCount": 604,
       "system": "world_generation",
       "layer": "geological_computation_drum",
       "role": "Terrain & Landmark Synthesizer",
@@ -547,6 +783,7 @@
       "rawImports": [
         "three",
         "../render/RendererHost",
+        "../render/PostProcessingPipeline",
         "../player/PlayerController",
         "./Terrain",
         "./LandmarkBuilder",
@@ -559,6 +796,15 @@
         "../provenance/ProvenanceTracer",
         "./MnemonicWeather",
         "../audio/MnemonicSoundscapes",
+        "./CelestialCosmos",
+        "../machine/LivingASTConduits",
+        "../machine/MemoryHeapTopography",
+        "../timeline/GitTimelineScrubber",
+        "../machine/SubterraneanMaglevTransit",
+        "../player/PlayerMobility",
+        "../ecosystem/AutonomousEcosystem",
+        "../audio/GenerativeSpatialSynth",
+        "../network/CollaborativePresence",
         "../types",
         "../generated/semantic-world.json",
         "../generated/self-architecture.json"
@@ -567,9 +813,9 @@
         "MnemonicEngine"
       ],
       "machineCoord": [
-        -11.4,
-        -32,
-        -40.9
+        -9.8,
+        -36,
+        -57.5
       ],
       "powerWatts": 300
     },
@@ -591,9 +837,9 @@
         "MnemonicWeather"
       ],
       "machineCoord": [
-        -9.8,
-        -36,
-        -57.5
+        2.5,
+        -34,
+        -48.7
       ],
       "powerWatts": 300
     },
@@ -614,9 +860,9 @@
         "SemanticSpatialSolver"
       ],
       "machineCoord": [
-        2.5,
-        -34,
-        -48.7
+        8,
+        -32,
+        -42.8
       ],
       "powerWatts": 235
     },
@@ -624,8 +870,8 @@
       "id": "src/world/Terrain.ts",
       "name": "Terrain.ts",
       "path": "src/world/Terrain.ts",
-      "sizeBytes": 23284,
-      "lineCount": 583,
+      "sizeBytes": 25595,
+      "lineCount": 652,
       "system": "world_generation",
       "layer": "geological_computation_drum",
       "role": "Terrain & Landmark Synthesizer",
@@ -638,11 +884,37 @@
         "Terrain"
       ],
       "machineCoord": [
-        8,
-        -32,
-        -42.8
+        0.7,
+        -36,
+        -32.9
       ],
       "powerWatts": 300
+    },
+    {
+      "id": "tests/advanced-features.test.ts",
+      "name": "advanced-features.test.ts",
+      "path": "tests/advanced-features.test.ts",
+      "sizeBytes": 3845,
+      "lineCount": 103,
+      "system": "validation_stabilizers",
+      "layer": "containment_diagnostic_matrix",
+      "role": "Diagnostic Stabilizer Cage",
+      "color": 15662913,
+      "rawImports": [
+        "vitest",
+        "three",
+        "../src/world/CelestialCosmos",
+        "../src/timeline/GitTimelineScrubber",
+        "../src/player/PlayerMobility",
+        "../src/machine/SubterraneanMaglevTransit"
+      ],
+      "exports": [],
+      "machineCoord": [
+        -17.7,
+        -46,
+        1.3
+      ],
+      "powerWatts": 165
     },
     {
       "id": "tests/browser-headless-simulation.test.ts",
@@ -671,9 +943,9 @@
       ],
       "exports": [],
       "machineCoord": [
-        -17.7,
-        -46,
-        1.3
+        -21.8,
+        -44,
+        8.3
       ],
       "powerWatts": 158
     },
@@ -690,9 +962,9 @@
       "rawImports": [],
       "exports": [],
       "machineCoord": [
-        -21.8,
-        -44,
-        8.3
+        -33.4,
+        -42,
+        4.1
       ],
       "powerWatts": 61
     },
@@ -718,9 +990,9 @@
       ],
       "exports": [],
       "machineCoord": [
-        -33.4,
-        -42,
-        4.1
+        -31.8,
+        -46,
+        -12.5
       ],
       "powerWatts": 300
     },
@@ -728,8 +1000,8 @@
       "id": "tests/walkthrough.e2e.ts",
       "name": "walkthrough.e2e.ts",
       "path": "tests/walkthrough.e2e.ts",
-      "sizeBytes": 11787,
-      "lineCount": 303,
+      "sizeBytes": 14602,
+      "lineCount": 359,
       "system": "validation_stabilizers",
       "layer": "containment_diagnostic_matrix",
       "role": "Diagnostic Stabilizer Cage",
@@ -739,9 +1011,9 @@
       ],
       "exports": [],
       "machineCoord": [
-        -31.8,
-        -46,
-        -12.5
+        -19.5,
+        -44,
+        -3.7
       ],
       "powerWatts": 300
     },
@@ -758,9 +1030,9 @@
       "rawImports": [],
       "exports": [],
       "machineCoord": [
-        -2.9,
+        1.4,
         -26,
-        -3.5
+        15.8
       ],
       "powerWatts": 32
     },
@@ -781,9 +1053,9 @@
         "default"
       ],
       "machineCoord": [
-        4.4,
+        -4.1,
         -30,
-        -7.1
+        1.8
       ],
       "powerWatts": 29
     },
@@ -804,14 +1076,24 @@
         "default"
       ],
       "machineCoord": [
-        11.8,
+        -5.5,
         -28,
-        2.8
+        -6.2
       ],
       "powerWatts": 20
     }
   ],
   "edges": [
+    {
+      "source": "src/ecosystem/AutonomousEcosystem.ts",
+      "target": "src/types.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "src/machine/LivingASTConduits.ts",
+      "target": "src/types.ts",
+      "type": "static_import"
+    },
     {
       "source": "src/machine/MachineCity.ts",
       "target": "src/types.ts",
@@ -835,6 +1117,11 @@
     {
       "source": "src/provenance/ProvenanceTracer.ts",
       "target": "src/types.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "src/render/RendererHost.ts",
+      "target": "src/render/PostProcessingPipeline.ts",
       "type": "static_import"
     },
     {
@@ -874,7 +1161,17 @@
     },
     {
       "source": "src/world/MnemonicEngine.ts",
+      "target": "src/audio/GenerativeSpatialSynth.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "src/world/MnemonicEngine.ts",
       "target": "src/audio/MnemonicSoundscapes.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "src/world/MnemonicEngine.ts",
+      "target": "src/ecosystem/AutonomousEcosystem.ts",
       "type": "static_import"
     },
     {
@@ -889,7 +1186,22 @@
     },
     {
       "source": "src/world/MnemonicEngine.ts",
+      "target": "src/machine/LivingASTConduits.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "src/world/MnemonicEngine.ts",
       "target": "src/machine/MachineCity.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "src/world/MnemonicEngine.ts",
+      "target": "src/machine/MemoryHeapTopography.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "src/world/MnemonicEngine.ts",
+      "target": "src/machine/SubterraneanMaglevTransit.ts",
       "type": "static_import"
     },
     {
@@ -899,12 +1211,27 @@
     },
     {
       "source": "src/world/MnemonicEngine.ts",
+      "target": "src/network/CollaborativePresence.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "src/world/MnemonicEngine.ts",
       "target": "src/player/PlayerController.ts",
       "type": "static_import"
     },
     {
       "source": "src/world/MnemonicEngine.ts",
+      "target": "src/player/PlayerMobility.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "src/world/MnemonicEngine.ts",
       "target": "src/provenance/ProvenanceTracer.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "src/world/MnemonicEngine.ts",
+      "target": "src/render/PostProcessingPipeline.ts",
       "type": "static_import"
     },
     {
@@ -915,6 +1242,11 @@
     {
       "source": "src/world/MnemonicEngine.ts",
       "target": "src/search/SearchNavigation.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "src/world/MnemonicEngine.ts",
+      "target": "src/timeline/GitTimelineScrubber.ts",
       "type": "static_import"
     },
     {
@@ -930,6 +1262,11 @@
     {
       "source": "src/world/MnemonicEngine.ts",
       "target": "src/ui/UIOverlay.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "src/world/MnemonicEngine.ts",
+      "target": "src/world/CelestialCosmos.ts",
       "type": "static_import"
     },
     {
@@ -965,6 +1302,26 @@
     {
       "source": "src/world/Terrain.ts",
       "target": "src/types.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "tests/advanced-features.test.ts",
+      "target": "src/machine/SubterraneanMaglevTransit.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "tests/advanced-features.test.ts",
+      "target": "src/player/PlayerMobility.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "tests/advanced-features.test.ts",
+      "target": "src/timeline/GitTimelineScrubber.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "tests/advanced-features.test.ts",
+      "target": "src/world/CelestialCosmos.ts",
       "type": "static_import"
     },
     {

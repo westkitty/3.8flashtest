@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { RendererHost } from '../render/RendererHost';
+import { PostProcessingPipeline } from '../render/PostProcessingPipeline';
 import { PlayerController } from '../player/PlayerController';
 import { Terrain } from './Terrain';
 import { LandmarkBuilder } from './LandmarkBuilder';
@@ -12,6 +13,15 @@ import { UIOverlay } from '../ui/UIOverlay';
 import { ProvenanceTracer } from '../provenance/ProvenanceTracer';
 import { MnemonicWeather } from './MnemonicWeather';
 import { MnemonicSoundscapes } from '../audio/MnemonicSoundscapes';
+import { CelestialCosmos } from './CelestialCosmos';
+import { LivingASTConduits } from '../machine/LivingASTConduits';
+import { MemoryHeapTopography } from '../machine/MemoryHeapTopography';
+import { GitTimelineScrubber } from '../timeline/GitTimelineScrubber';
+import { SubterraneanMaglevTransit } from '../machine/SubterraneanMaglevTransit';
+import { PlayerMobility } from '../player/PlayerMobility';
+import { AutonomousEcosystem } from '../ecosystem/AutonomousEcosystem';
+import { GenerativeSpatialSynth } from '../audio/GenerativeSpatialSynth';
+import { CollaborativePresence } from '../network/CollaborativePresence';
 import type { SemanticWorldData, SelfArchitectureData, SemanticExhibit, RuntimeEvent } from '../types';
 
 import rawSemanticData from '../generated/semantic-world.json';
@@ -19,6 +29,7 @@ import rawSelfArchData from '../generated/self-architecture.json';
 
 export class MnemonicEngine {
   public rendererHost: RendererHost;
+  public postProcessing: PostProcessingPipeline;
   public player: PlayerController;
   public terrain: Terrain;
   public graphRenderer: GraphRenderer;
@@ -31,12 +42,25 @@ export class MnemonicEngine {
   public soundscapes: MnemonicSoundscapes;
   public ui: UIOverlay;
 
-  private landmarks = new Map<string, THREE.Group>();
+  // Next-Gen Subsystems (Features 1-25)
+  public celestialCosmos: CelestialCosmos;
+  public livingAST: LivingASTConduits;
+  public heapTopography: MemoryHeapTopography;
+  public gitScrubber: GitTimelineScrubber;
+  public maglevTransit: SubterraneanMaglevTransit;
+  public mobility: PlayerMobility;
+  public ecosystem: AutonomousEcosystem;
+  public spatialSynth: GenerativeSpatialSynth;
+  public collaborativePresence: CollaborativePresence;
+
+  public landmarks = new Map<string, THREE.Group>();
   private landmarksGroup = new THREE.Group();
   private raycaster = new THREE.Raycaster();
   private mouse = new THREE.Vector2(0, 0);
 
   private dirLight!: THREE.DirectionalLight;
+  private hemiLight!: THREE.HemisphereLight;
+  private ambientLight!: THREE.AmbientLight;
   private sunBaseOffset = new THREE.Vector3(65, 125, 75);
 
   private isRunning = false;
@@ -47,6 +71,13 @@ export class MnemonicEngine {
     const archData = rawSelfArchData as unknown as SelfArchitectureData;
 
     this.rendererHost = new RendererHost(canvas);
+    this.postProcessing = new PostProcessingPipeline(
+      this.rendererHost.renderer,
+      this.rendererHost.scene,
+      this.rendererHost.camera
+    );
+    this.rendererHost.postProcessing = this.postProcessing;
+
     this.player = new PlayerController(this.rendererHost.camera, canvas);
     this.mutationManager = new MutationManager(worldData);
     this.provenanceTracer = new ProvenanceTracer(archData);
@@ -55,6 +86,9 @@ export class MnemonicEngine {
     // World & Atmosphere
     this.terrain = new Terrain(this.mutationManager.currentWorldData);
     this.rendererHost.scene.add(this.terrain.group);
+
+    this.celestialCosmos = new CelestialCosmos();
+    this.rendererHost.scene.add(this.celestialCosmos.group);
 
     this.weather = new MnemonicWeather(this.mutationManager.currentWorldData);
     this.rendererHost.scene.add(this.weather.group);
@@ -71,6 +105,32 @@ export class MnemonicEngine {
     // Subterranean Machine Layer
     this.machineCity = new MachineCity(archData);
     this.rendererHost.scene.add(this.machineCity.group);
+
+    const modulePositions = new Map<string, THREE.Vector3>();
+    for (const mod of archData.modules) {
+      modulePositions.set(mod.id, new THREE.Vector3(mod.machineCoord[0], mod.machineCoord[1], mod.machineCoord[2]));
+    }
+    this.livingAST = new LivingASTConduits(archData, modulePositions);
+    this.rendererHost.scene.add(this.livingAST.group);
+
+    this.heapTopography = new MemoryHeapTopography();
+    this.rendererHost.scene.add(this.heapTopography.group);
+
+    this.maglevTransit = new SubterraneanMaglevTransit();
+    this.rendererHost.scene.add(this.maglevTransit.group);
+
+    // Traversal & Ecosystem
+    this.mobility = new PlayerMobility();
+    this.rendererHost.scene.add(this.mobility.group);
+
+    this.ecosystem = new AutonomousEcosystem(this.mutationManager.currentWorldData.exhibits);
+    this.rendererHost.scene.add(this.ecosystem.group);
+
+    this.spatialSynth = new GenerativeSpatialSynth();
+    this.gitScrubber = new GitTimelineScrubber();
+
+    this.collaborativePresence = new CollaborativePresence();
+    this.rendererHost.scene.add(this.collaborativePresence.group);
 
     // Timeline & Search
     this.timelineManager = new TimelineManager(this.mutationManager.currentWorldData.exhibits, this.landmarks);
@@ -93,15 +153,12 @@ export class MnemonicEngine {
   }
 
   private setupLighting() {
-    // 1. Atmospheric celestial hemisphere fill — luminous azure sky and slate ground
-    const hemiLight = new THREE.HemisphereLight(0xd4e7ff, 0x1e293b, 1.45);
-    this.rendererHost.scene.add(hemiLight);
+    this.hemiLight = new THREE.HemisphereLight(0xd4e7ff, 0x1e293b, 1.45);
+    this.rendererHost.scene.add(this.hemiLight);
 
-    // 2. Soft ambient fill to illuminate shadow crevices and maintain visibility
-    const ambientLight = new THREE.AmbientLight(0x38bdf8, 0.45);
-    this.rendererHost.scene.add(ambientLight);
+    this.ambientLight = new THREE.AmbientLight(0x38bdf8, 0.45);
+    this.rendererHost.scene.add(this.ambientLight);
 
-    // 3. Primary directional celestial luminary (Sun) with soft shadow mapping
     this.dirLight = new THREE.DirectionalLight(0xfff8ee, 2.35);
     this.dirLight.position.copy(this.sunBaseOffset);
     this.dirLight.castShadow = true;
@@ -117,123 +174,165 @@ export class MnemonicEngine {
     this.rendererHost.scene.add(this.dirLight);
     this.rendererHost.scene.add(this.dirLight.target);
 
-    // 4. Fill light from opposite side (North-West) for clean specular edge separation
     const fillLight = new THREE.DirectionalLight(0x60a5fa, 0.95);
     fillLight.position.set(-65, 95, -65);
     this.rendererHost.scene.add(fillLight);
 
-    // 5. Ground bounce light to lift underside structures
     const groundBounce = new THREE.DirectionalLight(0x38bdf8, 0.5);
     groundBounce.position.set(-45, -20, -45);
     this.rendererHost.scene.add(groundBounce);
 
-    // 6. Subterranean machine cavern illumination
     const machineAmbient = new THREE.PointLight(0x10b981, 3.8, 140);
     machineAmbient.position.set(0, -36, 0);
     this.rendererHost.scene.add(machineAmbient);
-
-    const machineUnderFill = new THREE.PointLight(0x06b6d4, 2.4, 100);
-    machineUnderFill.position.set(0, -18, 0);
-    this.rendererHost.scene.add(machineUnderFill);
   }
 
   private buildLandmarks(exhibits: SemanticExhibit[]) {
-    while (this.landmarksGroup.children.length > 0) {
-      const child = this.landmarksGroup.children[0];
-      child.traverse((node) => {
-        if ((node as any).isMesh) {
-          const mesh = node as THREE.Mesh;
-          mesh.geometry?.dispose();
+    this.landmarks.forEach(group => {
+      this.landmarksGroup.remove(group);
+      group.traverse(child => {
+        if ((child as THREE.Mesh).isMesh) {
+          (child as THREE.Mesh).geometry?.dispose();
         }
       });
-      this.landmarksGroup.remove(child);
-    }
+    });
     this.landmarks.clear();
 
-    for (const ex of exhibits) {
-      const landmark = LandmarkBuilder.buildLandmark(ex);
-      const groundY = this.terrain.getHeightAt(ex.position[0], ex.position[2]);
-      landmark.position.set(ex.position[0], groundY, ex.position[2]);
-      this.landmarksGroup.add(landmark);
-      this.landmarks.set(ex.id, landmark);
+    for (const exhibit of exhibits) {
+      const group = LandmarkBuilder.buildLandmark(exhibit);
+      group.userData = { exhibitId: exhibit.id, exhibit };
+      this.landmarks.set(exhibit.id, group);
+      this.landmarksGroup.add(group);
     }
   }
 
   private bindUI() {
-    this.ui.events.onAudioToggle = () => {
-      return this.soundscapes.toggleMute();
-    };
-
-    this.ui.events.onShadowToggle = (mode) => {
-      this.rendererHost.setShadowMode(mode);
-      this.ui.showToast(`Shadows: ${mode === 'reactive' ? 'Reactive High' : (mode === 'static' ? 'Static Standard' : 'Disabled')}`, 'info');
-    };
-
-    this.ui.events.onSearch = (query) => {
-      const match = this.searchNav.search(query);
-      this.dispatchRuntimeEvent({ type: 'SEARCH', query, targetId: match?.id });
-      this.soundscapes.playPulseTone(440, 0.25);
-      if (match) {
-        const targetPos = new THREE.Vector3(match.position[0], match.position[1] + 4, match.position[2]);
-        const dir = new THREE.Vector3().subVectors(targetPos, this.player.position).normalize();
-        this.player.yaw = Math.atan2(-dir.x, -dir.z);
-      }
+    this.ui.events.onSearch = (q) => {
+      this.searchNav.search(q);
+      this.livingAST.triggerExecutionBurst(5);
     };
 
     this.ui.events.onEpochChange = (epoch: Epoch) => {
       this.timelineManager.setEpoch(epoch);
-      this.soundscapes.playPulseTone(330, 0.3);
-      this.dispatchRuntimeEvent({ type: 'TIMELINE_SHIFT', epoch });
+      this.soundscapes.playPulseTone(epoch === 'archaic' ? 140 : (epoch === 'emergent' ? 380 : 260), 0.25);
     };
 
-    this.ui.events.onOrbitalToggle = (active: boolean) => {
+    this.ui.events.onOrbitalToggle = (active) => {
       this.graphRenderer.setVisibility(active);
-      this.player.isFreeFlight = active;
-      this.player.isSubterranean = false;
-      this.soundscapes.playPulseTone(550, 0.4);
-      this.dispatchRuntimeEvent({ type: 'ORBITAL_TOGGLE', active });
-
       if (active) {
-        this.player.teleport(new THREE.Vector3(0, 165, 145), new THREE.Vector3(0, 0, 0));
+        this.player.isFreeFlight = true;
+        this.player.teleport(new THREE.Vector3(0, 115, 130), new THREE.Vector3(0, 0, 0));
+        this.soundscapes.playPulseTone(480, 0.35);
+        this.dispatchRuntimeEvent({ type: 'ORBITAL_TOGGLE', active: true });
       } else {
-        this.player.teleport(new THREE.Vector3(0, 5, 28), new THREE.Vector3(0, 10, -90));
+        this.player.isFreeFlight = false;
+        this.player.teleport(new THREE.Vector3(0, 5, 28), new THREE.Vector3(0, 5, 0));
+        this.soundscapes.playPulseTone(240, 0.35);
+        this.dispatchRuntimeEvent({ type: 'ORBITAL_TOGGLE', active: false });
       }
     };
 
     this.ui.events.onMachineDescent = () => {
-      this.player.isFreeFlight = false;
       this.player.isSubterranean = true;
-      this.player.teleport(new THREE.Vector3(0, -38, 14), new THREE.Vector3(0, -35, 0));
+      this.player.isFreeFlight = false;
+      this.player.teleport(new THREE.Vector3(0, -38, 20), new THREE.Vector3(0, -38, 0));
       this.soundscapes.playPulseTone(110, 0.5);
-      this.dispatchRuntimeEvent({ type: 'MOVE', velocity: 10 });
+      this.livingAST.triggerExecutionBurst(8);
+      this.dispatchRuntimeEvent({ type: 'MOVE', velocity: 15 });
     };
 
     this.ui.events.onSurfaceAscent = () => {
-      this.player.isFreeFlight = false;
       this.player.isSubterranean = false;
-      this.player.teleport(new THREE.Vector3(0, 5, 28), new THREE.Vector3(0, 10, -90));
-      this.soundscapes.playPulseTone(330, 0.3);
-      this.dispatchRuntimeEvent({ type: 'MOVE', velocity: 10 });
+      this.player.isFreeFlight = false;
+      this.player.teleport(new THREE.Vector3(0, 5, 28), new THREE.Vector3(0, 15, -90));
+      this.soundscapes.playPulseTone(360, 0.3);
+      this.dispatchRuntimeEvent({ type: 'MOVE', velocity: 5 });
     };
 
     this.ui.events.onTeleportToSanctuary = () => {
+      const s = this.mutationManager.currentWorldData.sanctuary;
       this.player.isSubterranean = false;
       this.player.isFreeFlight = false;
-      const s = this.mutationManager.currentWorldData.sanctuary;
-      const y = this.terrain.getHeightAt(s.position[0], s.position[2]) + 2;
-      this.player.teleport(new THREE.Vector3(s.position[0], y, s.position[2] + 8), new THREE.Vector3(s.position[0], y, s.position[2]));
+      this.player.teleport(
+        new THREE.Vector3(s.position[0], s.position[1] + 3, s.position[2] + 24),
+        new THREE.Vector3(s.position[0], s.position[1] + 4, s.position[2])
+      );
       this.ui.showSanctuaryInspect(s);
-      this.soundscapes.playPulseTone(293.66, 0.4); // Quiet resonant D note
+      this.soundscapes.playPulseTone(432, 0.6);
       this.dispatchRuntimeEvent({ type: 'INSPECT', id: s.id });
+    };
+
+    this.ui.events.onAudioToggle = () => {
+      this.soundscapes.toggleMute();
+      return this.spatialSynth.toggleMute();
+    };
+
+    this.ui.events.onShadowToggle = (mode) => {
+      this.rendererHost.setShadowMode(mode);
+    };
+
+    // Advanced Traversal & Subsystems
+    this.ui.events.onToggleGlider = () => {
+      return this.mobility.toggleGlider();
+    };
+
+    this.ui.events.onToggleGrapple = () => {
+      if (this.mobility.isGrappling) {
+        this.mobility.releaseGrapple();
+      } else {
+        const lookDir = new THREE.Vector3();
+        this.rendererHost.camera.getWorldDirection(lookDir);
+        const target = this.player.position.clone().addScaledVector(lookDir, 40);
+        this.mobility.shootGrapple(this.player.position, target);
+        this.soundscapes.playPulseTone(520, 0.15);
+      }
+    };
+
+    this.ui.events.onToggleKatamari = () => {
+      return this.mobility.toggleKatamari();
+    };
+
+    this.ui.events.onToggleDirector = () => {
+      return this.ecosystem.toggleDirectorMode();
+    };
+
+    this.ui.events.onTriggerCymatics = () => {
+      this.spatialSynth.triggerCymaticBlast(this.player.position);
+      this.livingAST.triggerExecutionBurst(12);
+    };
+
+    this.ui.events.onToggleTrain = () => {
+      return this.maglevTransit.toggleBoarding();
+    };
+
+    this.ui.events.onToggleGravity = () => {
+      return this.mobility.toggleGravityInversion();
+    };
+
+    this.ui.events.onGitScrub = (idx: number) => {
+      const snap = this.gitScrubber.scrubToCommit(idx);
+      const label = document.getElementById('git-hash-label');
+      if (label) {
+        label.textContent = `4D GIT: ${snap.hash} (${snap.activeExhibitCount} exhibits)`;
+      }
+      let i = 0;
+      this.landmarks.forEach((mesh) => {
+        mesh.visible = i < snap.activeExhibitCount;
+        i++;
+      });
+      this.livingAST.triggerExecutionBurst(8);
+    };
+
+    this.ui.events.onSpeakLore = (title: string, summary: string) => {
+      this.ecosystem.speakMonumentLore(title, summary);
     };
 
     this.ui.events.onIngestPatch = (text: string, isJson: boolean) => {
       const res = this.mutationManager.ingestPatch(text, isJson);
       this.ui.showToast(res.message, res.success ? 'success' : 'warning');
       if (res.success && res.patchExhibit) {
-        this.soundscapes.playPulseTone(180, 0.7); // Low tectonic rumble
         const pos = new THREE.Vector3(res.patchExhibit.position[0], res.patchExhibit.position[1], res.patchExhibit.position[2]);
-        this.weather.triggerShockwave(pos);
+
         this.terrain.rebuildTopology(this.mutationManager.currentWorldData);
         this.buildLandmarks(this.mutationManager.currentWorldData.exhibits);
         this.graphRenderer.updateData(
@@ -243,8 +342,11 @@ export class MnemonicEngine {
         this.timelineManager.updateExhibits(this.mutationManager.currentWorldData.exhibits, this.landmarks);
         this.searchNav.updateExhibits(this.mutationManager.currentWorldData.exhibits);
 
-        this.dispatchRuntimeEvent({ type: 'MUTATION_INGEST', patchId: res.patchExhibit.id });
+        this.collaborativePresence.triggerConstruction(pos);
+        this.livingAST.triggerExecutionBurst(20);
+        this.heapTopography.triggerGCShockwave();
 
+        this.dispatchRuntimeEvent({ type: 'MUTATION_INGEST', patchId: res.patchExhibit.id });
         this.player.teleport(new THREE.Vector3(pos.x, pos.y + 4, pos.z + 18), pos);
         this.ui.showInspect(res.patchExhibit);
       }
@@ -269,7 +371,7 @@ export class MnemonicEngine {
       const { chain, targetMachineModule } = this.provenanceTracer.traceLandmark(exhibit);
       this.ui.renderCausalTrace(chain);
       this.soundscapes.playPulseTone(150, 0.5);
-      // Teleport player down to the responsible machine subsystem in the machine layer
+      this.livingAST.triggerExecutionBurst(15);
       setTimeout(() => {
         const mc = targetMachineModule.machineCoord;
         this.player.isSubterranean = true;
@@ -313,9 +415,13 @@ export class MnemonicEngine {
 
   public dispatchRuntimeEvent(event: RuntimeEvent) {
     this.machineCity.handleRuntimeEvent(event);
+    if (event.type === 'MOVE' && !this.player.isFreeFlight && Math.random() < 0.12) {
+      this.soundscapes.playPulseTone(180, 0.05);
+    }
   }
 
   public start() {
+    if (this.isRunning) return;
     this.isRunning = true;
     this.lastTime = performance.now();
     this.loop();
@@ -327,16 +433,96 @@ export class MnemonicEngine {
 
     const now = performance.now();
     const dt = Math.min(0.1, (now - this.lastTime) / 1000);
+    const time = now * 0.001;
     this.lastTime = now;
 
-    // Fixed-step player update
-    this.player.update(dt, (x, z) => this.terrain.getHeightAt(x, z));
+    // 1. Update Celestial Cosmos (Day/Night & Aurora Borealis)
+    const lighting = this.celestialCosmos.update(dt);
+    if (this.dirLight) {
+      this.dirLight.color.copy(lighting.sunColor);
+      this.dirLight.intensity = lighting.sunIntensity;
+    }
+    if (this.hemiLight) {
+      this.hemiLight.color.copy(lighting.hemiSkyColor);
+      this.hemiLight.groundColor.copy(lighting.hemiGroundColor);
+    }
+    if (this.ambientLight) {
+      this.ambientLight.intensity = lighting.ambientIntensity;
+    }
+    if (this.rendererHost.scene.fog) {
+      (this.rendererHost.scene.fog as THREE.FogExp2).color.copy(lighting.fogColor);
+      this.rendererHost.scene.background = lighting.fogColor;
+    }
 
-    // Update weather & multi-tier parallax starfield
+    // 2. Traversal & Mobility Systems
+    if (this.mobility.isGrappling && this.mobility.grappleAnchor) {
+      const dir = new THREE.Vector3().subVectors(this.mobility.grappleAnchor, this.player.position);
+      if (dir.length() > 3.0) {
+        dir.normalize();
+        this.player.position.addScaledVector(dir, dt * 38.0);
+        this.mobility.updateGrappleLine(this.player.position, this.mobility.grappleAnchor);
+      } else {
+        this.mobility.releaseGrapple();
+      }
+    }
+
+    const portalDest = this.mobility.checkPortalTeleport(this.player.position);
+    if (portalDest) {
+      this.player.teleport(portalDest);
+      this.soundscapes.playPulseTone(440, 0.35);
+    }
+
+    if (this.mobility.isGliderActive) {
+      this.mobility.gliderMesh.position.copy(this.player.position);
+      this.mobility.gliderMesh.rotation.copy(this.rendererHost.camera.rotation);
+      // Glider forward thrust
+      const forward = new THREE.Vector3();
+      this.rendererHost.camera.getWorldDirection(forward);
+      this.player.position.addScaledVector(forward, dt * this.mobility.gliderSpeed);
+    }
+
+    if (this.mobility.isKatamariActive) {
+      this.mobility.katamariMesh.position.copy(this.player.position);
+      this.mobility.katamariMesh.position.y += 1.2;
+      this.mobility.katamariMesh.rotation.x += dt * 3.0;
+      this.mobility.katamariMesh.rotation.z -= dt * 2.5;
+      if (Math.random() < 0.04) {
+        this.mobility.accreteConcept();
+      }
+    }
+
+    // 3. Subterranean Maglev Transit
+    this.maglevTransit.update(dt);
+    if (this.maglevTransit.isBoarded) {
+      this.player.teleport(this.maglevTransit.getPassengerCameraPosition());
+    }
+
+    // 4. Autonomous Ecosystem & Drone Director
+    this.ecosystem.update(dt, time);
+    if (this.ecosystem.isDirectorActive) {
+      const pose = this.ecosystem.getDirectorCameraPose();
+      this.rendererHost.camera.position.copy(pose.pos);
+      this.rendererHost.camera.lookAt(pose.lookAt);
+    } else if (!this.maglevTransit.isBoarded) {
+      // Standard player movement update
+      this.player.update(dt, (x, z) => this.terrain.getHeightAt(x, z));
+    }
+
+    // 5. Living AST Conduits & Heap
+    this.livingAST.update(dt);
+    this.heapTopography.update(dt, time);
+
+    // 6. Generative Spatial Synthesizer & Cymatics
+    this.spatialSynth.update(dt, this.player.position);
+
+    // 7. Collaborative Metaverse Presence & Phosphor Trail
+    this.collaborativePresence.broadcastPosition(this.player.position);
+    this.collaborativePresence.update(dt, time);
+
+    // 8. Update weather & multi-tier parallax starfield
     this.weather.update(dt, this.rendererHost.camera.position);
 
-    // Update kinetic landmark animations (respects quality reduced motion setting)
-    const time = now * 0.001;
+    // 9. Update kinetic landmark animations
     if (!this.rendererHost.quality.reducedMotion) {
       for (const landmark of this.landmarks.values()) {
         const ring1 = landmark.getObjectByName('rotating_ring_1');
@@ -345,20 +531,8 @@ export class MnemonicEngine {
         if (ring2) ring2.rotation.x = time * 0.4;
         const kineticCore = landmark.getObjectByName('kinetic_core');
         if (kineticCore) kineticCore.rotation.y = time * 0.8;
-        const katamariSphere = landmark.getObjectByName('katamari_sphere');
-        if (katamariSphere) katamariSphere.rotation.y = time * 1.2;
-        const crown = landmark.getObjectByName('arcane_crown');
-        if (crown) {
-          crown.rotation.y = time * 0.9;
-          crown.position.y = 17 + Math.sin(time * 2) * 0.5;
-        }
-        const scaleBeam = landmark.getObjectByName('scale_beam');
-        if (scaleBeam) scaleBeam.rotation.z = Math.sin(time * 1.5) * 0.08;
-        const gyro = landmark.getObjectByName('gyro_ring_1');
-        if (gyro) gyro.rotation.x = time * 1.5;
       }
 
-      // Animate world megastructures
       const celestialRing = this.terrain.group.getObjectByName('celestial_orbital_ring');
       if (celestialRing) {
         celestialRing.rotation.z = time * 0.25;
@@ -387,21 +561,18 @@ export class MnemonicEngine {
       this.ui.events.onOrbitalToggle?.(true);
     }
 
-    // Update subterranean machine conduits
     this.machineCity.update(time);
 
-    // Update orbital graph pulse
     if (this.graphRenderer.isVisible) {
       this.graphRenderer.pulse();
     }
 
-    // Dynamic Reactive Shadow Rig: Sun position and target track visitor locomotion
+    // Dynamic Reactive Shadow Rig
     if (this.dirLight) {
       if (this.rendererHost.quality.shadowMode === 'reactive') {
         this.dirLight.target.position.set(this.player.position.x, this.player.position.y, this.player.position.z);
         this.dirLight.target.updateMatrixWorld();
 
-        // Locomotion & velocity-responsive solar sway so shadows dynamically react to walking movement
         const swayX = Math.sin(time * 0.4) * 6 + this.player.velocity.x * 1.6;
         const swayZ = Math.cos(time * 0.4) * 6 + this.player.velocity.z * 1.6;
         this.dirLight.position.set(
@@ -414,6 +585,12 @@ export class MnemonicEngine {
         this.dirLight.target.updateMatrixWorld();
         this.dirLight.position.copy(this.sunBaseOffset);
       }
+    }
+
+    // PostProcessing Pipeline (God Rays, Bloom, Lens, Singularity)
+    if (this.postProcessing) {
+      this.postProcessing.setSunWorldPosition(this.dirLight.position);
+      this.postProcessing.update(dt, time);
     }
 
     // Render frame

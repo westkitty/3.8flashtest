@@ -14,6 +14,15 @@ export interface UIEvents {
   onTraceToMachine: (exhibit: SemanticExhibit) => void;
   onAudioToggle: () => boolean;
   onShadowToggle: (mode: ShadowMode) => void;
+  onToggleGlider?: () => boolean;
+  onToggleGrapple?: () => void;
+  onToggleKatamari?: () => boolean;
+  onToggleDirector?: () => boolean;
+  onTriggerCymatics?: () => void;
+  onToggleTrain?: () => boolean;
+  onToggleGravity?: () => boolean;
+  onGitScrub?: (index: number) => void;
+  onSpeakLore?: (title: string, summary: string) => void;
 }
 
 function escapeHtml(str: unknown): string {
@@ -339,8 +348,8 @@ export class UIOverlay {
     controls.className = 'hud-panel hud-controls';
     controls.innerHTML = `
       <div><strong>[W A S D]</strong> Walk | <strong>[Shift]</strong> Sprint | <strong>[Mouse]</strong> Look</div>
-      <div><strong>[E]</strong> Inspect Provenance | <strong>[F]</strong> Fullscreen | <strong>[H]</strong> Cinematic View</div>
-      <div><strong>[Space / C]</strong> Vertical Motion (Freeflight & Orbital) | <strong>[Click]</strong> Pointer Lock</div>
+      <div><strong>[E]</strong> Inspect | <strong>[F]</strong> Fullscreen | <strong>[H]</strong> Cinematic | <strong>[C]</strong> Director Drone</div>
+      <div><strong>[G]</strong> Glider | <strong>[Q]</strong> Grapple | <strong>[K]</strong> Katamari | <strong>[B]</strong> Cymatics | <strong>[T]</strong> Train | <strong>[I]</strong> Gravity</div>
     `;
     this.root.appendChild(controls);
 
@@ -453,6 +462,114 @@ export class UIOverlay {
 
     actions.appendChild(viewRow);
 
+    // Advanced Mobility Toolbar
+    const mobRow1 = document.createElement('div');
+    mobRow1.style.display = 'grid';
+    mobRow1.style.gridTemplateColumns = '1fr 1fr';
+    mobRow1.style.gap = '6px';
+
+    const gliderBtn = document.createElement('button');
+    gliderBtn.className = 'btn';
+    gliderBtn.textContent = '✈ Glider [G]';
+    gliderBtn.addEventListener('click', () => {
+      const active = this.events.onToggleGlider?.();
+      gliderBtn.textContent = active ? '✈ Land Glider [G]' : '✈ Glider [G]';
+    });
+    mobRow1.appendChild(gliderBtn);
+
+    const grappleBtn = document.createElement('button');
+    grappleBtn.className = 'btn';
+    grappleBtn.textContent = '⚡ Grapple [Q]';
+    grappleBtn.addEventListener('click', () => {
+      this.events.onToggleGrapple?.();
+    });
+    mobRow1.appendChild(grappleBtn);
+    actions.appendChild(mobRow1);
+
+    const mobRow2 = document.createElement('div');
+    mobRow2.style.display = 'grid';
+    mobRow2.style.gridTemplateColumns = '1fr 1fr';
+    mobRow2.style.gap = '6px';
+
+    const katamariBtn = document.createElement('button');
+    katamariBtn.className = 'btn';
+    katamariBtn.textContent = '⚽ Katamari [K]';
+    katamariBtn.addEventListener('click', () => {
+      const active = this.events.onToggleKatamari?.();
+      katamariBtn.textContent = active ? '⚽ Exit Orb [K]' : '⚽ Katamari [K]';
+    });
+    mobRow2.appendChild(katamariBtn);
+
+    const directorBtn = document.createElement('button');
+    directorBtn.className = 'btn';
+    directorBtn.textContent = '🎬 Director [C]';
+    directorBtn.addEventListener('click', () => {
+      const active = this.events.onToggleDirector?.();
+      directorBtn.textContent = active ? '🎬 Exit Tour [C]' : '🎬 Director [C]';
+    });
+    mobRow2.appendChild(directorBtn);
+    actions.appendChild(mobRow2);
+
+    const mobRow3 = document.createElement('div');
+    mobRow3.style.display = 'grid';
+    mobRow3.style.gridTemplateColumns = '1fr 1fr 1fr';
+    mobRow3.style.gap = '4px';
+
+    const cymaticBtn = document.createElement('button');
+    cymaticBtn.className = 'btn';
+    cymaticBtn.style.padding = '6px 4px';
+    cymaticBtn.textContent = '🔊 Blast [B]';
+    cymaticBtn.addEventListener('click', () => {
+      this.events.onTriggerCymatics?.();
+      this.showToast('Cymatic sonic wave displaced local topography!', 'info');
+    });
+    mobRow3.appendChild(cymaticBtn);
+
+    const trainBtn = document.createElement('button');
+    trainBtn.className = 'btn';
+    trainBtn.style.padding = '6px 4px';
+    trainBtn.textContent = '🚆 Train [T]';
+    trainBtn.addEventListener('click', () => {
+      const boarded = this.events.onToggleTrain?.();
+      trainBtn.textContent = boarded ? '🚆 Exit [T]' : '🚆 Train [T]';
+    });
+    mobRow3.appendChild(trainBtn);
+
+    const gravityBtn = document.createElement('button');
+    gravityBtn.className = 'btn';
+    gravityBtn.style.padding = '6px 4px';
+    gravityBtn.textContent = '🔄 Grav [I]';
+    gravityBtn.addEventListener('click', () => {
+      const inverted = this.events.onToggleGravity?.();
+      gravityBtn.textContent = inverted ? '🔄 Normal [I]' : '🔄 Grav [I]';
+    });
+    mobRow3.appendChild(gravityBtn);
+    actions.appendChild(mobRow3);
+
+    // 4D Git Timeline Scrubber
+    const gitBox = document.createElement('div');
+    gitBox.style.marginTop = '4px';
+    const gitLabel = document.createElement('div');
+    gitLabel.id = 'git-hash-label';
+    gitLabel.style.fontSize = '10px';
+    gitLabel.style.color = '#94a3b8';
+    gitLabel.textContent = '4D GIT TIME SCRUBBER: HEAD (edf4718)';
+    gitBox.appendChild(gitLabel);
+
+    const gitSlider = document.createElement('input');
+    gitSlider.type = 'range';
+    gitSlider.id = 'git-scrubber-slider';
+    gitSlider.min = '0';
+    gitSlider.max = '5';
+    gitSlider.value = '5';
+    gitSlider.style.width = '100%';
+    gitSlider.addEventListener('input', (e) => {
+      const val = Number((e.target as HTMLInputElement).value);
+      this.events.onGitScrub?.(val);
+    });
+    gitBox.appendChild(gitSlider);
+    actions.appendChild(gitBox);
+
     const patchBtn = document.createElement('button');
     patchBtn.className = 'btn';
     patchBtn.textContent = 'Ingest Knowledge Patch';
@@ -542,6 +659,33 @@ export class UIOverlay {
       } else if (e.code === 'KeyH' && !e.ctrlKey && !e.metaKey && !e.altKey) {
         e.preventDefault();
         this.toggleCinematic();
+      } else if (e.code === 'KeyG' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        const active = this.events.onToggleGlider?.();
+        this.showToast(active ? 'Glider Flight Mode Engaged.' : 'Glider Mode Disengaged.', 'info');
+      } else if (e.code === 'KeyQ' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        this.events.onToggleGrapple?.();
+      } else if (e.code === 'KeyK' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        const active = this.events.onToggleKatamari?.();
+        this.showToast(active ? 'Katamari Knowledge Accretion Mode Active.' : 'Katamari Mode Exited.', 'info');
+      } else if (e.code === 'KeyC' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        const active = this.events.onToggleDirector?.();
+        this.showToast(active ? 'Autonomous Director Drone Tour Active.' : 'Director Tour Ended.', 'info');
+      } else if (e.code === 'KeyB' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        this.events.onTriggerCymatics?.();
+        this.showToast('Cymatic Sonic Shockwave Fired!', 'info');
+      } else if (e.code === 'KeyT' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        const boarded = this.events.onToggleTrain?.();
+        this.showToast(boarded ? 'Boarded Subterranean Maglev Train.' : 'Dismounted Train.', 'info');
+      } else if (e.code === 'KeyI' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        const inverted = this.events.onToggleGravity?.();
+        this.showToast(inverted ? 'Gravity Inverted Upward!' : 'Normal Gravity Restored.', 'info');
       }
     });
 
@@ -596,13 +740,22 @@ export class UIOverlay {
       </div>
       <div class="inspect-section" style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;">
         <span style="color:#4ade80;font-size:10px;">${exhibit.isMutated ? 'EMERGENT MUTATION' : 'CANONICAL STATUS VERIFIED'}</span>
-        <button class="btn btn-secondary" id="trace-btn">TRACE TO MACHINE ↓</button>
+        <div>
+          <button class="btn btn-secondary" id="speak-lore-btn" style="margin-right:6px;">🔊 LORE (TTS)</button>
+          <button class="btn btn-secondary" id="trace-btn">TRACE TO MACHINE ↓</button>
+        </div>
       </div>
       <div id="trace-container"></div>
     `;
 
     this.inspectCard.querySelector('#inspect-close-btn')?.addEventListener('click', () => {
       this.hideInspect();
+    });
+
+    this.inspectCard.querySelector('#speak-lore-btn')?.addEventListener('click', () => {
+      if (this.activeExhibit && this.events.onSpeakLore) {
+        this.events.onSpeakLore(this.activeExhibit.title, this.activeExhibit.copy.plaque);
+      }
     });
 
     this.inspectCard.querySelector('#trace-btn')?.addEventListener('click', () => {

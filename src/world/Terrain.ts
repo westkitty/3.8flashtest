@@ -14,6 +14,7 @@ export class Terrain {
     this.buildRegionBorders();
     this.buildSanctuaryOasis();
     this.buildContainmentCosmos();
+    this.buildLiquidMercuryStreams();
   }
 
   public getHeightAt(x: number, z: number): number {
@@ -578,5 +579,73 @@ export class Terrain {
         this.group.add(beacon);
       }
     }
+  }
+
+  private buildLiquidMercuryStreams() {
+    const streamsGroup = new THREE.Group();
+    streamsGroup.name = 'liquid_mercury_streams';
+
+    const mercuryMat = new THREE.MeshStandardMaterial({
+      color: 0xe2e8f0,
+      metalness: 0.98,
+      roughness: 0.04,
+      emissive: 0x38bdf8,
+      emissiveIntensity: 0.42
+    });
+
+    const streamCurves = [
+      // East Wing river flowing to central chasm
+      [
+        new THREE.Vector3(85, 3.5, 15),
+        new THREE.Vector3(60, 2.8, 8),
+        new THREE.Vector3(35, 1.9, 12),
+        new THREE.Vector3(15, 0.8, 5),
+        new THREE.Vector3(7, -0.5, 2)
+      ],
+      // North Wing river flowing south to central chasm
+      [
+        new THREE.Vector3(0, 4.0, -85),
+        new THREE.Vector3(-12, 3.2, -60),
+        new THREE.Vector3(-5, 2.1, -35),
+        new THREE.Vector3(-8, 1.0, -15),
+        new THREE.Vector3(-2, -0.5, -6)
+      ],
+      // West Wing river flowing east into central chasm
+      [
+        new THREE.Vector3(-80, 4.5, -20),
+        new THREE.Vector3(-55, 3.0, -12),
+        new THREE.Vector3(-30, 1.8, -4),
+        new THREE.Vector3(-12, 0.5, -2),
+        new THREE.Vector3(-5, -0.5, 3)
+      ]
+    ];
+
+    for (const pts of streamCurves) {
+      const curve = new THREE.CatmullRomCurve3(pts);
+      const tubeGeo = new THREE.TubeGeometry(curve, 32, 1.6, 12, false);
+      const tubeMesh = new THREE.Mesh(tubeGeo, mercuryMat);
+      tubeMesh.receiveShadow = true;
+      streamsGroup.add(tubeMesh);
+    }
+
+    // Subterranean Cascades (Liquid mercury pouring down central abyss)
+    const waterfallPts = [
+      new THREE.Vector3(3, -0.5, 0),
+      new THREE.Vector3(2, -15, 1),
+      new THREE.Vector3(0, -32, 0),
+      new THREE.Vector3(0, -38, 0)
+    ];
+    const waterfallCurve = new THREE.CatmullRomCurve3(waterfallPts);
+    const waterfallGeo = new THREE.TubeGeometry(waterfallCurve, 24, 2.2, 12, false);
+    const waterfallMesh = new THREE.Mesh(waterfallGeo, mercuryMat);
+    streamsGroup.add(waterfallMesh);
+
+    // Subterranean Liquid Mercury Basin
+    const basinGeo = new THREE.CylinderGeometry(14, 14, 1.5, 32);
+    const basinMesh = new THREE.Mesh(basinGeo, mercuryMat);
+    basinMesh.position.set(0, -38.5, 0);
+    streamsGroup.add(basinMesh);
+
+    this.group.add(streamsGroup);
   }
 }

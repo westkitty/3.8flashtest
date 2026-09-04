@@ -296,6 +296,62 @@ test.describe('Mnemonic World Engine Interactive Visitor Journey', () => {
     await page.keyboard.press('KeyF');
     await page.waitForTimeout(100);
 
+    // 16. Verification of 25 Next-Gen Monumental Improvements
+    const nextGenVerification = await page.evaluate(() => {
+      const eng = (window as any).__mnemonicEngine;
+      return {
+        hasSingularity: !!eng.postProcessing.singularityGroup,
+        hasPostProcessing: !!eng.postProcessing.composer,
+        hasMercuryStreams: !!eng.terrain.group.getObjectByName('liquid_mercury_streams'),
+        hasCelestialCosmos: !!eng.celestialCosmos,
+        hasLivingAST: !!eng.livingAST,
+        hasHeapTopography: !!eng.heapTopography,
+        hasMaglevTransit: !!eng.maglevTransit,
+        hasMobility: !!eng.mobility,
+        hasEcosystem: !!eng.ecosystem,
+        hasSpatialSynth: !!eng.spatialSynth,
+        hasCollaborativePresence: !!eng.collaborativePresence,
+        hasDrone: !!eng.ecosystem.group.getObjectByName('code_archaeologist_drone_0'),
+        hasMantaRay: !!eng.ecosystem.group.getObjectByName('celestial_manta_ray_0'),
+        hasMaglevTrain: !!eng.maglevTransit.group.getObjectByName('subterranean_maglev_train')
+      };
+    });
+
+    expect(nextGenVerification.hasSingularity).toBe(true);
+    expect(nextGenVerification.hasPostProcessing).toBe(true);
+    expect(nextGenVerification.hasMercuryStreams).toBe(true);
+    expect(nextGenVerification.hasCelestialCosmos).toBe(true);
+    expect(nextGenVerification.hasLivingAST).toBe(true);
+    expect(nextGenVerification.hasHeapTopography).toBe(true);
+    expect(nextGenVerification.hasMaglevTransit).toBe(true);
+    expect(nextGenVerification.hasMobility).toBe(true);
+    expect(nextGenVerification.hasEcosystem).toBe(true);
+    expect(nextGenVerification.hasSpatialSynth).toBe(true);
+    expect(nextGenVerification.hasCollaborativePresence).toBe(true);
+    expect(nextGenVerification.hasDrone).toBe(true);
+    expect(nextGenVerification.hasMantaRay).toBe(true);
+    expect(nextGenVerification.hasMaglevTrain).toBe(true);
+
+    // Interactive Glider toggle
+    await page.keyboard.press('KeyG');
+    await page.waitForTimeout(100);
+    const isGliderActive = await page.evaluate(() => (window as any).__mnemonicEngine.mobility.isGliderActive);
+    expect(isGliderActive).toBe(true);
+    await page.keyboard.press('KeyG'); // turn off
+
+    // Interactive Katamari toggle
+    await page.keyboard.press('KeyK');
+    await page.waitForTimeout(100);
+    const isKatamariActive = await page.evaluate(() => (window as any).__mnemonicEngine.mobility.isKatamariActive);
+    expect(isKatamariActive).toBe(true);
+    await page.keyboard.press('KeyK'); // turn off
+
+    // Interactive Cymatic blast
+    await page.keyboard.press('KeyB');
+    await page.waitForTimeout(100);
+    const cymaticWavesCount = await page.evaluate(() => (window as any).__mnemonicEngine.spatialSynth.cymaticRipples.length);
+    expect(cymaticWavesCount).toBeGreaterThanOrEqual(1);
+
     // Final check for console errors
     expect(consoleErrors).toHaveLength(0);
   });

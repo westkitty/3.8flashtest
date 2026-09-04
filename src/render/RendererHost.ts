@@ -1,8 +1,10 @@
 import * as THREE from 'three';
 
+import type { PostProcessingPipeline } from './PostProcessingPipeline';
+
 export type ShadowMode = 'reactive' | 'static' | 'off';
 
-export interface QualitySettings {
+export interface RenderQualitySettings {
   shadows: boolean;
   shadowMode: ShadowMode;
   dpr: number;
@@ -13,7 +15,8 @@ export class RendererHost {
   public renderer: THREE.WebGLRenderer;
   public scene: THREE.Scene;
   public camera: THREE.PerspectiveCamera;
-  public quality: QualitySettings;
+  public quality: RenderQualitySettings;
+  public postProcessing?: PostProcessingPipeline;
 
   constructor(canvas: HTMLCanvasElement) {
     this.quality = {
@@ -54,6 +57,7 @@ export class RendererHost {
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(w, h);
+    this.postProcessing?.resize(w, h);
   };
 
   public setReducedMotion(val: boolean) {
@@ -77,13 +81,18 @@ export class RendererHost {
   }
 
   public render() {
-    this.renderer.render(this.scene, this.camera);
+    if (this.postProcessing && this.postProcessing.enabled) {
+      this.postProcessing.render();
+    } else {
+      this.renderer.render(this.scene, this.camera);
+    }
   }
 
   public dispose() {
     window.removeEventListener('resize', this.onResize);
     document.removeEventListener('fullscreenchange', this.onResize);
     document.removeEventListener('webkitfullscreenchange', this.onResize);
+    this.postProcessing?.dispose();
     this.renderer.dispose();
   }
 }
