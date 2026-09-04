@@ -55,12 +55,27 @@ export class Terrain {
       }
     }
 
+    // 5. Semantic Gravitational Wells & Uplifts:
+    // Exhibits exert localized gravitational elevation or depression depending on their epoch & relationship density
+    let semanticUplift = 0;
+    for (const ex of this.worldData.exhibits) {
+      const dx = x - ex.position[0];
+      const dz = z - ex.position[2];
+      const dEx = Math.hypot(dx, dz);
+      if (dEx < 20) {
+        const weight = Math.cos((dEx / 20) * Math.PI * 0.5);
+        // Archaic foundational knowledge creates deeply carved foundation plinths; emergent creates rising ridges
+        const epochFactor = ex.epoch === 'archaic' ? -1.8 : (ex.epoch === 'emergent' ? 3.5 : 1.2);
+        semanticUplift += weight * epochFactor * (ex.scale || 1.0);
+      }
+    }
+
     // Procedural terrain harmonics (terracing & geological ridges)
     const ridge = Math.sin(x * 0.025) * Math.cos(z * 0.025) * 3.5 +
                   Math.sin(x * 0.06 + z * 0.05) * 1.6;
 
     const baseHeight = totalWeight > 0 ? (elevationSum / totalWeight) : 0;
-    return baseHeight + ridge;
+    return baseHeight + ridge + semanticUplift;
   }
 
   private buildTerrain() {
@@ -121,6 +136,18 @@ export class Terrain {
     this.mesh = new THREE.Mesh(this.geometry, mat);
     this.mesh.receiveShadow = true;
     this.group.add(this.mesh);
+  }
+
+  public rebuildTopology(worldData: SemanticWorldData) {
+    this.worldData = worldData;
+    const pos = this.geometry.attributes.position;
+    for (let i = 0; i < pos.count; i++) {
+      const x = pos.getX(i);
+      const z = pos.getZ(i);
+      pos.setY(i, this.getHeightAt(x, z));
+    }
+    pos.needsUpdate = true;
+    this.geometry.computeVertexNormals();
   }
 
   // 3 World-Class Megastructures with Architectural Depth & Skyline

@@ -200,6 +200,7 @@ export class MnemonicEngine {
       alert(res.message);
       if (res.success && res.patchExhibit) {
         this.soundscapes.playPulseTone(180, 0.7); // Low tectonic rumble
+        this.terrain.rebuildTopology(this.mutationManager.currentWorldData);
         this.buildLandmarks(this.mutationManager.currentWorldData.exhibits);
         this.graphRenderer.updateData(
           this.mutationManager.currentWorldData.relationships,
@@ -218,6 +219,7 @@ export class MnemonicEngine {
 
     this.ui.events.onResetCanonical = () => {
       this.mutationManager.resetToCanonical();
+      this.terrain.rebuildTopology(this.mutationManager.currentWorldData);
       this.buildLandmarks(this.mutationManager.currentWorldData.exhibits);
       this.graphRenderer.updateData(
         this.mutationManager.currentWorldData.relationships,
