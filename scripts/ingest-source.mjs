@@ -1,19 +1,35 @@
 #!/usr/bin/env node
-import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, readdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 
-const SOURCE_ROOT = '/Users/andrew/museum of me/museum-of-me-vnext';
+// Parse --source argument or fallback to environment variable SOURCE_CORPUS_PATH
+const args = process.argv.slice(2);
+let sourcePath = process.env.SOURCE_CORPUS_PATH || '';
+
+for (let i = 0; i < args.length; i++) {
+  if (args[i] === '--source' && args[i + 1]) {
+    sourcePath = args[i + 1];
+    break;
+  }
+}
+
+if (!sourcePath || !existsSync(sourcePath)) {
+  console.error('Error: Source repository path not provided or not found.');
+  console.error('Usage: npm run ingest:source -- --source <path-to-source-repo>');
+  console.error('Or set SOURCE_CORPUS_PATH in your local environment.');
+  process.exit(1);
+}
+
+console.log(`Ingesting source material from provided source (READ-ONLY)`);
 
 // 1. Read exhibit mapping
-const exhibitMapPath = join(SOURCE_ROOT, 'data/exhibit-mapping.json');
-const exhibitMap = JSON.parse(readFileSync(exhibitMapPath, 'utf8'));
+const exhibitMap = JSON.parse(readFileSync(join(sourcePath, 'data/exhibit-mapping.json'), 'utf8'));
 
 // 2. Read exhibit content
-const exhibitContentPath = join(SOURCE_ROOT, 'data/exhibit-content.json');
-const exhibitContent = JSON.parse(readFileSync(exhibitContentPath, 'utf8'));
+const exhibitContent = JSON.parse(readFileSync(join(sourcePath, 'data/exhibit-content.json'), 'utf8'));
 
-// 3. Read projects
-const projectsDir = join(SOURCE_ROOT, 'data/projects');
+// 3. Read project files
+const projectsDir = join(sourcePath, 'data/projects');
 const projectFiles = readdirSync(projectsDir).filter(f => f.endsWith('.json'));
 const allProjects = [];
 
@@ -23,15 +39,7 @@ for (const pf of projectFiles) {
 }
 allProjects.sort((a, b) => a.id.localeCompare(b.id));
 
-// 4. Macro Regions definition (6 macro-regions from wings)
-// Transforming museum wings into visceral geography:
-// - north -> "Aether-Spire & Crystalline Badlands" (Programmable cosmos, star-metal, black glass, observatories)
-// - south -> "The Crucible & Kinetic Foundry" (Play, 4X machinery, Katamari rolling yards, game dioramas)
-// - east -> "The Obsidian Scriptorium & Local Silicon" (Local tools, private inference chambers, high-density apparatus)
-// - west -> "The Strata of Memory & Fossilized Canon" (Archive, previous museum strata, unbroken lineages)
-// - media -> "The Resonant Mezzanine & Harmonic Loom" (Suno, promptcraft, sound waves, audio looms)
-// - infra -> "The Sub-Surface Substrate & Deep Core" (BigMac servers, cold pipelines, local daemon vaults)
-
+// 4. Macro Regions definition
 const REGION_METADATA = {
   north: {
     id: 'north',
@@ -107,18 +115,15 @@ const REGION_METADATA = {
   }
 };
 
-// 5. Build Exhibits with derived spatial coordinates and semantic relationships
+// 5. Build Exhibits
 const exhibits = [];
 const relationships = [];
 
-// Compute explicit and derived relationships
-// Build keyword indices for deterministic semantic similarity
 function tokenize(text) {
   return (text || '').toLowerCase().replace(/[^a-z0-9]/g, ' ').split(/\s+/).filter(w => w.length > 3);
 }
 
 const exhibitTokens = new Map();
-const exhibitById = new Map();
 
 for (const ex of exhibitMap.exhibits) {
   const copy = exhibitContent[ex.id] || {};
@@ -136,41 +141,46 @@ for (const ex of exhibitMap.exhibits) {
   const tokens = new Set(tokenize(textCorpus));
   exhibitTokens.set(ex.id, tokens);
 
-  // Derive coordinates based on wing / region
   const meta = REGION_METADATA[ex.wing] || REGION_METADATA.north;
-
-  // Arrange exhibits deterministically in an arc / cluster within the region
   const wingExhibits = exhibitMap.exhibits.filter(e => e.wing === ex.wing);
   const indexInWing = wingExhibits.findIndex(e => e.id === ex.id);
   const totalInWing = wingExhibits.length;
 
-  const angle = ((indexInWing - (totalInWing - 1) / 2) / Math.max(1, totalInWing)) * (Math.PI * 0.7);
-  const rad = 24 + (indexInWing % 2) * 8;
+  const angle = ((indexInWing - (totalInWing - 1) / 2) / Math.max(1, totalInWing)) * (Math.PI * 0.75);
+  const rad = 25 + (indexInWing % 2) * 8;
 
-  // Base offset relative to region center
   let posX = meta.center[0] + Math.sin(angle) * rad;
   let posZ = meta.center[2] + Math.cos(angle) * rad;
   let posY = meta.elevation;
 
-  // Archaeological strata check
-  // E09 (Museum Evolution / Reliquary of Iterative Becoming) is deliberately submerged into archaeological ruin
   const isArchaeological = (ex.id === 'E09' || ex.id === 'E10' || ex.id === 'E16');
   if (isArchaeological) {
     posY = (ex.id === 'E09') ? -8 : 1.5;
   }
 
-  // Archetype/Visual representation
+  // Author distinctive landmark archetypes for the major 12+ hero concepts
   let archetype = 'spire';
-  if (ex.wing === 'north') archetype = 'observatory_spire';
+  if (ex.id === 'E01') archetype = 'starsilk_loom';
+  else if (ex.id === 'E03') archetype = 'orbital_tomb_dismantler';
+  else if (ex.id === 'E07') archetype = 'terraforming_vat';
+  else if (ex.id === 'E08') archetype = 'heliocide_absence_lens';
+  else if (ex.id === 'E09') archetype = 'excavated_ruin';
+  else if (ex.id === 'E10') archetype = 'worldsvault_chasm_vault';
+  else if (ex.id === 'E12') archetype = 'rhetorical_truth_scales';
+  else if (ex.id === 'E13') archetype = 'suno_harmonic_resonator';
+  else if (ex.id === 'E17') archetype = 'dex_vocal_acoustic_chamber';
+  else if (ex.id === 'E19') archetype = 'dextilt_balance_tower';
+  else if (ex.id === 'E24') archetype = 'invincible_magic_citadel';
+  else if (ex.id === 'E29') archetype = 'arkship_void_hull';
+  else if (ex.id === 'E32') archetype = 'smores_katamari_forge';
+  else if (ex.id === 'E34') archetype = 'bigmac_server_monolith';
+  else if (ex.wing === 'north') archetype = 'observatory_spire';
   else if (ex.wing === 'south') archetype = 'kinetic_foundry';
   else if (ex.wing === 'east') archetype = 'monolith_altar';
   else if (ex.wing === 'west') archetype = 'stratified_library';
   else if (ex.wing === 'media') archetype = 'harmonic_resonator';
   else if (ex.wing === 'infra') archetype = 'power_conduit';
 
-  if (isArchaeological) archetype = 'excavated_ruin';
-
-  // Chronology epoch determination
   let minYear = 2026;
   let maxYear = 2026;
   for (const p of projs) {
@@ -222,11 +232,9 @@ for (const ex of exhibitMap.exhibits) {
   };
 
   exhibits.push(record);
-  exhibitById.set(ex.id, record);
 }
 
-// Derive explicit & strongly derived & inferred cross-domain relationships
-// 1. Explicit relationships based on shared families, shared repos, or exhibit links
+// Derived explicit & strongly derived relationships
 const explicitLinks = [
   { from: 'E01', to: 'E02', type: 'cosmological_engine', confidence: 'explicit', reason: 'Drakken terraform the Starsilk cosmos' },
   { from: 'E01', to: 'E03', type: 'event_site', confidence: 'explicit', reason: 'Orbital Tomb dismantles station in Starsilk canon' },
@@ -245,7 +253,6 @@ const explicitLinks = [
   { from: 'E24', to: 'E25', type: 'ludic_tradition', confidence: 'explicit', reason: 'Era of Invincible Magic inspires DnDex DM Hub' },
   { from: 'E28', to: 'E29', type: 'survival_horizon', confidence: 'explicit', reason: 'Against the Void directly connects to Arkship Civilization' },
   { from: 'E30', to: 'E32', type: 'rendering_pipeline', confidence: 'explicit', reason: 'AetherVFX shaders empower S\'mores Katamari world feel' },
-  // Cross-domain bridges
   { from: 'E01', to: 'E29', type: 'deep_cosmology', confidence: 'strongly_derived', reason: 'Arkship civilization travels Starsilk deep void' },
   { from: 'E04', to: 'E12', type: 'epistemic_rigor', confidence: 'strongly_derived', reason: 'Cartographer and Rhetorical InDEX share strict truth validation' },
   { from: 'E18', to: 'E15', type: 'autonomous_lineage', confidence: 'strongly_derived', reason: 'Dex Agents share harness test infrastructure' },
@@ -257,13 +264,12 @@ for (const link of explicitLinks) {
   relationships.push(link);
 }
 
-// 2. Derive inferred lexical/thematic connections between exhibits across domains
+// Inferred relationships
 for (let i = 0; i < exhibits.length; i++) {
   for (let j = i + 1; j < exhibits.length; j++) {
     const e1 = exhibits[i];
     const e2 = exhibits[j];
 
-    // Check if already linked
     if (relationships.some(r => (r.from === e1.id && r.to === e2.id) || (r.from === e2.id && r.to === e1.id))) {
       continue;
     }
@@ -271,7 +277,6 @@ for (let i = 0; i < exhibits.length; i++) {
     const tokens1 = exhibitTokens.get(e1.id);
     const tokens2 = exhibitTokens.get(e2.id);
 
-    // Compute Jaccard overlap
     let intersection = 0;
     for (const t of tokens1) {
       if (tokens2.has(t)) intersection++;
@@ -291,27 +296,25 @@ for (let i = 0; i < exhibits.length; i++) {
   }
 }
 
-// 6. Dexter Sanctuary definition (Fixed Non-Project Anchor)
+// Dexter Sanctuary (Fixed Non-Project Anchor)
 const DEXTER_SANCTUARY = {
   id: 'dexter-sanctuary',
   name: 'Dexter Sanctuary',
   ontologicalClass: 'NON_PROJECT_ANCHOR',
   domain: 'Constant Witness & Spatial Anchor',
   note: 'Deliberately outside project numbering, scoring, ranking, or semantic clustering.',
-  position: [-38, 0.4, 38], // Southwest quiet meadow between Archive and Crucible
+  position: [-38, 0.4, 38],
   radius: 12,
   description: 'A serene stone dais with a bronze lantern and a resting tricolor companion model, oriented towards the horizon. A fixed coordinate unaffected by semantic distortion.'
 };
 
 const WORLD_MODEL = {
   version: '0.1.0-experiment.0',
-  generatedAt: new Date().toISOString(),
   regions: REGION_METADATA,
   sanctuary: DEXTER_SANCTUARY,
   exhibits,
   relationships
 };
 
-// Write to src/generated/semantic-world.json
-writeFileSync('src/generated/semantic-world.json', JSON.stringify(WORLD_MODEL, null, 2));
-console.log(`✓ Semantic world model built: ${exhibits.length} exhibits, ${relationships.length} relationships across 6 macro-regions.`);
+writeFileSync('src/generated/semantic-world.json', JSON.stringify(WORLD_MODEL, null, 2) + '\n');
+console.log(`✓ Sanitized semantic world model generated: ${exhibits.length} exhibits, ${relationships.length} relationships.`);

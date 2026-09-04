@@ -6,12 +6,12 @@
   "description": "The Living Reliquary // Mnemonic World Engine — Gemini 3.8 Flash + Google Antigravity Extreme Visual Experiment",
   "scripts": {
     "dev": "vite",
-    "build": "npm run build:data && npm run build:selfmap && tsc --noEmit && vite build",
+    "build": "npm run build:selfmap && tsc --noEmit && vite build",
     "preview": "vite preview --port 4174",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --max-warnings 0",
     "test": "vitest run",
-    "build:data": "node scripts/build-semantic-data.mjs",
+    "ingest:source": "node scripts/ingest-source.mjs",
     "build:selfmap": "node scripts/build-self-map.mjs",
     "validate:privacy": "node scripts/validate-privacy.mjs",
     "test:e2e": "playwright test"

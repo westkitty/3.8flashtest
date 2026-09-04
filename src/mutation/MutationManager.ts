@@ -1,10 +1,12 @@
-import type { SemanticWorldData, SemanticExhibit } from '../types';
+import type { SemanticWorldData, SemanticExhibit, WingId } from '../types';
+import { SemanticSpatialSolver } from '../world/SemanticSpatialSolver';
 
 export class MutationManager {
   private initialWorldData: SemanticWorldData;
   public currentWorldData: SemanticWorldData;
   public hasActiveMutation = false;
   public mutatedExhibitId: string | null = null;
+  public lastAffectedRegions: string[] = [];
 
   constructor(worldData: SemanticWorldData) {
     this.initialWorldData = JSON.parse(JSON.stringify(worldData));
@@ -20,18 +22,21 @@ export class MutationManager {
           return { success: false, message: 'Invalid patch: missing required "id" or "title"' };
         }
 
+        const wing = (patch.wing || 'north') as WingId;
+        const targetRegion = this.currentWorldData.regions[wing] || this.currentWorldData.regions.north;
+
         const newExhibit: SemanticExhibit = {
           id: patch.id,
           slug: patch.id.toLowerCase().replace(/[^a-z0-9]/g, '-'),
           title: patch.title,
-          wing: patch.wing || 'north',
+          wing,
           tier: 'A',
           archetype: patch.archetype || 'spire',
           isArchaeological: false,
           epoch: patch.epoch || 'emergent',
           startYear: 2026,
-          position: patch.position || [20, 10, -100],
-          scale: 1.5,
+          position: patch.position || [targetRegion.center[0] + 16, targetRegion.elevation + 2, targetRegion.center[2] + 16],
+          scale: 1.6,
           projectIds: [patch.id],
           projects: [{
             id: patch.id,
@@ -57,10 +62,8 @@ export class MutationManager {
           isMutated: true
         };
 
-        // Add to current exhibits
         this.currentWorldData.exhibits.push(newExhibit);
 
-        // Add relationships
         if (patch.relationships && Array.isArray(patch.relationships)) {
           for (const r of patch.relationships) {
             this.currentWorldData.relationships.push({
@@ -74,16 +77,30 @@ export class MutationManager {
           }
         }
 
+        // Re-solve spatial equilibrium deterministically
+        const newPositions = SemanticSpatialSolver.solve(
+          this.currentWorldData.exhibits,
+          this.currentWorldData.relationships,
+          this.currentWorldData.regions
+        );
+
+        for (const ex of this.currentWorldData.exhibits) {
+          const solved = newPositions.get(ex.id);
+          if (solved) {
+            ex.position = solved;
+          }
+        }
+
         this.hasActiveMutation = true;
         this.mutatedExhibitId = patch.id;
-        return { success: true, message: `Successfully ingested patch "${patch.title}"`, patchExhibit: newExhibit };
+        this.lastAffectedRegions = [wing];
+        return { success: true, message: `Successfully ingested patch "${patch.title}". Spatial solver relaxed topology.`, patchExhibit: newExhibit };
       } else {
         // Plain text / Markdown local deterministic lexical inference
         const titleMatch = content.match(/^#\s+(.+)$/m);
         const title = titleMatch ? titleMatch[1].trim() : 'Emergent Markdown Concept';
         const id = 'patch-' + Math.random().toString(36).substring(2, 8);
 
-        // Compute lexical similarity with existing exhibits
         const words = content.toLowerCase().replace(/[^a-z0-9]/g, ' ').split(/\s+/).filter(w => w.length > 3);
         const wordSet = new Set(words);
 
@@ -112,7 +129,7 @@ export class MutationManager {
           isArchaeological: false,
           epoch: 'emergent',
           startYear: 2026,
-          position: [bestMatch.position[0] + 12, bestMatch.position[1] + 2, bestMatch.position[2] + 12],
+          position: [bestMatch.position[0] + 14, bestMatch.position[1] + 2, bestMatch.position[2] + 14],
           scale: 1.2,
           projectIds: [id],
           projects: [{
@@ -140,7 +157,7 @@ export class MutationManager {
         };
 
         this.currentWorldData.exhibits.push(newExhibit);
-        // Add INFERRED relationship
+
         this.currentWorldData.relationships.push({
           from: id,
           to: bestMatch.id,
@@ -150,20 +167,35 @@ export class MutationManager {
           isMutated: true
         });
 
+        // Re-solve spatial equilibrium
+        const newPositions = SemanticSpatialSolver.solve(
+          this.currentWorldData.exhibits,
+          this.currentWorldData.relationships,
+          this.currentWorldData.regions
+        );
+
+        for (const ex of this.currentWorldData.exhibits) {
+          const solved = newPositions.get(ex.id);
+          if (solved) {
+            ex.position = solved;
+          }
+        }
+
         this.hasActiveMutation = true;
         this.mutatedExhibitId = id;
-        return { success: true, message: `Inferred text ingested: linked to ${bestMatch.title} [LOW-CONFIDENCE]`, patchExhibit: newExhibit };
+        this.lastAffectedRegions = [bestMatch.wing];
+        return { success: true, message: `Inferred text ingested: linked to ${bestMatch.title} [LOW-CONFIDENCE]. Spatial solver relaxed topology.`, patchExhibit: newExhibit };
       }
     } catch (e: any) {
       return { success: false, message: `Error parsing patch: ${e.message}` };
     }
   }
 
-  // Reset to canonical seeded world
   public resetToCanonical(): SemanticWorldData {
     this.currentWorldData = JSON.parse(JSON.stringify(this.initialWorldData));
     this.hasActiveMutation = false;
     this.mutatedExhibitId = null;
+    this.lastAffectedRegions = [];
     return this.currentWorldData;
   }
 }

@@ -1,6 +1,5 @@
 {
   "version": "0.1.0-experiment.0",
-  "generatedAt": "2026-09-04T07:15:13.032Z",
   "regions": {
     "north": {
       "id": "north",
@@ -144,14 +143,14 @@
       "title": "Starsilk Universe",
       "wing": "north",
       "tier": "A",
-      "archetype": "observatory_spire",
+      "archetype": "starsilk_loom",
       "isArchaeological": false,
       "epoch": "archaic",
       "startYear": 2025,
       "position": [
-        -19.7,
+        -21.4,
         8,
-        -76.3
+        -77.1
       ],
       "scale": 1.6,
       "projectIds": [
@@ -202,9 +201,9 @@
       "epoch": "contemporary",
       "startYear": 2026,
       "position": [
-        -20.3,
+        -22.2,
         8,
-        -65.3
+        -65.5
       ],
       "scale": 1.2,
       "projectIds": [
@@ -249,14 +248,14 @@
       "title": "Orbital Tomb",
       "wing": "north",
       "tier": "A",
-      "archetype": "observatory_spire",
+      "archetype": "orbital_tomb_dismantler",
       "isArchaeological": false,
       "epoch": "monumental",
       "startYear": 2026,
       "position": [
-        -9.6,
+        -10.7,
         8,
-        -68
+        -67.4
       ],
       "scale": 1.6,
       "projectIds": [
@@ -305,9 +304,9 @@
       "epoch": "contemporary",
       "startYear": 2026,
       "position": [
-        -4.4,
+        -4.8,
         8,
-        -58.3
+        -57.4
       ],
       "scale": 1.2,
       "projectIds": [
@@ -357,9 +356,9 @@
       "epoch": "contemporary",
       "startYear": 2026,
       "position": [
-        3.3,
+        3.7,
         8,
-        -66.2
+        -65.3
       ],
       "scale": 1.2,
       "projectIds": [
@@ -408,9 +407,9 @@
       "epoch": "contemporary",
       "startYear": 2026,
       "position": [
-        12.8,
+        14.1,
         8,
-        -60.7
+        -60.2
       ],
       "scale": 1.2,
       "projectIds": [
@@ -452,14 +451,14 @@
       "title": "Drakken Terraforming Laboratory",
       "wing": "north",
       "tier": "A",
-      "archetype": "observatory_spire",
+      "archetype": "terraforming_vat",
       "isArchaeological": false,
       "epoch": "monumental",
       "startYear": 2026,
       "position": [
-        15.2,
+        16.8,
         8,
-        -71.4
+        -71.5
       ],
       "scale": 1.6,
       "projectIds": [
@@ -502,14 +501,14 @@
       "title": "Heliocide Observatory",
       "wing": "north",
       "tier": "A",
-      "archetype": "observatory_spire",
+      "archetype": "heliocide_absence_lens",
       "isArchaeological": false,
       "epoch": "monumental",
       "startYear": 2026,
       "position": [
-        26.3,
+        28.3,
         8,
-        -71.7
+        -73
       ],
       "scale": 1.6,
       "projectIds": [
@@ -558,9 +557,9 @@
       "epoch": "contemporary",
       "startYear": 2026,
       "position": [
-        -107.6,
+        -109.3,
         -8,
-        16.3
+        15.9
       ],
       "scale": 0.9,
       "projectIds": [
@@ -601,14 +600,14 @@
       "title": "WorldsVault Lineage",
       "wing": "west",
       "tier": "B",
-      "archetype": "excavated_ruin",
+      "archetype": "worldsvault_chasm_vault",
       "isArchaeological": true,
       "epoch": "contemporary",
       "startYear": 2026,
       "position": [
-        -98.7,
+        -99.6,
         1.5,
-        30.8
+        31.6
       ],
       "scale": 1.2,
       "projectIds": [
@@ -694,9 +693,9 @@
       "epoch": "contemporary",
       "startYear": 2026,
       "position": [
-        -83.5,
+        -82.7,
         5,
-        23.1
+        23.9
       ],
       "scale": 0.9,
       "projectIds": [
@@ -782,14 +781,14 @@
       "title": "Rhetorical InDEX",
       "wing": "west",
       "tier": "B",
-      "archetype": "stratified_library",
+      "archetype": "rhetorical_truth_scales",
       "isArchaeological": false,
       "epoch": "contemporary",
       "startYear": 2026,
       "position": [
-        -66.5,
+        -64.5,
         5,
-        21.7
+        20.9
       ],
       "scale": 1.2,
       "projectIds": [
@@ -832,14 +831,14 @@
       "title": "Suno Studio",
       "wing": "media",
       "tier": "B",
-      "archetype": "harmonic_resonator",
+      "archetype": "suno_harmonic_resonator",
       "isArchaeological": false,
       "epoch": "contemporary",
       "startYear": 2026,
       "position": [
-        -82.6,
+        -84.3,
         14,
-        -48.7
+        -49.1
       ],
       "scale": 1.2,
       "projectIds": [
@@ -886,9 +885,9 @@
       "epoch": "contemporary",
       "startYear": 2026,
       "position": [
-        -73.7,
+        -74.6,
         14,
-        -34.2
+        -33.4
       ],
       "scale": 1.2,
       "projectIds": [
@@ -961,9 +960,9 @@
       "epoch": "contemporary",
       "startYear": 2026,
       "position": [
-        -58.5,
+        -57.7,
         14,
-        -41.9
+        -41.1
       ],
       "scale": 0.9,
       "projectIds": [
@@ -1028,14 +1027,14 @@
       "title": "Media Application Lineage",
       "wing": "media",
       "tier": "C",
-      "archetype": "excavated_ruin",
+      "archetype": "harmonic_resonator",
       "isArchaeological": true,
       "epoch": "contemporary",
       "startYear": 2026,
       "position": [
-        -41.5,
+        -39.5,
         1.5,
-        -43.3
+        -44.1
       ],
       "scale": 0.9,
       "projectIds": [
@@ -1142,14 +1141,14 @@
       "title": "Dex Voice Lab",
       "wing": "east",
       "tier": "A",
-      "archetype": "monolith_altar",
+      "archetype": "dex_vocal_acoustic_chamber",
       "isArchaeological": false,
       "epoch": "monumental",
       "startYear": 2026,
       "position": [
-        70.6,
+        68.8,
         6,
-        14.1
+        13.3
       ],
       "scale": 1.6,
       "projectIds": [
@@ -1282,9 +1281,9 @@
       "epoch": "contemporary",
       "startYear": 2026,
       "position": [
-        71.2,
+        69.4,
         6,
-        25.9
+        25.8
       ],
       "scale": 0.9,
       "projectIds": [
@@ -1370,14 +1369,14 @@
       "title": "DexTilt",
       "wing": "east",
       "tier": "B",
-      "archetype": "monolith_altar",
+      "archetype": "dextilt_balance_tower",
       "isArchaeological": false,
       "epoch": "contemporary",
       "startYear": 2026,
       "position": [
-        82.6,
+        81.7,
         6,
-        22.8
+        23.6
       ],
       "scale": 1.2,
       "projectIds": [
@@ -1429,7 +1428,7 @@
       "position": [
         90,
         6,
-        32
+        33
       ],
       "scale": 0.9,
       "projectIds": [
@@ -1522,9 +1521,9 @@
       "epoch": "contemporary",
       "startYear": 2026,
       "position": [
-        97.4,
+        98.3,
         6,
-        22.8
+        23.6
       ],
       "scale": 1.2,
       "projectIds": [
@@ -1594,9 +1593,9 @@
       "epoch": "contemporary",
       "startYear": 2026,
       "position": [
-        108.8,
+        110.6,
         6,
-        25.9
+        25.8
       ],
       "scale": 1.2,
       "projectIds": [
@@ -1687,9 +1686,9 @@
       "epoch": "contemporary",
       "startYear": 2026,
       "position": [
-        109.4,
+        111.2,
         6,
-        14.1
+        13.3
       ],
       "scale": 1.2,
       "projectIds": [
@@ -1754,14 +1753,14 @@
       "title": "Era of Invincible Magic",
       "wing": "south",
       "tier": "A",
-      "archetype": "kinetic_foundry",
+      "archetype": "invincible_magic_citadel",
       "isArchaeological": false,
       "epoch": "monumental",
       "startYear": 2026,
       "position": [
-        -20.1,
+        -21.8,
         4,
-        103.2
+        102.2
       ],
       "scale": 1.6,
       "projectIds": [
@@ -1809,9 +1808,9 @@
       "epoch": "contemporary",
       "startYear": 2026,
       "position": [
-        -22.3,
+        -24.2,
         4,
-        113
+        112.4
       ],
       "scale": 1.2,
       "projectIds": [
@@ -1863,9 +1862,9 @@
       "epoch": "archaic",
       "startYear": 2025,
       "position": [
-        -12.5,
+        -13.9,
         4,
-        110.5
+        110.8
       ],
       "scale": 0.9,
       "projectIds": [
@@ -1936,9 +1935,9 @@
       "epoch": "contemporary",
       "startYear": 2026,
       "position": [
-        -10.4,
+        -11.4,
         4,
-        120.3
+        121
       ],
       "scale": 0.9,
       "projectIds": [
@@ -1986,9 +1985,9 @@
       "epoch": "contemporary",
       "startYear": 2026,
       "position": [
-        -2.6,
+        -2.9,
         4,
-        113.9
+        114.8
       ],
       "scale": 1.2,
       "projectIds": [
@@ -2030,14 +2029,14 @@
       "title": "Arkship Civilization",
       "wing": "south",
       "tier": "A",
-      "archetype": "kinetic_foundry",
+      "archetype": "arkship_void_hull",
       "isArchaeological": false,
       "epoch": "monumental",
       "startYear": 2026,
       "position": [
-        3.5,
+        3.9,
         4,
-        121.8
+        122.8
       ],
       "scale": 1.6,
       "projectIds": [
@@ -2085,9 +2084,9 @@
       "epoch": "contemporary",
       "startYear": 2026,
       "position": [
-        7.8,
+        8.7,
         4,
-        112.7
+        113.5
       ],
       "scale": 1.2,
       "projectIds": [
@@ -2136,9 +2135,9 @@
       "epoch": "contemporary",
       "startYear": 2026,
       "position": [
-        16.7,
+        18.3,
         4,
-        117.3
+        117.4
       ],
       "scale": 0.9,
       "projectIds": [
@@ -2203,14 +2202,14 @@
       "title": "S'mores Katamari",
       "wing": "south",
       "tier": "A",
-      "archetype": "kinetic_foundry",
+      "archetype": "smores_katamari_forge",
       "isArchaeological": false,
       "epoch": "monumental",
       "startYear": 2026,
       "position": [
-        16.7,
+        18.4,
         4,
-        107.2
+        107
       ],
       "scale": 1.6,
       "projectIds": [
@@ -2259,9 +2258,9 @@
       "epoch": "contemporary",
       "startYear": 2026,
       "position": [
-        26.7,
+        28.8,
         4,
-        107.6
+        106.1
       ],
       "scale": 1.2,
       "projectIds": [
@@ -2307,14 +2306,14 @@
       "title": "BigMac Backbone",
       "wing": "infra",
       "tier": "A",
-      "archetype": "power_conduit",
+      "archetype": "bigmac_server_monolith",
       "isArchaeological": false,
       "epoch": "monumental",
       "startYear": 2026,
       "position": [
-        52.5,
+        51.1,
         2,
-        -44.5
+        -44.2
       ],
       "scale": 1.6,
       "projectIds": [
@@ -2463,9 +2462,9 @@
       "epoch": "contemporary",
       "startYear": 2026,
       "position": [
-        81.7,
+        83.3,
         2,
-        -37.7
+        -37.6
       ],
       "scale": 0.9,
       "projectIds": [

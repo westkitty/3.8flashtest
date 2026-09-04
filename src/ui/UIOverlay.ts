@@ -1,4 +1,5 @@
 import type { SemanticExhibit, DexterSanctuaryData, Epoch } from '../types';
+import type { CausalTraceStep } from '../provenance/ProvenanceTracer';
 
 export interface UIEvents {
   onSearch: (q: string) => void;
@@ -9,6 +10,8 @@ export interface UIEvents {
   onIngestPatch: (text: string, isJson: boolean) => void;
   onResetCanonical: () => void;
   onTeleportToSanctuary: () => void;
+  onTraceToMachine: (exhibit: SemanticExhibit) => void;
+  onAudioToggle: () => boolean;
 }
 
 export class UIOverlay {
@@ -17,6 +20,8 @@ export class UIOverlay {
   private inspectCard!: HTMLDivElement;
   private isOrbital = false;
   private isSubterranean = false;
+  private activeExhibit: SemanticExhibit | null = null;
+  private audioBtn!: HTMLButtonElement;
 
   constructor() {
     this.root = document.createElement('div');
@@ -41,28 +46,28 @@ export class UIOverlay {
       .hud-panel {
         position: absolute;
         pointer-events: auto;
-        background: rgba(10, 15, 26, 0.88);
-        backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(10, 15, 26, 0.85);
+        backdrop-filter: blur(14px);
+        border: 1px solid rgba(255, 255, 255, 0.14);
         border-radius: 8px;
         padding: 12px 16px;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+        box-shadow: 0 10px 35px rgba(0, 0, 0, 0.7);
       }
       .hud-header {
         top: 16px;
         left: 20px;
-        max-width: 420px;
+        max-width: 440px;
       }
       .hud-header h1 {
         margin: 0 0 4px 0;
-        font-size: 15px;
+        font-size: 14px;
         letter-spacing: 0.08em;
         text-transform: uppercase;
         color: #38bdf8;
       }
       .hud-header p {
         margin: 0;
-        font-size: 12px;
+        font-size: 11px;
         color: #94a3b8;
       }
       .hud-controls {
@@ -87,7 +92,7 @@ export class UIOverlay {
         padding: 8px 12px;
         border-radius: 6px;
         cursor: pointer;
-        font-size: 12px;
+        font-size: 11px;
         font-weight: 500;
         transition: all 0.15s ease;
       }
@@ -101,6 +106,13 @@ export class UIOverlay {
       }
       .btn-primary:hover {
         background: #0369a1;
+      }
+      .btn-secondary {
+        background: #4338ca;
+        border-color: #818cf8;
+      }
+      .btn-secondary:hover {
+        background: #3730a3;
       }
       .btn-danger {
         background: #991b1b;
@@ -117,35 +129,36 @@ export class UIOverlay {
         color: #f8fafc;
         padding: 6px 10px;
         border-radius: 4px;
-        font-size: 12px;
+        font-size: 11px;
         margin-bottom: 4px;
       }
       .inspect-card {
         bottom: 24px;
         right: 24px;
-        width: 380px;
-        max-height: 480px;
+        width: 400px;
+        max-height: 520px;
         overflow-y: auto;
         display: none;
       }
       .inspect-card h2 {
-        margin: 0 0 6px 0;
-        font-size: 17px;
+        margin: 0 0 4px 0;
+        font-size: 16px;
         color: #38bdf8;
       }
       .inspect-badge {
         display: inline-block;
-        font-size: 10px;
+        font-size: 9px;
+        letter-spacing: 0.05em;
         text-transform: uppercase;
         padding: 2px 6px;
         border-radius: 4px;
         background: #0369a1;
         color: #fff;
-        margin-bottom: 8px;
+        margin-bottom: 6px;
       }
       .inspect-section {
-        margin-top: 8px;
-        font-size: 12px;
+        margin-top: 6px;
+        font-size: 11px;
         color: #cbd5e1;
         border-top: 1px solid #334155;
         padding-top: 6px;
@@ -167,14 +180,14 @@ export class UIOverlay {
       .modal {
         position: fixed;
         inset: 0;
-        background: rgba(0, 0, 0, 0.75);
+        background: rgba(0, 0, 0, 0.78);
         display: none;
         align-items: center;
         justify-content: center;
         pointer-events: auto;
       }
       .modal-box {
-        width: 500px;
+        width: 520px;
         background: #0f172a;
         border: 1px solid #38bdf8;
         border-radius: 8px;
@@ -189,45 +202,52 @@ export class UIOverlay {
         border: 1px solid #334155;
         border-radius: 4px;
         font-family: monospace;
-        font-size: 12px;
+        font-size: 11px;
         padding: 8px;
         box-sizing: border-box;
         margin: 10px 0;
+      }
+      .trace-step {
+        background: #1e293b;
+        border-left: 3px solid #38bdf8;
+        padding: 6px 10px;
+        margin-top: 6px;
+        border-radius: 2px;
+      }
+      .trace-step strong {
+        color: #38bdf8;
+        font-size: 10px;
+        text-transform: uppercase;
       }
     `;
     document.head.appendChild(style);
   }
 
   private buildUI() {
-    // Reticle
     const reticle = document.createElement('div');
     reticle.className = 'reticle';
     this.root.appendChild(reticle);
 
-    // Header HUD
     const header = document.createElement('div');
     header.className = 'hud-panel hud-header';
     header.innerHTML = `
       <h1>THE LIVING RELIQUARY // MNEMONIC WORLD ENGINE</h1>
-      <p>Semantic geography synthesized from 64 projects & 35 exhibits across 6 macro-regions. Recursive self-architecture operating underneath.</p>
+      <p>A living 3D world where meaning creates geography, relationships form physical infrastructure, and the subterranean machine city is literally its own source code.</p>
     `;
     this.root.appendChild(header);
 
-    // Controls HUD
     const controls = document.createElement('div');
     controls.className = 'hud-panel hud-controls';
     controls.innerHTML = `
-      <div><strong>[W A S D]</strong> Move | <strong>[Shift]</strong> Sprint | <strong>[Mouse]</strong> Look</div>
-      <div><strong>[E]</strong> Inspect Provenance | <strong>[Click]</strong> Pointer Lock</div>
-      <div><strong>[Space / C]</strong> Vertical Ascent / Descent (Orbital & Freeflight)</div>
+      <div><strong>[W A S D]</strong> Walk | <strong>[Shift]</strong> Sprint | <strong>[Mouse]</strong> Look</div>
+      <div><strong>[E]</strong> Inspect Provenance & X-Ray | <strong>[Click]</strong> Pointer Lock</div>
+      <div><strong>[Space / C]</strong> Vertical Motion (Freeflight & Orbital)</div>
     `;
     this.root.appendChild(controls);
 
-    // Actions HUD
     const actions = document.createElement('div');
     actions.className = 'hud-panel hud-actions';
 
-    // Search input
     const searchInput = document.createElement('input');
     searchInput.type = 'text';
     searchInput.className = 'search-box';
@@ -237,24 +257,22 @@ export class UIOverlay {
     });
     actions.appendChild(searchInput);
 
-    // Orbital reveal button
     const orbitalBtn = document.createElement('button');
     orbitalBtn.className = 'btn btn-primary';
-    orbitalBtn.textContent = 'Enter Orbital / Reveal Graph';
+    orbitalBtn.textContent = 'Ascend to Orbital / Reveal Graph';
     orbitalBtn.addEventListener('click', () => {
       this.isOrbital = !this.isOrbital;
-      orbitalBtn.textContent = this.isOrbital ? 'Return to Surface Walk' : 'Enter Orbital / Reveal Graph';
+      orbitalBtn.textContent = this.isOrbital ? 'Return to Surface Walk' : 'Ascend to Orbital / Reveal Graph';
       this.events.onOrbitalToggle?.(this.isOrbital);
     });
     actions.appendChild(orbitalBtn);
 
-    // Machine layer descent button
     const machineBtn = document.createElement('button');
     machineBtn.className = 'btn';
-    machineBtn.textContent = 'Descend to Machine Layer';
+    machineBtn.textContent = 'Descend to Machine Underworld';
     machineBtn.addEventListener('click', () => {
       this.isSubterranean = !this.isSubterranean;
-      machineBtn.textContent = this.isSubterranean ? 'Ascend to Semantic Surface' : 'Descend to Machine Layer';
+      machineBtn.textContent = this.isSubterranean ? 'Ascend to Semantic Surface' : 'Descend to Machine Underworld';
       if (this.isSubterranean) {
         this.events.onMachineDescent?.();
       } else {
@@ -263,7 +281,6 @@ export class UIOverlay {
     });
     actions.appendChild(machineBtn);
 
-    // Sanctuary button
     const sanctuaryBtn = document.createElement('button');
     sanctuaryBtn.className = 'btn';
     sanctuaryBtn.textContent = 'Visit Dexter Sanctuary';
@@ -272,7 +289,15 @@ export class UIOverlay {
     });
     actions.appendChild(sanctuaryBtn);
 
-    // Timeline selector
+    this.audioBtn = document.createElement('button');
+    this.audioBtn.className = 'btn';
+    this.audioBtn.textContent = 'Audio: Muted';
+    this.audioBtn.addEventListener('click', () => {
+      const isMuted = this.events.onAudioToggle ? this.events.onAudioToggle() : true;
+      this.audioBtn.textContent = isMuted ? 'Audio: Muted' : 'Audio: Active';
+    });
+    actions.appendChild(this.audioBtn);
+
     const epochSelect = document.createElement('select');
     epochSelect.className = 'search-box';
     epochSelect.innerHTML = `
@@ -287,7 +312,6 @@ export class UIOverlay {
     });
     actions.appendChild(epochSelect);
 
-    // Mutation patch button
     const patchBtn = document.createElement('button');
     patchBtn.className = 'btn';
     patchBtn.textContent = 'Ingest Knowledge Patch';
@@ -296,7 +320,6 @@ export class UIOverlay {
     });
     actions.appendChild(patchBtn);
 
-    // Reset button
     const resetBtn = document.createElement('button');
     resetBtn.className = 'btn btn-danger';
     resetBtn.textContent = 'Reset to Canonical World';
@@ -309,18 +332,17 @@ export class UIOverlay {
 
     this.root.appendChild(actions);
 
-    // Provenance Inspect Card
     this.inspectCard = document.createElement('div');
     this.inspectCard.className = 'hud-panel inspect-card';
     this.root.appendChild(this.inspectCard);
 
-    // Ingestion Modal
+    // Modal
     const modal = document.createElement('div');
     modal.className = 'modal';
     modal.innerHTML = `
       <div class="modal-box">
         <h3 style="margin:0;color:#38bdf8;">In-World Knowledge Ingestion</h3>
-        <p style="font-size:12px;color:#94a3b8;margin:6px 0;">Paste a structured JSON knowledge patch or raw Markdown notes. The physical geography and orbital graphs will mutate immediately.</p>
+        <p style="font-size:11px;color:#94a3b8;margin:6px 0;">Paste structured JSON or raw Markdown. The tectonic solver will dynamically recalculate physical landscape topology.</p>
         <textarea id="patch-input" placeholder='Paste JSON patch or markdown...'></textarea>
         <div style="display:flex;gap:8px;justify-content:flex-end;">
           <button class="btn" id="modal-cancel">Cancel</button>
@@ -364,31 +386,55 @@ export class UIOverlay {
   }
 
   public showInspect(exhibit: SemanticExhibit) {
+    this.activeExhibit = exhibit;
     this.inspectCard.style.display = 'block';
     const p = exhibit.projects[0] || {};
     this.inspectCard.innerHTML = `
       <button style="float:right;background:none;border:none;color:#94a3b8;cursor:pointer;font-size:16px;" onclick="this.parentElement.style.display='none'">✕</button>
-      <div class="inspect-badge">${exhibit.wing.toUpperCase()} // ${exhibit.tier}-TIER</div>
+      <div class="inspect-badge">${exhibit.wing.toUpperCase()} // ${exhibit.tier}-TIER // ${exhibit.archetype}</div>
       <h2>${exhibit.title}</h2>
-      <p style="font-size:12px;color:#94a3b8;margin:0 0 8px 0;">${exhibit.copy.subtitle || ''}</p>
+      <p style="font-size:11px;color:#94a3b8;margin:0 0 6px 0;">${exhibit.copy.subtitle || ''}</p>
 
       <div class="inspect-section">
         <strong>Plaque:</strong> ${exhibit.copy.plaque}
       </div>
       <div class="inspect-section">
-        <strong>Original Problem:</strong> ${exhibit.copy.problem || 'N/A'}
-      </div>
-      <div class="inspect-section">
-        <strong>Constructed Response:</strong> ${exhibit.copy.made || 'N/A'}
+        <strong>Problem & Creation:</strong> ${exhibit.copy.problem || 'N/A'} — <em>${exhibit.copy.made || 'N/A'}</em>
       </div>
       <div class="inspect-section">
         <strong>Represented Projects (${exhibit.projectIds.length}):</strong> ${exhibit.projects.map(proj => proj.name).join(', ')}
       </div>
       <div class="inspect-section">
-        <strong>Architectural Lesson:</strong> <em>"${p.lesson || 'Preserve structural boundaries.'}"</em>
+        <strong>Lesson:</strong> <em>"${p.lesson || 'Preserve structural boundaries.'}"</em>
       </div>
-      <div class="inspect-section">
-        <strong>Epistemic State:</strong> <span style="color:#4ade80;">SOURCE-GROUNDED CANON</span>
+      <div class="inspect-section" style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;">
+        <span style="color:#4ade80;font-size:10px;">CANONICAL STATUS VERIFIED</span>
+        <button class="btn btn-secondary" id="trace-btn">TRACE TO MACHINE ↓</button>
+      </div>
+      <div id="trace-container"></div>
+    `;
+
+    this.inspectCard.querySelector('#trace-btn')?.addEventListener('click', () => {
+      if (this.activeExhibit && this.events.onTraceToMachine) {
+        this.events.onTraceToMachine(this.activeExhibit);
+      }
+    });
+  }
+
+  public renderCausalTrace(steps: CausalTraceStep[]) {
+    const container = this.inspectCard.querySelector('#trace-container');
+    if (!container) return;
+
+    container.innerHTML = `
+      <div style="margin-top:10px;border-top:1px solid #38bdf8;padding-top:6px;">
+        <h4 style="margin:0 0 6px 0;font-size:11px;color:#38bdf8;letter-spacing:0.05em;">CAUSAL RECURSION TRACE</h4>
+        ${steps.map(s => `
+          <div class="trace-step">
+            <strong>${s.stage}</strong>: ${s.title}
+            <div style="font-size:10px;color:#cbd5e1;margin-top:2px;">${s.description}</div>
+            <div style="font-size:9px;color:#94a3b8;margin-top:1px;"><em>${s.evidence}</em></div>
+          </div>
+        `).join('')}
       </div>
     `;
   }
@@ -399,7 +445,7 @@ export class UIOverlay {
       <button style="float:right;background:none;border:none;color:#94a3b8;cursor:pointer;font-size:16px;" onclick="this.parentElement.style.display='none'">✕</button>
       <div class="inspect-badge" style="background:#b45309;">NON-PROJECT CONSTANT</div>
       <h2>${s.name}</h2>
-      <p style="font-size:12px;color:#d97706;margin:0 0 8px 0;">${s.domain}</p>
+      <p style="font-size:11px;color:#d97706;margin:0 0 8px 0;">${s.domain}</p>
       <div class="inspect-section">
         <strong>Ontological Status:</strong> ${s.note}
       </div>

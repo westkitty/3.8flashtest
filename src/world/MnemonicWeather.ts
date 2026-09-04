@@ -1,0 +1,61 @@
+import * as THREE from 'three';
+import type { SemanticWorldData } from '../types';
+
+export class MnemonicWeather {
+  public group = new THREE.Group();
+  private particles!: THREE.Points;
+  private particleGeo!: THREE.BufferGeometry;
+  private positions!: Float32Array;
+  private velocities!: Float32Array;
+  private count = 1200;
+
+  constructor(_worldData: SemanticWorldData) {
+    this.buildAtmosphericParticles();
+  }
+
+  private buildAtmosphericParticles() {
+    this.particleGeo = new THREE.BufferGeometry();
+    this.positions = new Float32Array(this.count * 3);
+    this.velocities = new Float32Array(this.count * 3);
+
+    for (let i = 0; i < this.count; i++) {
+      // Scatter particles across the 350m world volume
+      this.positions[i * 3] = (Math.random() - 0.5) * 320;
+      this.positions[i * 3 + 1] = Math.random() * 45 + 1;
+      this.positions[i * 3 + 2] = (Math.random() - 0.5) * 320;
+
+      // Subtle directional drift flowing from South kinetic foundry to North aether-spire
+      this.velocities[i * 3] = (Math.random() - 0.5) * 0.4;
+      this.velocities[i * 3 + 1] = (Math.random() - 0.5) * 0.2;
+      this.velocities[i * 3 + 2] = -(Math.random() * 1.5 + 0.5); // Drift northward
+    }
+
+    this.particleGeo.setAttribute('position', new THREE.BufferAttribute(this.positions, 3));
+
+    const mat = new THREE.PointsMaterial({
+      color: 0x93c5fd,
+      size: 0.85,
+      transparent: true,
+      opacity: 0.45,
+      blending: THREE.AdditiveBlending
+    });
+
+    this.particles = new THREE.Points(this.particleGeo, mat);
+    this.group.add(this.particles);
+  }
+
+  public update(dt: number) {
+    const pos = this.positions;
+    for (let i = 0; i < this.count; i++) {
+      pos[i * 3] += this.velocities[i * 3] * dt * 5;
+      pos[i * 3 + 1] += this.velocities[i * 3 + 1] * dt * 5;
+      pos[i * 3 + 2] += this.velocities[i * 3 + 2] * dt * 5;
+
+      // Wrap around bounds
+      if (pos[i * 3 + 2] < -160) pos[i * 3 + 2] = 160;
+      if (pos[i * 3 + 1] < 1) pos[i * 3 + 1] = 45;
+      if (pos[i * 3 + 1] > 45) pos[i * 3 + 1] = 1;
+    }
+    this.particleGeo.attributes.position.needsUpdate = true;
+  }
+}

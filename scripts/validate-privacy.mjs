@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
 const PATTERNS = [
@@ -17,10 +17,7 @@ const PATTERNS = [
 
 const DENY_NAMES = [/\bBryan\b/i];
 
-const EXCLUDE_DIRS = new Set(['node_modules', 'dist', '.git', 'test-results', 'dist-standalone']);
-// Files in scripts that read from the local environment can have path variables in local dev,
-// but NOTHING committed in src, public, data, or tests may have them.
-const SCRIPT_EXEMPTIONS = ['scripts/build-semantic-data.mjs'];
+const EXCLUDE_DIRS = new Set(['node_modules', 'dist', '.git', 'test-results', 'dist-standalone', 'coverage']);
 
 function walk(dir) {
   const files = [];
@@ -42,14 +39,13 @@ const errors = [];
 
 for (const f of files) {
   const rel = relative('.', f);
-  if (SCRIPT_EXEMPTIONS.includes(rel)) continue;
   if (rel.endsWith('.png') || rel.endsWith('.jpg') || rel.endsWith('.ico') || rel.endsWith('.woff2')) continue;
 
   const text = readFileSync(f, 'utf8');
   const lines = text.split('\n');
 
   lines.forEach((line, i) => {
-    // Skip checking validate-privacy.mjs regex definitions
+    // Avoid self-triggering on pattern definitions in this scanner
     if (rel === 'scripts/validate-privacy.mjs') return;
 
     for (const [re, label] of PATTERNS) {
@@ -72,6 +68,6 @@ if (errors.length > 0) {
   }
   process.exit(1);
 } else {
-  console.log(`✓ Privacy validation passed: ${files.length} files scanned clean.`);
+  console.log(`✓ Privacy validation passed: ${files.length} files scanned clean with ZERO script exemptions.`);
   process.exit(0);
 }

@@ -97,6 +97,7 @@ export interface MachineModule {
   lineCount: number;
   system: string;
   layer: string;
+  role?: string;
   color: number;
   rawImports: string[];
   machineCoord: [number, number, number];
