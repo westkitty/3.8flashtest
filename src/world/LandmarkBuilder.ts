@@ -290,6 +290,24 @@ export class LandmarkBuilder {
     halo.position.set(0, 4.8 * s, 0);
     halo.name = 'rotating_ring_1';
     g.add(halo);
+
+    // Deep subterranean geological strata foundation (revealing bedrock layers beneath the ruin)
+    const strataMat1 = this.getMaterial(0x1e1824, 0.9, 0.1);
+    const strata1 = new THREE.Mesh(new THREE.BoxGeometry(22 * s, 3.5 * s, 22 * s), strataMat1);
+    strata1.position.set(0, -1.8 * s, 0);
+    g.add(strata1);
+
+    const strataMat2 = this.getMaterial(0x0f0c14, 0.95, 0.05);
+    const strata2 = new THREE.Mesh(new THREE.BoxGeometry(26 * s, 4.0 * s, 26 * s), strataMat2);
+    strata2.position.set(0, -5.5 * s, 0);
+    g.add(strata2);
+
+    // Holographic precursor wireframe ghost projection hovering over the relic altar
+    const ghostMat = new THREE.MeshBasicMaterial({ color: 0xc084fc, wireframe: true, transparent: true, opacity: 0.35 });
+    const precursorGhost = new THREE.Mesh(new THREE.OctahedronGeometry(3.5 * s, 1), ghostMat);
+    precursorGhost.position.set(0, 8.5 * s, 0);
+    precursorGhost.name = 'arcane_crown';
+    g.add(precursorGhost);
   }
 
   // 6. E10: WorldsVault Chasm Vault
