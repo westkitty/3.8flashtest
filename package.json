@@ -1,0 +1,32 @@
+{
+  "name": "mnemonic-world-engine",
+  "version": "0.1.0-experiment.0",
+  "private": true,
+  "type": "module",
+  "description": "The Living Reliquary // Mnemonic World Engine — Gemini 3.8 Flash + Google Antigravity Extreme Visual Experiment",
+  "scripts": {
+    "dev": "vite",
+    "build": "npm run build:data && npm run build:selfmap && tsc --noEmit && vite build",
+    "preview": "vite preview --port 4174",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --max-warnings 0",
+    "test": "vitest run",
+    "build:data": "node scripts/build-semantic-data.mjs",
+    "build:selfmap": "node scripts/build-self-map.mjs",
+    "validate:privacy": "node scripts/validate-privacy.mjs",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "three": "0.185.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0",
+    "@types/node": "^22.10.0",
+    "@types/three": "0.185.0",
+    "eslint": "^9.17.0",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.18.0",
+    "vite": "^6.0.5",
+    "vitest": "^2.1.8"
+  }
+}

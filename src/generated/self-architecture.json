@@ -1,0 +1,762 @@
+{
+  "version": "0.1.0-experiment.0",
+  "generatedAt": "2026-09-04T07:15:13.266Z",
+  "targetRepo": "westkitty/3.8flashtest",
+  "stats": {
+    "totalModules": 28,
+    "totalEdges": 38,
+    "totalLines": 6617,
+    "totalBytes": 247890
+  },
+  "modules": [
+    {
+      "id": "index.html",
+      "name": "index.html",
+      "path": "index.html",
+      "sizeBytes": 631,
+      "lineCount": 28,
+      "system": "chassis_bootstrap",
+      "layer": "structural_truss",
+      "color": 11583173,
+      "rawImports": [],
+      "machineCoord": [
+        3.8,
+        -27,
+        1.2
+      ],
+      "powerWatts": 42
+    },
+    {
+      "id": "package.json",
+      "name": "package.json",
+      "path": "package.json",
+      "sizeBytes": 1034,
+      "lineCount": 33,
+      "system": "chassis_bootstrap",
+      "layer": "structural_truss",
+      "color": 11583173,
+      "rawImports": [],
+      "machineCoord": [
+        0.2,
+        -25,
+        7.5
+      ],
+      "powerWatts": 50
+    },
+    {
+      "id": "playwright.config.ts",
+      "name": "playwright.config.ts",
+      "path": "playwright.config.ts",
+      "sizeBytes": 342,
+      "lineCount": 17,
+      "system": "chassis_bootstrap",
+      "layer": "structural_truss",
+      "color": 11583173,
+      "rawImports": [
+        "@playwright/test"
+      ],
+      "machineCoord": [
+        -10.4,
+        -23,
+        3.7
+      ],
+      "powerWatts": 26
+    },
+    {
+      "id": "scripts/build-self-map.mjs",
+      "name": "build-self-map.mjs",
+      "path": "scripts/build-self-map.mjs",
+      "sizeBytes": 5897,
+      "lineCount": 155,
+      "system": "compiler_foundry",
+      "layer": "fabrication_rig",
+      "color": 6619098,
+      "rawImports": [
+        "node:fs",
+        "node:path"
+      ],
+      "machineCoord": [
+        23.8,
+        -44,
+        1.2
+      ],
+      "powerWatts": 233
+    },
+    {
+      "id": "scripts/build-semantic-data.mjs",
+      "name": "build-semantic-data.mjs",
+      "path": "scripts/build-semantic-data.mjs",
+      "sizeBytes": 13317,
+      "lineCount": 318,
+      "system": "compiler_foundry",
+      "layer": "fabrication_rig",
+      "color": 6619098,
+      "rawImports": [
+        "node:fs",
+        "node:path"
+      ],
+      "machineCoord": [
+        20.2,
+        -42,
+        7.5
+      ],
+      "powerWatts": 250
+    },
+    {
+      "id": "scripts/validate-privacy.mjs",
+      "name": "validate-privacy.mjs",
+      "path": "scripts/validate-privacy.mjs",
+      "sizeBytes": 2548,
+      "lineCount": 78,
+      "system": "compiler_foundry",
+      "layer": "fabrication_rig",
+      "color": 6619098,
+      "rawImports": [
+        "node:fs",
+        "node:path"
+      ],
+      "machineCoord": [
+        9.6,
+        -40,
+        3.7
+      ],
+      "powerWatts": 117
+    },
+    {
+      "id": "src/generated/self-architecture.json",
+      "name": "self-architecture.json",
+      "path": "src/generated/self-architecture.json",
+      "sizeBytes": 18452,
+      "lineCount": 762,
+      "system": "semantic_memory",
+      "layer": "mnemonic_strata",
+      "color": 4244735,
+      "rawImports": [],
+      "machineCoord": [
+        3.8,
+        -32,
+        46.2
+      ],
+      "powerWatts": 250
+    },
+    {
+      "id": "src/generated/semantic-world.json",
+      "name": "semantic-world.json",
+      "path": "src/generated/semantic-world.json",
+      "sizeBytes": 118356,
+      "lineCount": 2683,
+      "system": "semantic_memory",
+      "layer": "mnemonic_strata",
+      "color": 4244735,
+      "rawImports": [],
+      "machineCoord": [
+        0.2,
+        -30,
+        52.5
+      ],
+      "powerWatts": 250
+    },
+    {
+      "id": "src/machine/MachineCity.ts",
+      "name": "MachineCity.ts",
+      "path": "src/machine/MachineCity.ts",
+      "sizeBytes": 5538,
+      "lineCount": 166,
+      "system": "machine_city",
+      "layer": "mechanical_substation",
+      "color": 58998,
+      "rawImports": [
+        "three",
+        "../types"
+      ],
+      "machineCoord": [
+        3.8,
+        -42,
+        1.2
+      ],
+      "powerWatts": 249
+    },
+    {
+      "id": "src/main.ts",
+      "name": "main.ts",
+      "path": "src/main.ts",
+      "sizeBytes": 456,
+      "lineCount": 16,
+      "system": "chassis_bootstrap",
+      "layer": "structural_truss",
+      "color": 11583173,
+      "rawImports": [
+        "./world/MnemonicEngine"
+      ],
+      "machineCoord": [
+        -8.9,
+        -27,
+        -11.4
+      ],
+      "powerWatts": 24
+    },
+    {
+      "id": "src/mutation/MutationManager.ts",
+      "name": "MutationManager.ts",
+      "path": "src/mutation/MutationManager.ts",
+      "sizeBytes": 6651,
+      "lineCount": 170,
+      "system": "topological_mutation",
+      "layer": "tectonic_actuator",
+      "color": 16732754,
+      "rawImports": [
+        "../types"
+      ],
+      "machineCoord": [
+        -36.2,
+        -37,
+        31.2
+      ],
+      "powerWatts": 250
+    },
+    {
+      "id": "src/player/PlayerController.ts",
+      "name": "PlayerController.ts",
+      "path": "src/player/PlayerController.ts",
+      "sizeBytes": 4643,
+      "lineCount": 170,
+      "system": "kinematics_and_input",
+      "layer": "sensor_relay",
+      "color": 14696699,
+      "rawImports": [
+        "three"
+      ],
+      "machineCoord": [
+        38.8,
+        -28,
+        26.2
+      ],
+      "powerWatts": 250
+    },
+    {
+      "id": "src/render/RendererHost.ts",
+      "name": "RendererHost.ts",
+      "path": "src/render/RendererHost.ts",
+      "sizeBytes": 1849,
+      "lineCount": 63,
+      "system": "optics_and_shaders",
+      "layer": "photonic_manifold",
+      "color": 16758605,
+      "rawImports": [
+        "three"
+      ],
+      "machineCoord": [
+        -31.2,
+        -30,
+        -23.8
+      ],
+      "powerWatts": 95
+    },
+    {
+      "id": "src/search/SearchNavigation.ts",
+      "name": "SearchNavigation.ts",
+      "path": "src/search/SearchNavigation.ts",
+      "sizeBytes": 2129,
+      "lineCount": 75,
+      "system": "spatial_navigation",
+      "layer": "vector_beacon",
+      "color": 1638399,
+      "rawImports": [
+        "three",
+        "../types"
+      ],
+      "machineCoord": [
+        33.8,
+        -30,
+        -38.8
+      ],
+      "powerWatts": 113
+    },
+    {
+      "id": "src/timeline/TimelineManager.ts",
+      "name": "TimelineManager.ts",
+      "path": "src/timeline/TimelineManager.ts",
+      "sizeBytes": 2277,
+      "lineCount": 71,
+      "system": "chronology_engine",
+      "layer": "temporal_cycler",
+      "color": 8146431,
+      "rawImports": [
+        "three",
+        "../types"
+      ],
+      "machineCoord": [
+        -36.2,
+        -32,
+        -28.8
+      ],
+      "powerWatts": 107
+    },
+    {
+      "id": "src/types.ts",
+      "name": "types.ts",
+      "path": "src/types.ts",
+      "sizeBytes": 3002,
+      "lineCount": 135,
+      "system": "chassis_bootstrap",
+      "layer": "structural_truss",
+      "color": 11583173,
+      "rawImports": [],
+      "machineCoord": [
+        2.2,
+        -25,
+        -3.3
+      ],
+      "powerWatts": 203
+    },
+    {
+      "id": "src/ui/UIOverlay.ts",
+      "name": "UIOverlay.ts",
+      "path": "src/ui/UIOverlay.ts",
+      "sizeBytes": 13997,
+      "lineCount": 416,
+      "system": "synthetic_interface",
+      "layer": "holographic_loom",
+      "color": 6942894,
+      "rawImports": [
+        "../types"
+      ],
+      "machineCoord": [
+        28.8,
+        -27,
+        36.2
+      ],
+      "powerWatts": 250
+    },
+    {
+      "id": "src/world/GraphRenderer.ts",
+      "name": "GraphRenderer.ts",
+      "path": "src/world/GraphRenderer.ts",
+      "sizeBytes": 3646,
+      "lineCount": 106,
+      "system": "world_generation",
+      "layer": "geological_core",
+      "color": 5227511,
+      "rawImports": [
+        "three",
+        "../types"
+      ],
+      "machineCoord": [
+        3.8,
+        -34,
+        -43.8
+      ],
+      "powerWatts": 159
+    },
+    {
+      "id": "src/world/LandmarkBuilder.ts",
+      "name": "LandmarkBuilder.ts",
+      "path": "src/world/LandmarkBuilder.ts",
+      "sizeBytes": 8733,
+      "lineCount": 238,
+      "system": "world_generation",
+      "layer": "geological_core",
+      "color": 5227511,
+      "rawImports": [
+        "three",
+        "../types"
+      ],
+      "machineCoord": [
+        0.2,
+        -32,
+        -37.5
+      ],
+      "powerWatts": 250
+    },
+    {
+      "id": "src/world/MnemonicEngine.ts",
+      "name": "MnemonicEngine.ts",
+      "path": "src/world/MnemonicEngine.ts",
+      "sizeBytes": 11632,
+      "lineCount": 297,
+      "system": "world_generation",
+      "layer": "geological_core",
+      "color": 5227511,
+      "rawImports": [
+        "three",
+        "../render/RendererHost",
+        "../player/PlayerController",
+        "./Terrain",
+        "./LandmarkBuilder",
+        "./GraphRenderer",
+        "../machine/MachineCity",
+        "../mutation/MutationManager",
+        "../timeline/TimelineManager",
+        "../search/SearchNavigation",
+        "../ui/UIOverlay",
+        "../types",
+        "../generated/semantic-world.json",
+        "../generated/self-architecture.json"
+      ],
+      "machineCoord": [
+        -10.4,
+        -30,
+        -41.3
+      ],
+      "powerWatts": 250
+    },
+    {
+      "id": "src/world/Terrain.ts",
+      "name": "Terrain.ts",
+      "path": "src/world/Terrain.ts",
+      "sizeBytes": 7018,
+      "lineCount": 200,
+      "system": "world_generation",
+      "layer": "geological_core",
+      "color": 5227511,
+      "rawImports": [
+        "three",
+        "../types"
+      ],
+      "machineCoord": [
+        -8.9,
+        -34,
+        -56.4
+      ],
+      "powerWatts": 250
+    },
+    {
+      "id": "tests/browser-headless-simulation.test.ts",
+      "name": "browser-headless-simulation.test.ts",
+      "path": "tests/browser-headless-simulation.test.ts",
+      "sizeBytes": 4361,
+      "lineCount": 99,
+      "system": "validation_stabilizers",
+      "layer": "containment_matrix",
+      "color": 15662913,
+      "rawImports": [
+        "vitest",
+        "three",
+        "../src/mutation/MutationManager",
+        "../src/timeline/TimelineManager",
+        "../src/search/SearchNavigation",
+        "../src/world/LandmarkBuilder",
+        "../src/world/Terrain",
+        "../src/world/GraphRenderer",
+        "../src/machine/MachineCity",
+        "../src/generated/semantic-world.json",
+        "../src/generated/self-architecture.json",
+        "./fixtures/knowledge-patch.json",
+        "../src/types"
+      ],
+      "machineCoord": [
+        -16.2,
+        -44,
+        1.2
+      ],
+      "powerWatts": 149
+    },
+    {
+      "id": "tests/fixtures/knowledge-patch.json",
+      "name": "knowledge-patch.json",
+      "path": "tests/fixtures/knowledge-patch.json",
+      "sizeBytes": 1196,
+      "lineCount": 38,
+      "system": "validation_stabilizers",
+      "layer": "containment_matrix",
+      "color": 15662913,
+      "rawImports": [],
+      "machineCoord": [
+        -19.8,
+        -42,
+        7.5
+      ],
+      "powerWatts": 57
+    },
+    {
+      "id": "tests/semantic-world.test.ts",
+      "name": "semantic-world.test.ts",
+      "path": "tests/semantic-world.test.ts",
+      "sizeBytes": 4657,
+      "lineCount": 105,
+      "system": "validation_stabilizers",
+      "layer": "containment_matrix",
+      "color": 15662913,
+      "rawImports": [
+        "vitest",
+        "../src/generated/semantic-world.json",
+        "../src/generated/self-architecture.json",
+        "./fixtures/knowledge-patch.json",
+        "../src/mutation/MutationManager",
+        "../src/types"
+      ],
+      "machineCoord": [
+        -30.4,
+        -40,
+        3.7
+      ],
+      "powerWatts": 158
+    },
+    {
+      "id": "tests/walkthrough.e2e.ts",
+      "name": "walkthrough.e2e.ts",
+      "path": "tests/walkthrough.e2e.ts",
+      "sizeBytes": 4652,
+      "lineCount": 132,
+      "system": "validation_stabilizers",
+      "layer": "containment_matrix",
+      "color": 15662913,
+      "rawImports": [
+        "@playwright/test"
+      ],
+      "machineCoord": [
+        -28.9,
+        -44,
+        -11.4
+      ],
+      "powerWatts": 198
+    },
+    {
+      "id": "tsconfig.json",
+      "name": "tsconfig.json",
+      "path": "tsconfig.json",
+      "sizeBytes": 504,
+      "lineCount": 20,
+      "system": "chassis_bootstrap",
+      "layer": "structural_truss",
+      "color": 11583173,
+      "rawImports": [],
+      "machineCoord": [
+        7.2,
+        -23,
+        2
+      ],
+      "powerWatts": 30
+    },
+    {
+      "id": "vite.config.ts",
+      "name": "vite.config.ts",
+      "path": "vite.config.ts",
+      "sizeBytes": 253,
+      "lineCount": 18,
+      "system": "chassis_bootstrap",
+      "layer": "structural_truss",
+      "color": 11583173,
+      "rawImports": [
+        "vite"
+      ],
+      "machineCoord": [
+        0.6,
+        -27,
+        11
+      ],
+      "powerWatts": 27
+    },
+    {
+      "id": "vitest.config.ts",
+      "name": "vitest.config.ts",
+      "path": "vitest.config.ts",
+      "sizeBytes": 119,
+      "lineCount": 8,
+      "system": "chassis_bootstrap",
+      "layer": "structural_truss",
+      "color": 11583173,
+      "rawImports": [
+        "vitest/config"
+      ],
+      "machineCoord": [
+        -13.5,
+        -25,
+        5.3
+      ],
+      "powerWatts": 15
+    }
+  ],
+  "edges": [
+    {
+      "source": "src/machine/MachineCity.ts",
+      "target": "src/types.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "src/main.ts",
+      "target": "src/world/MnemonicEngine.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "src/mutation/MutationManager.ts",
+      "target": "src/types.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "src/search/SearchNavigation.ts",
+      "target": "src/types.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "src/timeline/TimelineManager.ts",
+      "target": "src/types.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "src/ui/UIOverlay.ts",
+      "target": "src/types.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "src/world/GraphRenderer.ts",
+      "target": "src/types.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "src/world/LandmarkBuilder.ts",
+      "target": "src/types.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "src/world/MnemonicEngine.ts",
+      "target": "src/render/RendererHost.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "src/world/MnemonicEngine.ts",
+      "target": "src/player/PlayerController.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "src/world/MnemonicEngine.ts",
+      "target": "src/world/Terrain.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "src/world/MnemonicEngine.ts",
+      "target": "src/world/LandmarkBuilder.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "src/world/MnemonicEngine.ts",
+      "target": "src/world/GraphRenderer.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "src/world/MnemonicEngine.ts",
+      "target": "src/machine/MachineCity.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "src/world/MnemonicEngine.ts",
+      "target": "src/mutation/MutationManager.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "src/world/MnemonicEngine.ts",
+      "target": "src/timeline/TimelineManager.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "src/world/MnemonicEngine.ts",
+      "target": "src/search/SearchNavigation.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "src/world/MnemonicEngine.ts",
+      "target": "src/ui/UIOverlay.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "src/world/MnemonicEngine.ts",
+      "target": "src/types.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "src/world/MnemonicEngine.ts",
+      "target": "src/generated/semantic-world.json",
+      "type": "static_import"
+    },
+    {
+      "source": "src/world/MnemonicEngine.ts",
+      "target": "src/generated/self-architecture.json",
+      "type": "static_import"
+    },
+    {
+      "source": "src/world/Terrain.ts",
+      "target": "src/types.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "tests/browser-headless-simulation.test.ts",
+      "target": "src/mutation/MutationManager.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "tests/browser-headless-simulation.test.ts",
+      "target": "src/timeline/TimelineManager.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "tests/browser-headless-simulation.test.ts",
+      "target": "src/search/SearchNavigation.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "tests/browser-headless-simulation.test.ts",
+      "target": "src/world/LandmarkBuilder.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "tests/browser-headless-simulation.test.ts",
+      "target": "src/world/Terrain.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "tests/browser-headless-simulation.test.ts",
+      "target": "src/world/GraphRenderer.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "tests/browser-headless-simulation.test.ts",
+      "target": "src/machine/MachineCity.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "tests/browser-headless-simulation.test.ts",
+      "target": "src/generated/semantic-world.json",
+      "type": "static_import"
+    },
+    {
+      "source": "tests/browser-headless-simulation.test.ts",
+      "target": "src/generated/self-architecture.json",
+      "type": "static_import"
+    },
+    {
+      "source": "tests/browser-headless-simulation.test.ts",
+      "target": "tests/fixtures/knowledge-patch.json",
+      "type": "static_import"
+    },
+    {
+      "source": "tests/browser-headless-simulation.test.ts",
+      "target": "src/types.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "tests/semantic-world.test.ts",
+      "target": "src/generated/semantic-world.json",
+      "type": "static_import"
+    },
+    {
+      "source": "tests/semantic-world.test.ts",
+      "target": "src/generated/self-architecture.json",
+      "type": "static_import"
+    },
+    {
+      "source": "tests/semantic-world.test.ts",
+      "target": "tests/fixtures/knowledge-patch.json",
+      "type": "static_import"
+    },
+    {
+      "source": "tests/semantic-world.test.ts",
+      "target": "src/mutation/MutationManager.ts",
+      "type": "static_import"
+    },
+    {
+      "source": "tests/semantic-world.test.ts",
+      "target": "src/types.ts",
+      "type": "static_import"
+    }
+  ]
+}
