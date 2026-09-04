@@ -322,6 +322,21 @@ export class MnemonicEngine {
       if (gyro) gyro.rotation.x = time * 1.5;
     }
 
+    // Diegetic Proximity Zone Triggers:
+    // 1. Walking into Central Shaft (0, 0) physically descends player down into the Machine Underworld
+    const dDescent = Math.hypot(this.player.position.x, this.player.position.z);
+    if (!this.player.isFreeFlight && dDescent < 6 && this.player.position.y > -15) {
+      this.soundscapes.playPulseTone(110, 0.5);
+      this.player.teleport(new THREE.Vector3(0, -38, 14), new THREE.Vector3(0, -35, 0));
+      this.dispatchRuntimeEvent({ type: 'MOVE', velocity: 10 });
+    }
+
+    // 2. Climbing the Celestial Spire apex (0, -105) lifts the player into Orbital Macrocosm mode
+    const dSpire = Math.hypot(this.player.position.x - 0, this.player.position.z - (-105));
+    if (!this.graphRenderer.isVisible && dSpire < 8 && this.player.position.y > 45) {
+      this.ui.events.onOrbitalToggle?.(true);
+    }
+
     // Update subterranean machine conduits
     this.machineCity.update(time);
 
