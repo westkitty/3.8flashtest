@@ -301,26 +301,28 @@ export class MnemonicEngine {
     // Update weather
     this.weather.update(dt);
 
-    // Update kinetic landmark animations
+    // Update kinetic landmark animations (respects quality reduced motion setting)
     const time = now * 0.001;
-    for (const landmark of this.landmarks.values()) {
-      const ring1 = landmark.getObjectByName('rotating_ring_1');
-      if (ring1) ring1.rotation.z = time * 0.6;
-      const ring2 = landmark.getObjectByName('rotating_ring_2');
-      if (ring2) ring2.rotation.x = time * 0.4;
-      const kineticCore = landmark.getObjectByName('kinetic_core');
-      if (kineticCore) kineticCore.rotation.y = time * 0.8;
-      const katamariSphere = landmark.getObjectByName('katamari_sphere');
-      if (katamariSphere) katamariSphere.rotation.y = time * 1.2;
-      const crown = landmark.getObjectByName('arcane_crown');
-      if (crown) {
-        crown.rotation.y = time * 0.9;
-        crown.position.y = 17 + Math.sin(time * 2) * 0.5;
+    if (!this.rendererHost.quality.reducedMotion) {
+      for (const landmark of this.landmarks.values()) {
+        const ring1 = landmark.getObjectByName('rotating_ring_1');
+        if (ring1) ring1.rotation.z = time * 0.6;
+        const ring2 = landmark.getObjectByName('rotating_ring_2');
+        if (ring2) ring2.rotation.x = time * 0.4;
+        const kineticCore = landmark.getObjectByName('kinetic_core');
+        if (kineticCore) kineticCore.rotation.y = time * 0.8;
+        const katamariSphere = landmark.getObjectByName('katamari_sphere');
+        if (katamariSphere) katamariSphere.rotation.y = time * 1.2;
+        const crown = landmark.getObjectByName('arcane_crown');
+        if (crown) {
+          crown.rotation.y = time * 0.9;
+          crown.position.y = 17 + Math.sin(time * 2) * 0.5;
+        }
+        const scaleBeam = landmark.getObjectByName('scale_beam');
+        if (scaleBeam) scaleBeam.rotation.z = Math.sin(time * 1.5) * 0.08;
+        const gyro = landmark.getObjectByName('gyro_ring_1');
+        if (gyro) gyro.rotation.x = time * 1.5;
       }
-      const scaleBeam = landmark.getObjectByName('scale_beam');
-      if (scaleBeam) scaleBeam.rotation.z = Math.sin(time * 1.5) * 0.08;
-      const gyro = landmark.getObjectByName('gyro_ring_1');
-      if (gyro) gyro.rotation.x = time * 1.5;
     }
 
     // Diegetic Proximity Zone Triggers:

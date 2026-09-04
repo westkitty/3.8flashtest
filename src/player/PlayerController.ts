@@ -41,7 +41,11 @@ export class PlayerController {
   private bindEvents() {
     this.domElement.addEventListener('click', () => {
       if (!this.isLocked) {
-        this.domElement.requestPointerLock?.();
+        try {
+          this.domElement.requestPointerLock?.();
+        } catch {
+          // Graceful fallback when pointer lock is unavailable or rejected
+        }
       }
     });
 
