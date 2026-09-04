@@ -396,5 +396,22 @@ export class Terrain {
     }
 
     this.group.add(dogGroup);
+
+    // Diegetic Physical Footpath linking Trans-Domain Causeway (0, 4, 15) to Sanctuary dais ([-38, y, 38])
+    const pathMat = new THREE.MeshStandardMaterial({ color: 0x242733, roughness: 0.8, metalness: 0.2 });
+    const stepCount = 18;
+    const startX = 0, startZ = 15;
+    const endX = s.position[0], endZ = s.position[2];
+
+    for (let i = 1; i < stepCount; i++) {
+      const t = i / stepCount;
+      const px = startX + (endX - startX) * t;
+      const pz = startZ + (endZ - startZ) * t;
+      const py = this.getHeightAt(px, pz) + 0.15;
+      const step = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.3, 2.4), pathMat);
+      step.position.set(px, py, pz);
+      step.rotation.y = Math.atan2(endX - startX, endZ - startZ);
+      this.group.add(step);
+    }
   }
 }
