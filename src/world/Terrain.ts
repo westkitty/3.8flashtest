@@ -152,14 +152,45 @@ export class Terrain {
 
   // 3 World-Class Megastructures with Architectural Depth & Skyline
   private buildMegastructures() {
-    // 0. Celestial Horizon Sphere / Starfield Dome (Deep sky gradient with astronomical rings)
+    // 0. Celestial Horizon Sphere & Distant Mountain Silhouettes (Deep astronomical gradient)
     const skyGeo = new THREE.SphereGeometry(380, 32, 24);
     const skyMat = new THREE.MeshBasicMaterial({
-      color: 0x070c1a,
+      color: 0x060a17,
       side: THREE.BackSide
     });
     const skyDome = new THREE.Mesh(skyGeo, skyMat);
     this.group.add(skyDome);
+
+    // Distant Star Constellation Points across the dome
+    const starCount = 600;
+    const starGeo = new THREE.BufferGeometry();
+    const starPos = new Float32Array(starCount * 3);
+    for (let i = 0; i < starCount; i++) {
+      const u = Math.random();
+      const v = Math.random();
+      const theta = u * 2.0 * Math.PI;
+      const phi = Math.acos(2.0 * v - 1.0);
+      const r = 370;
+      starPos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+      starPos[i * 3 + 1] = Math.abs(r * Math.cos(phi)) + 15; // Above horizon
+      starPos[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta);
+    }
+    starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+    const starMat = new THREE.PointsMaterial({ color: 0x93c5fd, size: 1.4, transparent: true, opacity: 0.85 });
+    const starField = new THREE.Points(starGeo, starMat);
+    this.group.add(starField);
+
+    // Distant Mountain Ranges girding the outer perimeter (220m radius)
+    const mountainMat = new THREE.MeshStandardMaterial({ color: 0x050914, roughness: 0.9, metalness: 0.2 });
+    for (let i = 0; i < 28; i++) {
+      const angle = (i / 28) * Math.PI * 2;
+      const dist = 210 + (i % 3) * 15;
+      const peakH = 45 + (i % 4) * 20;
+      const peakR = 25 + (i % 3) * 12;
+      const mountain = new THREE.Mesh(new THREE.ConeGeometry(peakR, peakH, 5), mountainMat);
+      mountain.position.set(Math.cos(angle) * dist, peakH / 2 - 10, Math.sin(angle) * dist);
+      this.group.add(mountain);
+    }
 
     // Distant Celestial Horizon Ring (Tilted orbital ring girding the world)
     const horizonRingMat = new THREE.MeshBasicMaterial({ color: 0x1e293b, wireframe: true, transparent: true, opacity: 0.4 });
